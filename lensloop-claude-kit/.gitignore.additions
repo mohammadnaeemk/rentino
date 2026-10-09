@@ -1,0 +1,4 @@
+# Append these lines to the project's .gitignore (bootstrap does it automatically)
+.claude/tmp/
+.claude/settings.local.json
+.data/
