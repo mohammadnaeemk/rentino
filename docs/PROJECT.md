@@ -30,7 +30,11 @@ bikes, cameras, and other equipment — all under one extensible "listing"
    bar never breaks.
 
 ## Source of truth
-- This file + `docs/CONVENTIONS.md` are the persistent project memory.
-- Category-specific logic (car vs. house vs. bike vs. camera) should stay
+- `docs/PROJECT.md` (this file) — product goals & AI-search spec.
+- `docs/CONVENTIONS.md` — stack, directory map, coding rules.
+- `docs/DOMAIN.md` — data model (Gear, RentalOrder, Payment, roles).
+- `docs/ARCHITECTURE.md` — verified architecture & known gaps.
+- `docs/STATUS.md` — implemented vs. planned.
+- Category-specific logic (car vs. house vs. bike vs. camera) stays
   data-driven (`Category` + `specifications` JSON on `Gear`) rather than
   hardcoded per-category branching, so new categories don't need code changes.

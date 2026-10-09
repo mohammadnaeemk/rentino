@@ -25,7 +25,9 @@ shadcn/ui (`new-york` style, see `components.json`), Radix UI, React Hook Form
 
 ## Conventions to follow
 - Backend base URL: `process.env.NEXT_PUBLIC_API_URL` (fallback
-  `http://localhost:8000/api`). Don't invent a second env var name.
+  `http://localhost:8000/api`). This is the only backend URL env var — a legacy
+  `NEXT_PUBLIC_BACKEND_API_URL` is still read first by `src/app/page.tsx` and
+  should be normalized back to `NEXT_PUBLIC_API_URL`.
 - New domain types go in `src/types/index.ts`; new validation schemas go in
   `src/lib/validations.ts`; keep both files flat (no barrels per-feature).
 - Server Components do SSR fetches directly with `fetch(..., { cache: "no-store" })`
@@ -43,5 +45,7 @@ shadcn/ui (`new-york` style, see `components.json`), Radix UI, React Hook Form
 - `npm run lint` must pass (flat ESLint config: `eslint-config-next` core-web-vitals + typescript).
 - `npm run build` must succeed for any App Router change (route conflicts,
   type errors across `.next/types` are caught at build time, not lint time).
-- New logic (lib functions, API mapping, AI-search parsing) needs a Vitest
-  unit test — see `.claude/skills/writing-vitest-tests/SKILL.md`.
+
+There is currently **no test runner** installed (no Vitest, no `npm test`), so
+no test gate applies yet. When a runner is added, tests for lib functions and
+AI-search parsing become required — see `docs/STATUS.md`.
