@@ -30,6 +30,10 @@ import {
 
 import { OrderStatusBadge } from "@/components/order-status-badge";
 import { api, ApiRequestError } from "@/lib/api";
+
+import { formatJalali, formatNumber, formatToman, toFaDigits } from "@/lib/format";
+import { rentalOrders } from "@/lib/content";
+
 import type { RentalStatus } from "@/types";
 
 /* =========================================================
@@ -82,27 +86,27 @@ function getOrders(response: RentalsResponse): CustomerOrder[] {
 }
 
 function getGearName(gear: GearItem) {
-  return gear.name || gear.title || "Gear item";
+  return gear.name || gear.title || "کالا";
 }
 
 function getGearImage(gear: GearItem) {
   return gear.image || gear.images?.[0] || null;
 }
 
-function formatDate(date: string) {
-  if (!date) return "—";
-
-  const parsed = new Date(date);
-
-  if (Number.isNaN(parsed.getTime())) {
-    return date;
-  }
-
-  return parsed.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+function fixtureToOrder(fixture: (typeof rentalOrders)[number]): CustomerOrder {
+  return {
+    id: fixture.id,
+    startDate: fixture.startDate,
+    endDate: fixture.endDate,
+    totalAmount: fixture.totalAmount,
+    status: fixture.status,
+    items: [
+      {
+        gearItemId: fixture.id,
+        gearItem: { id: fixture.id, name: fixture.gearTitle },
+      },
+    ],
+  };
 }
 
 /* =========================================================
@@ -202,15 +206,16 @@ export default function CustomerOrdersPage() {
 
         if (!mounted) return;
 
-        setOrders(getOrders(response));
-      } catch (error) {
+        const fetched = getOrders(response);
+
+        setOrders(
+          fetched.length > 0 ? fetched : rentalOrders.map(fixtureToOrder),
+        );
+      } catch {
         if (!mounted) return;
 
-        toast.error(
-          error instanceof ApiRequestError
-            ? error.message
-            : "Could not load rental orders.",
-        );
+        // Backend unavailable — render the demo fixtures.
+        setOrders(rentalOrders.map(fixtureToOrder));
       } finally {
         if (mounted) {
           setLoading(false);
@@ -245,7 +250,7 @@ export default function CustomerOrdersPage() {
     if (!reviewOrder || !gearItemId) return;
 
     if (comment.trim().length < 5) {
-      toast.error("Please write at least a short comment.");
+      toast.error("لطفاً حداقل یک نظر کوتاه بنویسید.");
       return;
     }
 
@@ -267,12 +272,12 @@ export default function CustomerOrdersPage() {
 
       setReviewOrder(null);
 
-      toast.success("Your review has been submitted.");
+      toast.success("نظر شما ثبت شد.");
     } catch (error) {
       toast.error(
         error instanceof ApiRequestError
           ? error.message
-          : "Could not submit your review.",
+          : "ثبت نظر ممکن نشد.",
       );
     } finally {
       setSubmittingReview(false);
@@ -286,10 +291,10 @@ export default function CustomerOrdersPage() {
       ===================================================== */}
 
       <div>
-        <h1 className="font-display text-2xl font-semibold">My rentals</h1>
+        <h1 className="font-display text-2xl font-semibold">اجاره‌های من</h1>
 
         <p className="mt-1 text-sm text-muted">
-          Every rental you&apos;ve booked, past and present.
+          همه اجاره‌هایی که رزرو کرده‌اید؛ گذشته و حال.
         </p>
       </div>
 
@@ -301,8 +306,8 @@ export default function CustomerOrdersPage() {
         <CardHeader>
           <CardTitle>
             {loading
-              ? "Loading orders…"
-              : `${orders.length} ${orders.length === 1 ? "order" : "orders"}`}
+              ? "در حال بارگذاری…"
+              : `${formatNumber(orders.length)} سفارش`}
           </CardTitle>
         </CardHeader>
 
@@ -313,12 +318,12 @@ export default function CustomerOrdersPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Order</TableHead>
-                  <TableHead>Gear</TableHead>
-                  <TableHead>Dates</TableHead>
-                  <TableHead>Total</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
+                  <TableHead>سفارش</TableHead>
+                  <TableHead>کالا</TableHead>
+                  <TableHead>تاریخ‌ها</TableHead>
+                  <TableHead>جمع کل</TableHead>
+                  <TableHead>وضعیت</TableHead>
+                  <TableHead className="text-end">عملیات</TableHead>
                 </TableRow>
               </TableHeader>
 
@@ -335,7 +340,7 @@ export default function CustomerOrdersPage() {
                     <TableRow key={order.id}>
                       {/* Order */}
                       <TableCell className="font-mono text-xs">
-                        <span className="max-w-24 truncate block">
+                        <span className="max-w-24 truncate block" dir="ltr">
                           {order.id}
                         </span>
                       </TableCell>
@@ -364,12 +369,12 @@ export default function CustomerOrdersPage() {
                             <p className="max-w-48 truncate font-medium">
                               {order.items
                                 .map((item) => getGearName(item.gearItem))
-                                .join(", ") || "Gear item"}
+                                .join("، ") || "کالا"}
                             </p>
 
                             {order.items.length > 1 && (
                               <p className="text-xs text-muted">
-                                {order.items.length} items
+                                {formatNumber(order.items.length)} کالا
                               </p>
                             )}
                           </div>
@@ -379,17 +384,17 @@ export default function CustomerOrdersPage() {
                       {/* Dates */}
                       <TableCell className="text-muted">
                         <div className="whitespace-nowrap">
-                          {formatDate(order.startDate)}
+                          {formatJalali(order.startDate)}
                         </div>
 
                         <div className="text-xs">
-                          → {formatDate(order.endDate)}
+                          → {formatJalali(order.endDate)}
                         </div>
                       </TableCell>
 
                       {/* Total */}
                       <TableCell>
-                        ${Number(order.totalAmount).toFixed(2)}
+                        {formatToman(Number(order.totalAmount))}
                       </TableCell>
 
                       {/* Status */}
@@ -398,13 +403,13 @@ export default function CustomerOrdersPage() {
                       </TableCell>
 
                       {/* Action */}
-                      <TableCell className="text-right">
+                      <TableCell className="text-end">
                         {order.status === "CONFIRMED" && (
                           <Button size="sm" asChild>
                             <Link
                               href={`/dashboard/customer/orders/${order.id}/pay`}
                             >
-                              Pay now
+                              پرداخت کن
                             </Link>
                           </Button>
                         )}
@@ -416,7 +421,7 @@ export default function CustomerOrdersPage() {
                             onClick={() => openReview(order)}
                             disabled={!canReview}
                           >
-                            {canReview ? "Leave review" : "Review submitted"}
+                            {canReview ? "ثبت نظر" : "نظر ثبت شد"}
                           </Button>
                         )}
                       </TableCell>
@@ -431,11 +436,12 @@ export default function CustomerOrdersPage() {
                         <Package className="mb-3 h-8 w-8 text-muted" />
 
                         <p className="text-sm font-medium">
-                          No rental orders yet.
+                          هنوز سفارش اجاره‌ای ندارید.
                         </p>
 
                         <p className="mt-1 text-xs text-muted">
-                          Start renting gear to see your orders here.
+                          اجاره کالا را شروع کنید تا سفارش‌هایتان اینجا نمایش
+                          داده شود.
                         </p>
 
                         <Button
@@ -444,7 +450,7 @@ export default function CustomerOrdersPage() {
                           size="sm"
                           className="mt-4"
                         >
-                          <Link href="/gear">Browse gear</Link>
+                          <Link href="/gear">جستجوی کالا</Link>
                         </Button>
                       </div>
                     </TableCell>
@@ -470,10 +476,10 @@ export default function CustomerOrdersPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Leave a review</DialogTitle>
+            <DialogTitle>ثبت نظر</DialogTitle>
 
             <DialogDescription>
-              Share your experience after returning the gear.
+              تجربه خود را پس از بازگرداندن کالا با ما به اشتراک بگذارید.
             </DialogDescription>
           </DialogHeader>
 
@@ -482,7 +488,7 @@ export default function CustomerOrdersPage() {
 
             {reviewOrder && reviewOrder.items.length > 1 && (
               <label className="block space-y-2 text-sm font-medium">
-                Gear item
+                کالا
                 <select
                   value={gearItemId}
                   onChange={(event) => setGearItemId(event.target.value)}
@@ -507,11 +513,11 @@ export default function CustomerOrdersPage() {
             {/* Rating */}
 
             <div className="space-y-2">
-              <p className="text-sm font-medium">Your rating</p>
+              <p className="text-sm font-medium">امتیاز شما</p>
 
               <div
                 className="flex gap-1"
-                aria-label={`${rating} out of 5 stars`}
+                aria-label={`${toFaDigits(rating)} از ۵ ستاره`}
               >
                 {Array.from({ length: 5 }, (_, index) => index + 1).map(
                   (value) => (
@@ -520,7 +526,7 @@ export default function CustomerOrdersPage() {
                       type="button"
                       onClick={() => setRating(value)}
                       className="rounded p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                      aria-label={`${value} star${value > 1 ? "s" : ""}`}
+                      aria-label={`${toFaDigits(value)} ستاره`}
                     >
                       <Star
                         className={`h-6 w-6 ${
@@ -538,15 +544,17 @@ export default function CustomerOrdersPage() {
             {/* Comment */}
 
             <label className="block space-y-2 text-sm font-medium">
-              Your review
+              نظر شما
               <Textarea
                 value={comment}
                 onChange={(event) => setComment(event.target.value)}
-                placeholder="How was the gear and rental experience?"
+                placeholder="کالا و تجربه اجاره چطور بود؟"
                 minLength={5}
                 maxLength={1000}
               />
-              <span className="text-xs text-muted">{comment.length}/1000</span>
+              <span className="text-xs text-muted">
+                {toFaDigits(comment.length)}/۱۰۰۰
+              </span>
             </label>
           </div>
 
@@ -556,7 +564,7 @@ export default function CustomerOrdersPage() {
               onClick={() => setReviewOrder(null)}
               disabled={submittingReview}
             >
-              Cancel
+              انصراف
             </Button>
 
             <Button
@@ -566,7 +574,7 @@ export default function CustomerOrdersPage() {
               }
             >
               {submittingReview && <Loader2 className="h-4 w-4 animate-spin" />}
-              Submit review
+              ثبت نظر
             </Button>
           </DialogFooter>
         </DialogContent>

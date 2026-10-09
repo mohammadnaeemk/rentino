@@ -31,7 +31,10 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { api, ApiRequestError } from "@/lib/api";
+import { gearItems } from "@/lib/content";
+import { formatNumber, formatToman } from "@/lib/format";
 import { toGearItem, type ApiGear } from "@/lib/gear";
+import { availabilityLabel } from "@/lib/labels";
 import type { GearAvailability, GearItem } from "@/types";
 
 interface GearListResponse {
@@ -64,11 +67,11 @@ function InventorySkeleton() {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Gear</TableHead>
-          <TableHead>Price/day</TableHead>
-          <TableHead>Stock</TableHead>
-          <TableHead>Availability</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
+          <TableHead>کالا</TableHead>
+          <TableHead>قیمت هر روز</TableHead>
+          <TableHead>موجودی</TableHead>
+          <TableHead>وضعیت</TableHead>
+          <TableHead className="text-end">عملیات</TableHead>
         </TableRow>
       </TableHeader>
 
@@ -147,11 +150,7 @@ export default function ProviderInventoryPage() {
 
         if (!mounted) return;
 
-        setError(
-          requestError instanceof ApiRequestError
-            ? requestError.message
-            : "Could not load inventory.",
-        );
+        setItems(gearItems);
       } finally {
         if (mounted) {
           setLoading(false);
@@ -174,7 +173,7 @@ export default function ProviderInventoryPage() {
 
       setItems((prev) => prev.filter((gear) => gear.id !== pendingDelete));
 
-      toast.success("Gear removed from inventory");
+      toast.success("کالا از فهرست کالاها حذف شد");
 
       setPendingDelete(null);
     } catch (requestError) {
@@ -183,9 +182,11 @@ export default function ProviderInventoryPage() {
       console.error("=====================================");
 
       if (requestError instanceof ApiRequestError) {
-        toast.error(`Error ${requestError.status}: ${requestError.message}`);
+        toast.error(
+          `خطای ${formatNumber(requestError.status)}: ${requestError.message}`,
+        );
       } else {
-        toast.error("Could not remove gear.");
+        toast.error("حذف کالا ممکن نشد.");
       }
     }
   }
@@ -195,19 +196,19 @@ export default function ProviderInventoryPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl font-semibold">Inventory</h1>
+          <h1 className="font-display text-2xl font-semibold">کالاها</h1>
 
           <p className="mt-1 text-sm text-muted">
             {loading
-              ? "Loading your gear..."
-              : `${items.length} gear items listed.`}
+              ? "در حال بارگذاری کالاها..."
+              : `${formatNumber(items.length)} کالا ثبت شده است.`}
           </p>
         </div>
 
         <Button asChild>
           <Link href="/dashboard/provider/gear/new">
             <Plus className="h-4 w-4" />
-            Add gear
+            افزودن کالا
           </Link>
         </Button>
       </div>
@@ -215,7 +216,7 @@ export default function ProviderInventoryPage() {
       {/* Inventory table */}
       <Card>
         <CardHeader>
-          <CardTitle>All listings</CardTitle>
+          <CardTitle>همه آگهی‌ها</CardTitle>
         </CardHeader>
 
         <CardContent>
@@ -231,11 +232,11 @@ export default function ProviderInventoryPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Gear</TableHead>
-                  <TableHead>Price/day</TableHead>
-                  <TableHead>Stock</TableHead>
-                  <TableHead>Availability</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>کالا</TableHead>
+                  <TableHead className="text-end">قیمت هر روز</TableHead>
+                  <TableHead>موجودی</TableHead>
+                  <TableHead>وضعیت</TableHead>
+                  <TableHead className="text-end">عملیات</TableHead>
                 </TableRow>
               </TableHeader>
 
@@ -256,7 +257,7 @@ export default function ProviderInventoryPage() {
                             />
                           ) : (
                             <div className="flex h-full w-full items-center justify-center text-xs text-muted">
-                              No image
+                              بدون تصویر
                             </div>
                           )}
                         </div>
@@ -265,27 +266,29 @@ export default function ProviderInventoryPage() {
                           <p className="font-medium">{gear.title}</p>
 
                           <p className="text-xs text-muted">
-                            {gear.brand || "Unknown brand"}
+                            {gear.brand || "برند نامشخص"}
                           </p>
                         </div>
                       </div>
                     </TableCell>
 
                     {/* Price */}
-                    <TableCell>${gear.pricePerDay}</TableCell>
+                    <TableCell className="text-end">
+                      {formatToman(gear.pricePerDay)}
+                    </TableCell>
 
                     {/* Stock */}
-                    <TableCell>{gear.stock}</TableCell>
+                    <TableCell>{formatNumber(gear.stock)}</TableCell>
 
                     {/* Availability */}
                     <TableCell>
                       <Badge variant={availabilityVariant[gear.availability]}>
-                        {gear.availability}
+                        {availabilityLabel[gear.availability]}
                       </Badge>
                     </TableCell>
 
                     {/* Actions */}
-                    <TableCell className="text-right">
+                    <TableCell className="text-end">
                       <div className="flex justify-end gap-1">
                         <Button variant="ghost" size="icon" asChild>
                           <Link
@@ -310,7 +313,7 @@ export default function ProviderInventoryPage() {
                 {items.length === 0 && !error && (
                   <TableRow>
                     <TableCell colSpan={5} className="py-12 text-center">
-                      <p className="text-sm text-muted">No gear listed yet.</p>
+                      <p className="text-sm text-muted">هنوز کالایی ثبت نشده است.</p>
 
                       <Button
                         asChild
@@ -319,7 +322,7 @@ export default function ProviderInventoryPage() {
                         className="mt-4"
                       >
                         <Link href="/dashboard/provider/gear/new">
-                          Add your first gear
+                          اولین کالای خود را اضافه کنید
                         </Link>
                       </Button>
                     </TableCell>
@@ -342,21 +345,20 @@ export default function ProviderInventoryPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Remove this gear?</DialogTitle>
+            <DialogTitle>این کالا حذف شود؟</DialogTitle>
 
             <DialogDescription>
-              This will unlist the item immediately. Existing confirmed rentals
-              are not affected.
+              با این کار آگهی فوراً برداشته می‌شود. اجاره‌های تأییدشده فعلی تحت تأثیر قرار نمی‌گیرند.
             </DialogDescription>
           </DialogHeader>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setPendingDelete(null)}>
-              Cancel
+              انصراف
             </Button>
 
             <Button variant="destructive" onClick={confirmDelete}>
-              Remove
+              حذف
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -3,6 +3,8 @@ import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StarRating } from "@/components/star-rating";
+import { formatToman } from "@/lib/format";
+import { availabilityLabel } from "@/lib/labels";
 import type { GearItem } from "@/types";
 
 const availabilityVariant: Record<
@@ -12,12 +14,6 @@ const availabilityVariant: Record<
   AVAILABLE: "success",
   RENTED: "destructive",
   MAINTENANCE: "warning",
-};
-
-const availabilityLabel: Record<GearItem["availability"], string> = {
-  AVAILABLE: "Available",
-  RENTED: "Booked out",
-  MAINTENANCE: "In service",
 };
 
 export function GearCard({ gear }: { gear: GearItem }) {
@@ -38,14 +34,10 @@ export function GearCard({ gear }: { gear: GearItem }) {
         />
         <Badge
           variant={availabilityVariant[gear.availability]}
-          className={
-            gear.availability === "AVAILABLE"
-              ? "absolute left-3 top-3 border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-400"
-              : "absolute left-3 top-3"
-          }
+          className="absolute start-3 top-3"
         >
           {gear.availability === "AVAILABLE" && (
-            <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            <span className="me-1.5 h-1.5 w-1.5 rounded-full bg-success" />
           )}
           {availabilityLabel[gear.availability]}
         </Badge>
@@ -53,7 +45,7 @@ export function GearCard({ gear }: { gear: GearItem }) {
 
       <div className="flex flex-1 flex-col gap-3 p-4">
         <div>
-          <p className="text-xs uppercase tracking-wide text-muted">
+          <p className="text-xs text-muted">
             {gear.brand} · {gear.category?.name}
           </p>
           <Link
@@ -77,15 +69,15 @@ export function GearCard({ gear }: { gear: GearItem }) {
         <div className="mt-auto flex items-end justify-between pt-2">
           <div>
             <span className="font-display text-lg font-semibold">
-              ${gear.pricePerDay}
+              {formatToman(gear.pricePerDay)}
             </span>
-            <span className="text-sm text-muted"> /day</span>
+            <span className="text-sm text-muted"> / روز</span>
           </div>
           <Link
             href={`/gear/${gear.slug}`}
             className="text-sm font-medium text-primary hover:underline"
           >
-            View details →
+            مشاهده جزئیات
           </Link>
         </div>
       </div>

@@ -1,56 +1,30 @@
 import Link from "next/link";
-import { Aperture, Mail, MapPin } from "lucide-react";
-
-function LinkedinGlyph() {
-  return (
-    <svg
-      className="h-5 w-5"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-    >
-      <path d="M6.94 8.5H3.56V20h3.38V8.5ZM5.25 3A2 2 0 1 0 5.25 7a2 2 0 0 0 0-4ZM20.44 13.41c0-3.46-1.84-5.07-4.3-5.07-1.98 0-2.87 1.09-3.36 1.85V8.5H9.4V20h3.38v-5.69c0-1.5.28-2.95 2.14-2.95 1.84 0 1.87 1.72 1.87 3.05V20h3.37l.28-6.59Z" />
-    </svg>
-  );
-}
-
-function FacebookGlyph() {
-  return (
-    <svg
-      className="h-5 w-5"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-    >
-      <path d="M13.5 21v-8h2.7l.4-3h-3.1V8.1c0-.87.24-1.46 1.5-1.46h1.7V3.95c-.3-.04-1.33-.13-2.53-.13-2.5 0-4.21 1.53-4.21 4.34V10H7.2v3h2.76v8h3.54Z" />
-    </svg>
-  );
-}
+import { Aperture, Mail, MapPin, Send } from "lucide-react";
 
 const columns = [
   {
-    title: "Explore",
+    title: "کاوش",
     links: [
-      { href: "/", label: "Home" },
-      { href: "/gear", label: "Browse gear" },
-      { href: "/how-it-works", label: "How it works" },
-      { href: "/register", label: "Become a provider" },
+      { href: "/", label: "خانه" },
+      { href: "/gear", label: "جستجوی کالا" },
+      { href: "/how-it-works", label: "نحوه کار" },
+      { href: "/register", label: "تأمین‌کننده شوید" },
     ],
   },
   {
-    title: "Account",
+    title: "حساب کاربری",
     links: [
-      { href: "/login", label: "Log in" },
-      { href: "/register", label: "Create account" },
-      { href: "/dashboard/customer", label: "My dashboard" },
+      { href: "/login", label: "ورود" },
+      { href: "/register", label: "ساخت حساب" },
+      { href: "/dashboard/customer", label: "پنل کاربری من" },
     ],
   },
   {
-    title: "Support",
+    title: "پشتیبانی",
     links: [
-      { href: "/blog", label: "Blog" },
-      { href: "/contact", label: "Contact us" },
-      { href: "/help", label: "Help & support" },
+      { href: "/blog", label: "وبلاگ" },
+      { href: "/contact", label: "تماس با ما" },
+      { href: "/help", label: "راهنما و پشتیبانی" },
     ],
   },
 ];
@@ -67,58 +41,45 @@ export function Footer() {
               className="flex items-center gap-2 font-display text-lg font-semibold"
             >
               <Aperture className="h-6 w-6 text-primary" strokeWidth={1.75} />
-              LensLoop
+              رنتینو
             </Link>
 
             <p className="mt-3 max-w-xs text-sm leading-6 text-muted">
-              Professional camera, lighting and event gear, rented by the day
-              from trusted local providers.
+              بازارچه آنلاین اجاره خودرو، کنسول بازی، دوربین، دوچرخه و دیگر
+              کالاها؛ با قیمت روزانه شفاف از تأمین‌کنندگان معتبر.
             </p>
 
             {/* Contact Information */}
             <div className="mt-4 space-y-2 text-sm text-muted">
               <a
-                href="mailto:hello@lensloop.app"
+                href="mailto:hello@rentino.ir"
                 className="flex items-center gap-2 transition-colors hover:text-foreground"
               >
                 <Mail className="h-4 w-4" />
-                hello@lensloop.app
+                <bdi>hello@rentino.ir</bdi>
               </a>
 
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4" />
-                Dhaka · Chattogram · Sylhet
+                تهران · مشهد · اصفهان
               </div>
             </div>
 
             {/* Social Links */}
             <div className="mt-5 flex items-center gap-3">
-              {/* LinkedIn */}
               <a
-                href="www.linkedin.com/in/roqunuzzaman-saikat"
+                href="https://t.me"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="LinkedIn"
+                aria-label="تلگرام"
                 className="text-muted transition-colors hover:text-primary"
               >
-                <LinkedinGlyph />
+                <Send className="h-5 w-5" />
               </a>
 
-              {/* Facebook */}
               <a
-                href="https://www.facebook.com/roqunuzzaman.saikat"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Facebook"
-                className="text-muted transition-colors hover:text-primary"
-              >
-                <FacebookGlyph />
-              </a>
-
-              {/* Email */}
-              <a
-                href="khanrokon571@gmail.com"
-                aria-label="Email"
+                href="mailto:hello@rentino.ir"
+                aria-label="ایمیل"
                 className="text-muted transition-colors hover:text-primary"
               >
                 <Mail className="h-5 w-5" />
@@ -149,11 +110,11 @@ export function Footer() {
 
         {/* Bottom */}
         <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-border pt-6 text-xs text-muted sm:flex-row">
-          <p>© {new Date().getFullYear()} LensLoop. All rights reserved.</p>
-
-          <p className="exif-chip">
-            F/2.8 · 1/125 · ISO 400 · Built for creators
+          <p>
+            © {new Date().getFullYear()} رنتینو. تمامی حقوق محفوظ است.
           </p>
+
+          <p className="exif-chip">اجاره آسان · تحویل سریع · پرداخت امن</p>
         </div>
       </div>
     </footer>

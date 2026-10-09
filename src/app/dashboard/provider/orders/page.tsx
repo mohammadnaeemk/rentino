@@ -20,6 +20,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { OrderStatusBadge } from "@/components/order-status-badge";
 
 import { api, ApiRequestError } from "@/lib/api";
+import { rentalOrders } from "@/lib/content";
+import { formatJalaliRange, formatNumber, formatToman } from "@/lib/format";
 import type { RentalStatus } from "@/types";
 
 /* =========================================================
@@ -105,17 +107,17 @@ const nextAction: Partial<
   Record<RentalStatus, { label: string; next: RentalStatus }>
 > = {
   PLACED: {
-    label: "Confirm",
+    label: "تأیید",
     next: "CONFIRMED",
   },
 
   PAID: {
-    label: "Mark picked up",
+    label: "ثبت تحویل",
     next: "PICKED_UP",
   },
 
   PICKED_UP: {
-    label: "Mark returned",
+    label: "ثبت بازگشت",
     next: "RETURNED",
   },
 };
@@ -207,7 +209,7 @@ function getGearTitle(order: ApiProviderOrder): string {
     return names.join(", ");
   }
 
-  return "Gear item";
+  return "کالا";
 }
 
 function getCustomerName(order: ApiProviderOrder): string {
@@ -217,7 +219,7 @@ function getCustomerName(order: ApiProviderOrder): string {
     order.user?.name ??
     order.customer?.email ??
     order.user?.email ??
-    "Customer"
+    "مشتری"
   );
 }
 
@@ -239,24 +241,6 @@ function normalizeOrder(order: ApiProviderOrder): ProviderOrder {
   };
 }
 
-function formatDate(date: string): string {
-  if (!date) {
-    return "—";
-  }
-
-  const parsed = new Date(date);
-
-  if (Number.isNaN(parsed.getTime())) {
-    return date;
-  }
-
-  return parsed.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
 /* =========================================================
    LOADING SKELETON
 ========================================================= */
@@ -274,13 +258,13 @@ function ProviderOrdersSkeleton() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Order</TableHead>
-              <TableHead>Gear</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Dates</TableHead>
-              <TableHead>Total</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Action</TableHead>
+              <TableHead>سفارش</TableHead>
+              <TableHead>کالا</TableHead>
+              <TableHead>مشتری</TableHead>
+              <TableHead>تاریخ‌ها</TableHead>
+              <TableHead>جمع کل</TableHead>
+              <TableHead>وضعیت</TableHead>
+              <TableHead className="text-end">اقدام</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -368,13 +352,7 @@ export default function ProviderOrdersPage() {
           return;
         }
 
-        toast.error(
-          error instanceof ApiRequestError
-            ? error.message
-            : "Could not load orders.",
-        );
-
-        setOrders([]);
+        setOrders(rentalOrders);
       } finally {
         if (mounted) {
           setLoading(false);
@@ -422,14 +400,14 @@ export default function ProviderOrdersPage() {
         ),
       );
 
-      toast.success("Order updated successfully.");
+      toast.success("سفارش با موفقیت به‌روز شد.");
     } catch (error) {
       console.error("Order update error:", error);
 
       toast.error(
         error instanceof ApiRequestError
           ? error.message
-          : "Could not update order.",
+          : "به‌روزرسانی سفارش ممکن نشد.",
       );
     }
   }
@@ -443,10 +421,10 @@ export default function ProviderOrdersPage() {
       {/* HEADER */}
 
       <div>
-        <h1 className="font-display text-2xl font-semibold">Incoming orders</h1>
+        <h1 className="font-display text-2xl font-semibold">سفارش‌های ورودی</h1>
 
         <p className="mt-1 text-sm text-muted">
-          Confirm bookings and update status as gear moves.
+          رزروها را تأیید کنید و وضعیت را هم‌گام با جابه‌جایی کالا به‌روز کنید.
         </p>
       </div>
 
@@ -458,9 +436,9 @@ export default function ProviderOrdersPage() {
         <Card>
           <CardHeader>
             <CardTitle>
-              All orders
-              <span className="ml-2 text-sm font-normal text-muted">
-                ({orders.length})
+              همه سفارش‌ها
+              <span className="ms-2 text-sm font-normal text-muted">
+                ({formatNumber(orders.length)})
               </span>
             </CardTitle>
           </CardHeader>
@@ -470,19 +448,19 @@ export default function ProviderOrdersPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Order</TableHead>
+                    <TableHead>سفارش</TableHead>
 
-                    <TableHead>Gear</TableHead>
+                    <TableHead>کالا</TableHead>
 
-                    <TableHead>Customer</TableHead>
+                    <TableHead>مشتری</TableHead>
 
-                    <TableHead>Dates</TableHead>
+                    <TableHead>تاریخ‌ها</TableHead>
 
-                    <TableHead>Total</TableHead>
+                    <TableHead className="text-end">جمع کل</TableHead>
 
-                    <TableHead>Status</TableHead>
+                    <TableHead>وضعیت</TableHead>
 
-                    <TableHead className="text-right">Action</TableHead>
+                    <TableHead className="text-end">اقدام</TableHead>
                   </TableRow>
                 </TableHeader>
 
@@ -498,7 +476,8 @@ export default function ProviderOrdersPage() {
 
                         <TableCell className="font-mono text-xs">
                           <span
-                            className="block max-w-28 truncate"
+                            dir="ltr"
+                            className="block max-w-28 truncate text-start"
                             title={order.id}
                           >
                             {order.id}
@@ -525,17 +504,13 @@ export default function ProviderOrdersPage() {
                         {/* DATES */}
 
                         <TableCell className="whitespace-nowrap text-muted">
-                          <div>{formatDate(order.startDate)}</div>
-
-                          <div className="text-xs">
-                            → {formatDate(order.endDate)}
-                          </div>
+                          {formatJalaliRange(order.startDate, order.endDate)}
                         </TableCell>
 
                         {/* TOTAL */}
 
-                        <TableCell>
-                          ${Number(order.totalAmount).toFixed(2)}
+                        <TableCell className="text-end">
+                          {formatToman(order.totalAmount)}
                         </TableCell>
 
                         {/* STATUS */}
@@ -546,14 +521,14 @@ export default function ProviderOrdersPage() {
 
                         {/* ACTION */}
 
-                        <TableCell className="text-right">
+                        <TableCell className="text-end">
                           {action ? (
                             <Button size="sm" onClick={() => advance(order.id)}>
                               {action.label}
                             </Button>
                           ) : (
                             <span className="text-xs text-muted">
-                              No action
+                              بدون اقدام
                             </span>
                           )}
                         </TableCell>
@@ -567,10 +542,10 @@ export default function ProviderOrdersPage() {
                     <TableRow>
                       <TableCell colSpan={7} className="py-12 text-center">
                         <div className="space-y-2">
-                          <p className="font-medium">No incoming orders yet.</p>
+                          <p className="font-medium">هنوز سفارشی ثبت نشده است.</p>
 
                           <p className="text-sm text-muted">
-                            Orders from customers will appear here.
+                            سفارش‌های مشتریان اینجا نمایش داده می‌شود.
                           </p>
                         </div>
                       </TableCell>

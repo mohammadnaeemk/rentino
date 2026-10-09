@@ -2,6 +2,7 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "./button";
+import { formatNumber } from "@/lib/format";
 
 export function PaginationControls({
   page,
@@ -21,21 +22,21 @@ export function PaginationControls({
   return (
     <nav
       className="flex items-center justify-center gap-1.5"
-      aria-label="Pagination"
+      aria-label="صفحه‌بندی"
     >
       <Button
         variant="outline"
         size="icon"
         disabled={page <= 1}
         onClick={() => onPageChange(page - 1)}
-        aria-label="Previous page"
+        aria-label="صفحه قبلی"
       >
-        <ChevronLeft />
+        <ChevronLeft className="rtl:rotate-180" />
       </Button>
       {pages.map((p, i) => (
         <span key={p} className="flex items-center">
           {i > 0 && pages[i - 1] !== p - 1 && (
-            <span className="px-1 text-stone-400">…</span>
+            <span className="px-1 text-muted">…</span>
           )}
           <Button
             variant={p === page ? "default" : "outline"}
@@ -43,7 +44,7 @@ export function PaginationControls({
             onClick={() => onPageChange(p)}
             aria-current={p === page ? "page" : undefined}
           >
-            {p}
+            {formatNumber(p)}
           </Button>
         </span>
       ))}
@@ -52,9 +53,9 @@ export function PaginationControls({
         size="icon"
         disabled={page >= totalPages}
         onClick={() => onPageChange(page + 1)}
-        aria-label="Next page"
+        aria-label="صفحه بعدی"
       >
-        <ChevronRight />
+        <ChevronRight className="rtl:rotate-180" />
       </Button>
     </nav>
   );

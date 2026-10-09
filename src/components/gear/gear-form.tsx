@@ -203,7 +203,7 @@ export function GearForm({ initialGear }: GearFormProps) {
         setCategoryError(
           error instanceof ApiRequestError
             ? error.message
-            : "Categories could not be loaded.",
+            : "بارگذاری دسته‌بندی‌ها ممکن نشد.",
         );
       } finally {
         if (mounted) {
@@ -248,11 +248,11 @@ export function GearForm({ initialGear }: GearFormProps) {
       if (initialGear) {
         await api.put(`/provider/gear/${initialGear.id}`, payload);
 
-        toast.success("Gear updated successfully");
+        toast.success("کالا با موفقیت به‌روزرسانی شد");
       } else {
         await api.post("/provider/gear", payload);
 
-        toast.success("Gear added to your inventory");
+        toast.success("کالا به فهرست شما اضافه شد");
       }
 
       router.push("/dashboard/provider/gear");
@@ -262,8 +262,8 @@ export function GearForm({ initialGear }: GearFormProps) {
         error instanceof ApiRequestError
           ? error.message
           : initialGear
-            ? "Could not update gear. Try again."
-            : "Could not add gear. Try again.",
+            ? "به‌روزرسانی کالا ممکن نشد. دوباره تلاش کنید."
+            : "افزودن کالا ممکن نشد. دوباره تلاش کنید.",
       );
     }
   }
@@ -320,11 +320,11 @@ export function GearForm({ initialGear }: GearFormProps) {
             {/* Title */}
 
             <div className="space-y-1.5">
-              <Label htmlFor="title">Title</Label>
+              <Label htmlFor="title">عنوان</Label>
 
               <Input
                 id="title"
-                placeholder="Sony A7S III Mirrorless Body"
+                placeholder="مثلاً: پلی‌استیشن ۵"
                 {...register("title")}
               />
 
@@ -336,9 +336,9 @@ export function GearForm({ initialGear }: GearFormProps) {
             {/* Brand */}
 
             <div className="space-y-1.5">
-              <Label htmlFor="brand">Brand</Label>
+              <Label htmlFor="brand">برند</Label>
 
-              <Input id="brand" placeholder="Sony" {...register("brand")} />
+              <Input id="brand" placeholder="مثلاً: Sony" {...register("brand")} />
 
               {errors.brand && (
                 <p className="text-xs text-danger">{errors.brand.message}</p>
@@ -349,7 +349,7 @@ export function GearForm({ initialGear }: GearFormProps) {
           {/* Category */}
 
           <div className="space-y-1.5">
-            <Label htmlFor="categoryId">Category</Label>
+            <Label htmlFor="categoryId">دسته‌بندی</Label>
 
             <Select
               value={selectedCategory || ""}
@@ -361,7 +361,7 @@ export function GearForm({ initialGear }: GearFormProps) {
               }
             >
               <SelectTrigger id="categoryId">
-                <SelectValue placeholder="Select a category" />
+                <SelectValue placeholder="یک دسته‌بندی انتخاب کنید" />
               </SelectTrigger>
 
               <SelectContent>
@@ -385,12 +385,12 @@ export function GearForm({ initialGear }: GearFormProps) {
           {/* Description */}
 
           <div className="space-y-1.5">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">توضیحات</Label>
 
             <Textarea
               id="description"
               rows={4}
-              placeholder="Describe condition, what's included, and ideal use case..."
+              placeholder="وضعیت، اقلام همراه و کاربرد مناسب را توضیح دهید..."
               {...register("description")}
             />
 
@@ -405,12 +405,12 @@ export function GearForm({ initialGear }: GearFormProps) {
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="pricePerDay">Price per day ($)</Label>
+              <Label htmlFor="pricePerDay">قیمت هر روز (ریال)</Label>
 
               <Input
                 id="pricePerDay"
                 type="number"
-                step="0.01"
+                step="1"
                 min="0"
                 {...register("pricePerDay", {
                   valueAsNumber: true,
@@ -425,7 +425,7 @@ export function GearForm({ initialGear }: GearFormProps) {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="stock">Stock / units available</Label>
+              <Label htmlFor="stock">موجودی / تعداد واحد</Label>
 
               <Input
                 id="stock"
@@ -450,7 +450,7 @@ export function GearForm({ initialGear }: GearFormProps) {
       <Card>
         <CardContent className="space-y-3 p-5">
           <div className="flex items-center justify-between">
-            <Label>Image URLs</Label>
+            <Label>آدرس تصاویر</Label>
 
             <Button
               type="button"
@@ -459,7 +459,7 @@ export function GearForm({ initialGear }: GearFormProps) {
               onClick={addImage}
             >
               <Plus className="h-3.5 w-3.5" />
-              Add image
+              افزودن تصویر
             </Button>
           </div>
 
@@ -467,6 +467,7 @@ export function GearForm({ initialGear }: GearFormProps) {
             <div key={index} className="flex gap-2">
               <Input
                 placeholder="https://example.com/image.jpg"
+                dir="ltr"
                 value={image}
                 onChange={(event) => updateImage(index, event.target.value)}
               />
@@ -497,7 +498,7 @@ export function GearForm({ initialGear }: GearFormProps) {
       <Card>
         <CardContent className="space-y-3 p-5">
           <div className="flex items-center justify-between">
-            <Label>Specifications</Label>
+            <Label>مشخصات</Label>
 
             <Button
               type="button"
@@ -511,19 +512,19 @@ export function GearForm({ initialGear }: GearFormProps) {
               }
             >
               <Plus className="h-3.5 w-3.5" />
-              Add spec
+              افزودن مشخصه
             </Button>
           </div>
 
           {specFields.map((field, index) => (
             <div key={field.id} className="flex gap-2">
               <Input
-                placeholder="Spec name (e.g. aperture)"
+                placeholder="نام مشخصه (مثلاً گیربکس)"
                 {...register(`specs.${index}.key`)}
               />
 
               <Input
-                placeholder="Value (e.g. f/2.8)"
+                placeholder="مقدار (مثلاً دنده‌ای)"
                 {...register(`specs.${index}.value`)}
               />
 
@@ -546,11 +547,11 @@ export function GearForm({ initialGear }: GearFormProps) {
 
       <div className="flex justify-end gap-2">
         <Button type="button" variant="outline" onClick={() => router.back()}>
-          Cancel
+          انصراف
         </Button>
 
         <Button type="submit" loading={isSubmitting}>
-          {initialGear ? "Save changes" : "Add gear"}
+          {initialGear ? "ذخیره تغییرات" : "افزودن کالا"}
         </Button>
       </div>
     </form>

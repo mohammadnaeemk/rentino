@@ -37,10 +37,13 @@ export default function RegisterPage() {
     setServerError(null);
     try {
       await registerUser(data);
-      toast.success("Account created — welcome to LensLoop!");
+      toast.success("حساب ساخته شد — به رنتینو خوش آمدید!");
       router.push(`/dashboard/${data.role.toLowerCase()}`);
     } catch (err) {
-      const message = err instanceof ApiRequestError ? err.message : "Something went wrong. Try again.";
+      const message =
+        err instanceof ApiRequestError
+          ? err.message
+          : "خطا در برقراری ارتباط با سرور. دوباره تلاش کنید.";
       setServerError(message);
     }
   }
@@ -50,12 +53,12 @@ export default function RegisterPage() {
       <div className="w-full max-w-sm">
         <Link href="/" className="mb-8 flex items-center justify-center gap-2 font-display text-lg font-semibold">
           <Aperture className="h-6 w-6 text-primary" strokeWidth={1.75} />
-          LensLoop
+          رنتینو
         </Link>
 
         <div className="rounded-lg border border-border bg-background p-6 shadow-sm">
-          <h1 className="font-display text-xl font-semibold">Create your account</h1>
-          <p className="mt-1 text-sm text-muted">Rent gear, or list your own for others to book.</p>
+          <h1 className="font-display text-xl font-semibold">ساخت حساب کاربری</h1>
+          <p className="mt-1 text-sm text-muted">کالا اجاره کنید یا کالای خودتان را برای دیگران ثبت کنید.</p>
 
           {serverError && (
             <p className="mt-4 rounded-md bg-danger/10 px-3 py-2 text-sm text-danger" role="alert">
@@ -63,7 +66,7 @@ export default function RegisterPage() {
             </p>
           )}
 
-          <div className="mt-5 grid grid-cols-2 gap-2" role="radiogroup" aria-label="Account type">
+          <div className="mt-5 grid grid-cols-2 gap-2" role="radiogroup" aria-label="نوع حساب">
             <button
               type="button"
               role="radio"
@@ -74,7 +77,7 @@ export default function RegisterPage() {
                 role === "CUSTOMER" ? "border-primary bg-primary/10" : "border-border hover:bg-surface-muted"
               )}
             >
-              <User className="h-4 w-4" /> Customer
+              <User className="h-4 w-4" /> مشتری
             </button>
             <button
               type="button"
@@ -86,41 +89,41 @@ export default function RegisterPage() {
                 role === "PROVIDER" ? "border-primary bg-primary/10" : "border-border hover:bg-surface-muted"
               )}
             >
-              <Store className="h-4 w-4" /> Provider
+              <Store className="h-4 w-4" /> تأمین‌کننده
             </button>
           </div>
           {errors.role && <p className="mt-1 text-xs text-danger">{errors.role.message}</p>}
 
           <form onSubmit={handleSubmit(onSubmit)} className="mt-4 space-y-4" noValidate>
             <div className="space-y-1.5">
-              <Label htmlFor="name">Full name</Label>
-              <Input id="name" placeholder="Jane Rahman" {...register("name")} />
+              <Label htmlFor="name">نام کامل</Label>
+              <Input id="name" placeholder="مثلاً: سارا محمدی" {...register("name")} />
               {errors.name && <p className="text-xs text-danger">{errors.name.message}</p>}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="you@example.com" {...register("email")} />
+              <Label htmlFor="email">ایمیل</Label>
+              <Input id="email" type="email" dir="ltr" placeholder="you@example.com" {...register("email")} />
               {errors.email && <p className="text-xs text-danger">{errors.email.message}</p>}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" placeholder="••••••••" {...register("password")} />
+              <Label htmlFor="password">رمز عبور</Label>
+              <Input id="password" type="password" dir="ltr" placeholder="••••••••" {...register("password")} />
               {errors.password && <p className="text-xs text-danger">{errors.password.message}</p>}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="confirmPassword">Confirm password</Label>
-              <Input id="confirmPassword" type="password" placeholder="••••••••" {...register("confirmPassword")} />
+              <Label htmlFor="confirmPassword">تکرار رمز عبور</Label>
+              <Input id="confirmPassword" type="password" dir="ltr" placeholder="••••••••" {...register("confirmPassword")} />
               {errors.confirmPassword && <p className="text-xs text-danger">{errors.confirmPassword.message}</p>}
             </div>
             <Button type="submit" className="w-full" loading={isSubmitting}>
-              Create account
+              ساخت حساب
             </Button>
           </form>
 
           <p className="mt-6 text-center text-sm text-muted">
-            Already have an account?{" "}
+            قبلاً حساب دارید؟{" "}
             <Link href="/login" className="font-medium text-primary hover:underline">
-              Log in
+              ورود
             </Link>
           </p>
         </div>

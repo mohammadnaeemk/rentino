@@ -6,6 +6,7 @@ import { Aperture, LogOut, Moon, Sun, type LucideIcon } from "lucide-react";
 
 import { useTheme } from "@/components/theme-provider";
 import { useAuth } from "@/lib/auth-context";
+import { roleLabel } from "@/lib/labels";
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -35,30 +36,12 @@ export interface DashboardNavItem {
 ========================================================= */
 
 const topNavItems = [
-  {
-    href: "/",
-    label: "Home",
-  },
-  {
-    href: "/gear",
-    label: "Browse Gear",
-  },
-  {
-    href: "/how-it-works",
-    label: "How It Works",
-  },
-  {
-    href: "/about",
-    label: "About",
-  },
-  {
-    href: "/blog",
-    label: "Blog",
-  },
-  {
-    href: "/contact",
-    label: "Support",
-  },
+  { href: "/", label: "خانه" },
+  { href: "/gear", label: "جستجوی کالا" },
+  { href: "/how-it-works", label: "نحوه کار" },
+  { href: "/about", label: "درباره ما" },
+  { href: "/blog", label: "وبلاگ" },
+  { href: "/contact", label: "پشتیبانی" },
 ];
 
 /* =========================================================
@@ -68,7 +51,7 @@ const topNavItems = [
 export function DashboardShell({
   children,
   navItems,
-  roleLabel,
+  roleLabel: roleLabelProp,
 }: {
   children: React.ReactNode;
   navItems: DashboardNavItem[];
@@ -79,10 +62,6 @@ export function DashboardShell({
   const { theme, setTheme } = useTheme();
   const router = useRouter();
 
-  /* =======================================================
-     LOGOUT
-  ======================================================= */
-
   async function handleLogout() {
     try {
       await logout();
@@ -91,19 +70,11 @@ export function DashboardShell({
     }
   }
 
-  /* =======================================================
-     ROLE
-  ======================================================= */
-
   const role = user?.role?.toString().toLowerCase();
 
   const dashboardHref = role ? `/dashboard/${role}` : "/login";
 
   const profileHref = role ? `/dashboard/${role}/profile` : "/login";
-
-  /* =======================================================
-     RENDER
-  ======================================================= */
 
   return (
     <div className="flex min-h-screen">
@@ -111,21 +82,19 @@ export function DashboardShell({
           SIDEBAR
       =================================================== */}
 
-      <aside className="hidden w-64 shrink-0 border-r border-border bg-surface md:flex md:flex-col">
+      <aside className="hidden w-64 shrink-0 border-e border-border bg-surface md:flex md:flex-col">
         {/* Logo */}
-
         <Link
           href="/"
           className="flex items-center gap-2 border-b border-border px-6 py-5 font-display text-lg font-semibold"
         >
           <Aperture className="h-6 w-6 text-primary" strokeWidth={1.75} />
-          LensLoop
+          رنتینو
         </Link>
 
         {/* Sidebar Navigation */}
-
         <nav className="flex-1 p-3">
-          <p className="px-3 pb-3 pt-1 exif-chip">{roleLabel}</p>
+          <p className="px-3 pb-3 pt-1 exif-chip">{roleLabelProp}</p>
 
           <div className="space-y-2">
             {navItems.map((item) => {
@@ -153,14 +122,13 @@ export function DashboardShell({
         </nav>
 
         {/* Sidebar Logout */}
-
         <div className="border-t border-border p-3">
           <button
             onClick={handleLogout}
             className="flex w-full items-center gap-3 rounded-md px-3 py-3 text-sm font-medium text-danger hover:bg-surface-muted"
           >
             <LogOut className="h-5 w-5" />
-            Log out
+            خروج
           </button>
         </div>
       </aside>
@@ -202,13 +170,12 @@ export function DashboardShell({
               })}
             </nav>
 
-            {/* RIGHT SIDE */}
-            <div className="ml-auto flex items-center gap-2">
-              {/* Theme */}
+            {/* END SIDE */}
+            <div className="ms-auto flex items-center gap-2">
               <Button
                 variant="ghost"
                 size="icon"
-                aria-label="Toggle theme"
+                aria-label="تغییر تم"
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               >
                 <Sun className="hidden h-4 w-4 dark:block" />
@@ -226,7 +193,7 @@ export function DashboardShell({
                       />
 
                       <AvatarFallback>
-                        {user?.name?.slice(0, 2).toUpperCase() ?? "U"}
+                        {user?.name?.slice(0, 2).toUpperCase() ?? "؟"}
                       </AvatarFallback>
                     </Avatar>
                   </button>
@@ -235,7 +202,7 @@ export function DashboardShell({
                 <DropdownMenuContent align="end" className="w-56">
                   <div className="px-2 py-2">
                     <p className="text-sm font-semibold">
-                      {user?.name ?? "User"}
+                      {user?.name ?? "کاربر"}
                     </p>
 
                     {user?.email && (
@@ -246,7 +213,7 @@ export function DashboardShell({
 
                     {user?.role && (
                       <p className="mt-1 text-xs font-medium text-primary">
-                        {user.role}
+                        {roleLabel[user.role]}
                       </p>
                     )}
                   </div>
@@ -254,11 +221,11 @@ export function DashboardShell({
                   <DropdownMenuSeparator />
 
                   <DropdownMenuItem asChild>
-                    <Link href={dashboardHref}>Dashboard</Link>
+                    <Link href={dashboardHref}>پنل کاربری</Link>
                   </DropdownMenuItem>
 
                   <DropdownMenuItem asChild>
-                    <Link href={profileHref}>Profile</Link>
+                    <Link href={profileHref}>پروفایل</Link>
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator />
@@ -267,8 +234,8 @@ export function DashboardShell({
                     onClick={handleLogout}
                     className="text-danger focus:text-danger"
                   >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Log out
+                    <LogOut className="me-2 h-4 w-4" />
+                    خروج
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

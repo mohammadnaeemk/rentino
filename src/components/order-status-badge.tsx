@@ -1,16 +1,20 @@
 import { Badge } from "@/components/ui/badge";
+import { rentalStatusLabel } from "@/lib/labels";
 import type { RentalStatus } from "@/types";
 
-const map: Record<RentalStatus, { variant: "warning" | "info" | "success" | "destructive" | "secondary"; label: string }> = {
-  PLACED: { variant: "warning", label: "Placed" },
-  CONFIRMED: { variant: "info", label: "Confirmed" },
-  PAID: { variant: "secondary", label: "Paid" },
-  PICKED_UP: { variant: "success", label: "Picked up" },
-  RETURNED: { variant: "secondary", label: "Returned" },
-  CANCELLED: { variant: "destructive", label: "Cancelled" },
+const map: Record<
+  RentalStatus,
+  { variant: "warning" | "info" | "success" | "destructive" | "secondary" }
+> = {
+  PLACED: { variant: "warning" },
+  CONFIRMED: { variant: "info" },
+  PAID: { variant: "secondary" },
+  PICKED_UP: { variant: "success" },
+  RETURNED: { variant: "secondary" },
+  CANCELLED: { variant: "destructive" },
 };
 
 export function OrderStatusBadge({ status }: { status: RentalStatus }) {
-  const { variant, label } = map[status];
-  return <Badge variant={variant}>{label}</Badge>;
+  const { variant } = map[status];
+  return <Badge variant={variant}>{rentalStatusLabel[status]}</Badge>;
 }

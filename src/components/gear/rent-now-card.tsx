@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
 import { api, ApiRequestError } from "@/lib/api";
+import { formatToman, formatDays } from "@/lib/format";
 import type { GearItem } from "@/types";
 
 function todayISO() {
@@ -36,13 +37,13 @@ export function RentNowCard({ gear }: { gear: GearItem }) {
 
   async function handleRent() {
     if (!user) {
-      toast.info("Log in to place a rental order");
+      toast.info("برای ثبت رزرو ابتدا وارد حساب خود شوید");
       router.push(`/login?next=/gear/${gear.slug}`);
       return;
     }
 
     if (!startDate || !endDate || days <= 0) {
-      toast.error("Please select valid rental dates.");
+      toast.error("لطفاً تاریخ‌های معتبری برای اجاره انتخاب کنید.");
       return;
     }
 
@@ -62,7 +63,7 @@ export function RentNowCard({ gear }: { gear: GearItem }) {
       });
 
       toast.success(
-        `Rental request placed for ${days} day${days > 1 ? "s" : ""} — awaiting provider confirmation.`,
+        `درخواست اجاره برای ${formatDays(days)} ثبت شد — در انتظار تأیید تأمین‌کننده.`,
       );
 
       router.push("/dashboard/customer");
@@ -72,7 +73,7 @@ export function RentNowCard({ gear }: { gear: GearItem }) {
       toast.error(
         error instanceof ApiRequestError
           ? error.message
-          : "Could not place the rental request.",
+          : "ثبت درخواست اجاره ممکن نشد.",
       );
     } finally {
       setSubmitting(false);
@@ -85,13 +86,13 @@ export function RentNowCard({ gear }: { gear: GearItem }) {
         <div className="flex items-baseline justify-between">
           <div>
             <span className="font-display text-2xl font-semibold">
-              ${gear.pricePerDay}
+              {formatToman(gear.pricePerDay)}
             </span>
-            <span className="text-sm text-muted"> /day</span>
+            <span className="text-sm text-muted"> / روز</span>
           </div>
           {gear.availability !== "AVAILABLE" && (
             <span className="text-xs font-medium text-danger">
-              Currently unavailable
+              در حال حاضر ناموجود
             </span>
           )}
         </div>
@@ -99,7 +100,7 @@ export function RentNowCard({ gear }: { gear: GearItem }) {
         <div className="mt-4 grid grid-cols-2 gap-2">
           <div className="space-y-1.5">
             <Label htmlFor="start" className="flex items-center gap-1 text-xs">
-              <CalendarDays className="h-3.5 w-3.5" /> Pick up
+              <CalendarDays className="h-3.5 w-3.5" /> تحویل
             </Label>
             <Input
               id="start"
@@ -114,7 +115,7 @@ export function RentNowCard({ gear }: { gear: GearItem }) {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="end" className="flex items-center gap-1 text-xs">
-              <CalendarDays className="h-3.5 w-3.5" /> Return
+              <CalendarDays className="h-3.5 w-3.5" /> بازگشت
             </Label>
             <Input
               id="end"
@@ -131,13 +132,13 @@ export function RentNowCard({ gear }: { gear: GearItem }) {
           <div className="mt-4 space-y-1 border-t border-border pt-4 text-sm">
             <div className="flex justify-between text-muted">
               <span>
-                ${gear.pricePerDay} × {days} day{days > 1 ? "s" : ""}
+                {formatToman(gear.pricePerDay)} × {formatDays(days)}
               </span>
-              <span>${total}</span>
+              <span>{formatToman(total)}</span>
             </div>
             <div className="flex justify-between font-medium">
-              <span>Total</span>
-              <span>${total}</span>
+              <span>جمع کل</span>
+              <span>{formatToman(total)}</span>
             </div>
           </div>
         )}
@@ -149,10 +150,10 @@ export function RentNowCard({ gear }: { gear: GearItem }) {
           loading={submitting}
           onClick={handleRent}
         >
-          {gear.availability === "AVAILABLE" ? "Rent now" : "Unavailable"}
+          {gear.availability === "AVAILABLE" ? "رزرو کنید" : "ناموجود"}
         </Button>
         <p className="mt-2 text-center text-xs text-muted">
-          You won&apos;t be charged until the provider confirms.
+          تا زمانی که تأمین‌کننده تأیید نکند، مبلغی از شما کسر نمی‌شود.
         </p>
       </CardContent>
     </Card>

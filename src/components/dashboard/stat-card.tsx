@@ -17,7 +17,7 @@ export function StatCard({
     <Card>
       <CardContent className="flex items-start justify-between p-5">
         <div>
-          <p className="text-xs uppercase tracking-wide text-muted">{label}</p>
+          <p className="text-xs text-muted">{label}</p>
           <p className="mt-1 font-display text-2xl font-semibold">{value}</p>
           {trend && (
             <p className={cn("mt-1 text-xs font-medium", trend.positive ? "text-success" : "text-danger")}>

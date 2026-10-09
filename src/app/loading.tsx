@@ -1,4 +1,4 @@
-import { Mountain } from "lucide-react";
+import { Aperture } from "lucide-react";
 
 export default function GlobalLoading() {
   return (
@@ -14,23 +14,23 @@ export default function GlobalLoading() {
 
         {/* Inner brand circle */}
         <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm">
-          <Mountain className="h-5 w-5 animate-pulse" />
+          <Aperture className="h-5 w-5 animate-pulse" />
         </span>
       </div>
 
       {/* Brand / Loading text */}
       <div className="mt-6 flex flex-col items-center">
-        <p className="font-display text-sm font-semibold tracking-tight text-foreground">
-          Loading LensLoop
+        <p className="font-display text-sm font-semibold text-foreground">
+          در حال بارگذاری رنتینو
         </p>
 
-        <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
-          <span>Preparing your experience</span>
+        <div className="mt-2 flex items-center gap-1 text-xs text-muted">
+          <span>در حال آماده‌سازی</span>
 
           <span className="flex gap-0.5">
-            <span className="h-1 w-1 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.3s]" />
-            <span className="h-1 w-1 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.15s]" />
-            <span className="h-1 w-1 animate-bounce rounded-full bg-muted-foreground" />
+            <span className="h-1 w-1 animate-bounce rounded-full bg-muted [animation-delay:-0.3s]" />
+            <span className="h-1 w-1 animate-bounce rounded-full bg-muted [animation-delay:-0.15s]" />
+            <span className="h-1 w-1 animate-bounce rounded-full bg-muted" />
           </span>
         </div>
       </div>
@@ -41,7 +41,7 @@ export default function GlobalLoading() {
       </div>
 
       {/* Screen-reader text */}
-      <span className="sr-only">Loading, please wait…</span>
+      <span className="sr-only">در حال بارگذاری، لطفاً منتظر بمانید…</span>
     </div>
   );
 }

@@ -7,18 +7,18 @@ import { platformStats } from "@/lib/content";
 const values = [
   {
     icon: Target,
-    title: "Access over ownership",
-    body: "Great equipment shouldn't gatekeep great work. We make professional-grade gear reachable by the day.",
+    title: "دسترسی به‌جای مالکیت",
+    body: "کالای باکیفیت نباید فقط به کسانی که آن را می‌خرند محدود باشد. ما کالاهای حرفه‌ای را به‌صورت روزانه در دسترس قرار می‌دهیم.",
   },
   {
     icon: Users,
-    title: "Community-run inventory",
-    body: "Every listing comes from a real local provider — studios, freelancers, and rental houses — not a warehouse.",
+    title: "کالا از جامعه تأمین‌کنندگان",
+    body: "هر آگهی از یک تأمین‌کننده محلی واقعی می‌آید — نه از یک انبار متمرکز.",
   },
   {
     icon: Globe2,
-    title: "Built for working creators",
-    body: "From wedding cinematographers to event producers, LensLoop is designed around real production schedules.",
+    title: "ساخته‌شده برای کاربران واقعی",
+    body: "رنتینو حول نیازهای واقعی سفر، کار و سرگرمی طراحی شده است.",
   },
 ];
 
@@ -30,12 +30,11 @@ export default function AboutPage() {
         <section className="border-b border-border py-16">
           <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
             <Aperture className="mx-auto h-10 w-10 text-primary" strokeWidth={1.5} />
-            <h1 className="mt-4 font-display text-3xl font-semibold sm:text-4xl">About LensLoop</h1>
+            <h1 className="mt-4 font-display text-3xl font-semibold sm:text-4xl">درباره رنتینو</h1>
             <p className="mt-4 text-muted">
-              LensLoop connects photographers, videographers and event producers with verified
-              local providers renting cameras, lighting, audio and staging equipment by the day.
-              We started the platform after watching too many freelance shoots get scaled down
-              because the right lens or light was locked behind a five-figure purchase.
+              رنتینو، بازارچه آنلاین اجاره کالاست که اجاره‌کنندگان را به تأمین‌کنندگان معتبر
+              متصل می‌کند؛ از خودرو و کنسول بازی تا دوربین و دوچرخه. ما این پلتفرم را ساختیم
+              تا دسترسی به کالاهای موردنیاز، ساده، شفاف و مقرون‌به‌صرفه باشد.
             </p>
           </div>
         </section>
@@ -46,7 +45,7 @@ export default function AboutPage() {
               {platformStats.map((s) => (
                 <div key={s.label} className="text-center">
                   <p className="font-display text-3xl font-semibold">{s.value}</p>
-                  <p className="mt-1 text-xs uppercase tracking-wide text-muted">{s.label}</p>
+                  <p className="mt-1 text-xs text-muted">{s.label}</p>
                 </div>
               ))}
             </div>
@@ -55,7 +54,7 @@ export default function AboutPage() {
 
         <section className="py-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 className="text-center font-display text-2xl font-semibold sm:text-3xl">What we believe</h2>
+            <h2 className="text-center font-display text-2xl font-semibold sm:text-3xl">باور ما</h2>
             <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
               {values.map((v) => (
                 <Card key={v.title}>

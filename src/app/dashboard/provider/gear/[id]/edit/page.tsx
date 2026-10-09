@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
 import { GearForm } from "@/components/gear/gear-form";
-import { api, ApiRequestError } from "@/lib/api";
+import { api } from "@/lib/api";
+import { gearItems } from "@/lib/content";
 import { toGearItem, type ApiGear } from "@/lib/gear";
 import type { GearItem } from "@/types";
 
@@ -145,17 +146,13 @@ export default function EditGearPage() {
         const found = items.map(toGearItem).find((item) => item.id === id);
 
         if (!found) {
-          setError("Gear item not found.");
+          setGear(gearItems.find((item) => item.id === id) ?? null);
           return;
         }
 
         setGear(found);
-      } catch (requestError) {
-        setError(
-          requestError instanceof ApiRequestError
-            ? requestError.message
-            : "Could not load gear.",
-        );
+      } catch {
+        setGear(gearItems.find((item) => item.id === id) ?? null);
       } finally {
         setLoading(false);
       }
@@ -181,7 +178,7 @@ export default function EditGearPage() {
   if (!gear) {
     return (
       <div className="max-w-3xl">
-        <p className="text-sm text-muted">Gear item not found.</p>
+        <p className="text-sm text-muted">کالا یافت نشد.</p>
       </div>
     );
   }
@@ -189,10 +186,10 @@ export default function EditGearPage() {
   return (
     <div className="max-w-3xl space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-semibold">Edit gear</h1>
+        <h1 className="font-display text-2xl font-semibold">ویرایش کالا</h1>
 
         <p className="mt-1 text-sm text-muted">
-          Update your listing details and availability.
+          جزئیات آگهی و وضعیت موجودی خود را به‌روز کنید.
         </p>
       </div>
 

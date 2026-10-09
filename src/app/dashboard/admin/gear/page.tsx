@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Eye, EyeOff, Package, RefreshCw } from "lucide-react";
 
 import { api, ApiRequestError } from "@/lib/api";
+import { formatNumber, formatToman } from "@/lib/format";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -96,13 +97,13 @@ function GearTableSkeleton() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[320px]">Gear</TableHead>
-            <TableHead>Provider</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead>Price / day</TableHead>
-            <TableHead>Stock</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="text-right">Action</TableHead>
+            <TableHead className="w-[320px]">کالا</TableHead>
+            <TableHead>تأمین‌کننده</TableHead>
+            <TableHead>دسته‌بندی</TableHead>
+            <TableHead>قیمت روزانه</TableHead>
+            <TableHead>موجودی</TableHead>
+            <TableHead>وضعیت</TableHead>
+            <TableHead className="text-end">عملیات</TableHead>
           </TableRow>
         </TableHeader>
 
@@ -211,7 +212,7 @@ export default function AdminGearPage() {
           ? err.message
           : err instanceof Error
             ? err.message
-            : "Failed to load gear listings.",
+            : "بارگذاری فهرست کالاها ممکن نشد.",
       );
     } finally {
       setLoading(false);
@@ -223,6 +224,8 @@ export default function AdminGearPage() {
   // ===================================================
 
   useEffect(() => {
+    // Loading state is set inside the async fetch; refresh handlers also reuse it.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchGear();
   }, [fetchGear]);
 
@@ -258,7 +261,7 @@ export default function AdminGearPage() {
           ? err.message
           : err instanceof Error
             ? err.message
-            : "Failed to update gear status.",
+            : "به‌روزرسانی وضعیت کالا ممکن نشد.",
       );
     } finally {
       setActionLoading(null);
@@ -299,23 +302,25 @@ export default function AdminGearPage() {
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-display text-2xl font-semibold">Gear listings</h1>
+          <h1 className="font-display text-2xl font-semibold">فهرست کالاها</h1>
 
           <p className="mt-1 text-sm text-muted">
-            Manage gear listed by providers across the platform.
+            مدیریت کالاهایی که تأمین‌کنندگان در پلتفرم ثبت کرده‌اند.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          {!loading && <Badge variant="outline">{meta.total} listings</Badge>}
+          {!loading && (
+            <Badge variant="outline">{formatNumber(meta.total)} کالا</Badge>
+          )}
 
           {loading && <Skeleton className="h-6 w-20 rounded-full" />}
 
           <Button variant="outline" onClick={fetchGear} disabled={loading}>
             <RefreshCw
-              className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`}
+              className={`me-2 h-4 w-4 ${loading ? "animate-spin" : ""}`}
             />
-            Refresh
+            بارگذاری مجدد
           </Button>
         </div>
       </div>
@@ -329,15 +334,15 @@ export default function AdminGearPage() {
           <CardContent className="flex flex-col items-center justify-center py-16">
             <Package className="mb-4 h-10 w-10 text-muted" />
 
-            <h2 className="text-lg font-semibold">Failed to load gear</h2>
+            <h2 className="text-lg font-semibold">بارگذاری کالاها ممکن نشد</h2>
 
             <p className="mt-2 max-w-md text-center text-sm text-muted">
               {error}
             </p>
 
             <Button className="mt-5" onClick={fetchGear}>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Try again
+              <RefreshCw className="me-2 h-4 w-4" />
+              تلاش دوباره
             </Button>
           </CardContent>
         </Card>
@@ -351,10 +356,10 @@ export default function AdminGearPage() {
         <Card>
           <CardHeader>
             <CardTitle>
-              All gear
+              همه کالاها
               {!loading && (
-                <span className="ml-2 text-sm font-normal text-muted">
-                  ({gear.length})
+                <span className="ms-2 text-sm font-normal text-muted">
+                  ({formatNumber(gear.length)})
                 </span>
               )}
             </CardTitle>
@@ -371,10 +376,10 @@ export default function AdminGearPage() {
               <div className="flex flex-col items-center justify-center py-16">
                 <Package className="mb-4 h-10 w-10 text-muted" />
 
-                <h2 className="text-lg font-semibold">No gear listings</h2>
+                <h2 className="text-lg font-semibold">کالایی وجود ندارد</h2>
 
                 <p className="mt-1 text-sm text-muted">
-                  There are no gear listings available yet.
+                  هنوز کالایی ثبت نشده است.
                 </p>
               </div>
             ) : (
@@ -382,19 +387,19 @@ export default function AdminGearPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-[320px]">Gear</TableHead>
+                      <TableHead className="w-[320px]">کالا</TableHead>
 
-                      <TableHead>Provider</TableHead>
+                      <TableHead>تأمین‌کننده</TableHead>
 
-                      <TableHead>Category</TableHead>
+                      <TableHead>دسته‌بندی</TableHead>
 
-                      <TableHead>Price / day</TableHead>
+                      <TableHead>قیمت روزانه</TableHead>
 
-                      <TableHead>Stock</TableHead>
+                      <TableHead>موجودی</TableHead>
 
-                      <TableHead>Status</TableHead>
+                      <TableHead>وضعیت</TableHead>
 
-                      <TableHead className="text-right">Action</TableHead>
+                      <TableHead className="text-end">عملیات</TableHead>
                     </TableRow>
                   </TableHeader>
 
@@ -424,7 +429,7 @@ export default function AdminGearPage() {
                                 </p>
 
                                 <p className="mt-1 text-xs text-muted">
-                                  {item.brand || "No brand"}
+                                  {item.brand || "بدون برند"}
                                 </p>
                               </div>
                             </div>
@@ -435,10 +440,13 @@ export default function AdminGearPage() {
                           <TableCell>
                             <div>
                               <p className="font-medium">
-                                {item.provider?.name || "Unknown"}
+                                {item.provider?.name || "ناشناس"}
                               </p>
 
-                              <p className="text-xs text-muted">
+                              <p
+                                dir="ltr"
+                                className="text-start text-xs text-muted"
+                              >
                                 {item.provider?.email || "-"}
                               </p>
                             </div>
@@ -448,7 +456,7 @@ export default function AdminGearPage() {
 
                           <TableCell>
                             <Badge variant="outline">
-                              {item.category?.name || "Uncategorized"}
+                              {item.category?.name || "بدون دسته‌بندی"}
                             </Badge>
                           </TableCell>
 
@@ -456,20 +464,23 @@ export default function AdminGearPage() {
 
                           <TableCell>
                             <span className="font-medium">
-                              ${Number(item.pricePerDay).toFixed(2)}
+                              {formatToman(Number(item.pricePerDay))}
                             </span>
 
-                            <span className="text-xs text-muted"> / day</span>
+                            <span className="text-xs text-muted"> / روز</span>
                           </TableCell>
 
                           {/* Stock */}
 
                           <TableCell>
                             <span className="font-medium">
-                              {item.availableStock}
+                              {formatNumber(item.availableStock)}
                             </span>
 
-                            <span className="text-muted"> / {item.stock}</span>
+                            <span className="text-muted">
+                              {" "}
+                              / {formatNumber(item.stock)}
+                            </span>
                           </TableCell>
 
                           {/* Status */}
@@ -480,13 +491,13 @@ export default function AdminGearPage() {
                                 item.isActive ? "success" : "destructive"
                               }
                             >
-                              {item.isActive ? "Visible" : "Hidden"}
+                              {item.isActive ? "قابل نمایش" : "پنهان"}
                             </Badge>
                           </TableCell>
 
                           {/* Action */}
 
-                          <TableCell className="text-right">
+                          <TableCell className="text-end">
                             <Button
                               variant="outline"
                               size="sm"
@@ -494,16 +505,16 @@ export default function AdminGearPage() {
                               onClick={() => toggleGearStatus(item)}
                             >
                               {processing ? (
-                                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                                <RefreshCw className="me-2 h-4 w-4 animate-spin" />
                               ) : item.isActive ? (
                                 <>
-                                  <EyeOff className="mr-2 h-4 w-4" />
-                                  Hide
+                                  <EyeOff className="me-2 h-4 w-4" />
+                                  پنهان
                                 </>
                               ) : (
                                 <>
-                                  <Eye className="mr-2 h-4 w-4" />
-                                  Show
+                                  <Eye className="me-2 h-4 w-4" />
+                                  نمایش
                                 </>
                               )}
                             </Button>
@@ -524,17 +535,17 @@ export default function AdminGearPage() {
           {!loading && meta.totalPages > 1 && (
             <div className="flex flex-col gap-4 border-t border-border px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm text-muted">
-                Showing{" "}
+                نمایش{" "}
                 <span className="font-medium text-foreground">
-                  {(meta.page - 1) * meta.limit + 1}
+                  {formatNumber((meta.page - 1) * meta.limit + 1)}
                 </span>
-                {" – "}
+                {" تا "}
                 <span className="font-medium text-foreground">
-                  {Math.min(meta.page * meta.limit, meta.total)}
+                  {formatNumber(Math.min(meta.page * meta.limit, meta.total))}
                 </span>
-                {" of "}
+                {" از "}
                 <span className="font-medium text-foreground">
-                  {meta.total}
+                  {formatNumber(meta.total)}
                 </span>
               </p>
 
@@ -545,11 +556,11 @@ export default function AdminGearPage() {
                   disabled={meta.page <= 1 || loading}
                   onClick={previousPage}
                 >
-                  Previous
+                  قبلی
                 </Button>
 
                 <div className="flex h-9 min-w-20 items-center justify-center rounded-md border px-3 text-sm font-medium">
-                  Page {meta.page} / {meta.totalPages}
+                  صفحه {formatNumber(meta.page)} از {formatNumber(meta.totalPages)}
                 </div>
 
                 <Button
@@ -558,7 +569,7 @@ export default function AdminGearPage() {
                   disabled={meta.page >= meta.totalPages || loading}
                   onClick={nextPage}
                 >
-                  Next
+                  بعدی
                 </Button>
               </div>
             </div>

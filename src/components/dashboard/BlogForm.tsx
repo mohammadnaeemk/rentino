@@ -78,7 +78,7 @@ export function BlogForm({ existing }: { existing?: BlogPost }) {
       } catch (error) {
         console.error("Failed to load categories:", error);
 
-        toast.error("Could not load categories");
+        toast.error("بارگذاری دسته‌بندی‌ها ممکن نشد");
       } finally {
         setLoadingCategories(false);
       }
@@ -120,13 +120,13 @@ export function BlogForm({ existing }: { existing?: BlogPost }) {
     try {
       await persist(values);
 
-      toast.success("Draft saved");
+      toast.success("پیش‌نویس ذخیره شد");
 
       router.push("/dashboard/admin/blog");
       router.refresh();
     } catch (err) {
       toast.error(
-        err instanceof ApiRequestError ? err.message : "Could not save draft",
+        err instanceof ApiRequestError ? err.message : "ذخیره پیش‌نویس ممکن نشد",
       );
     } finally {
       setSavingDraft(false);
@@ -139,41 +139,30 @@ export function BlogForm({ existing }: { existing?: BlogPost }) {
 
   const onPublish = form.handleSubmit(
     async (values) => {
-      console.log("✅ PUBLISH VALIDATION PASSED");
-      console.log("VALUES:", values);
-
       setPublishing(true);
 
       try {
         const id = await persist(values);
 
-        console.log("✅ BLOG SAVED:", id);
-
         await api.patch(`/admin/blog/${id}/publish`);
 
-        console.log("✅ BLOG PUBLISHED");
-
-        toast.success("Post published");
+        toast.success("نوشته منتشر شد");
 
         router.push("/dashboard/admin/blog");
       } catch (err) {
-        console.error("❌ PUBLISH ERROR:", err);
+        console.error("Publish error:", err);
 
         toast.error(
           err instanceof ApiRequestError
             ? err.message
-            : "Could not publish post",
+            : "انتشار نوشته ممکن نشد",
         );
       } finally {
         setPublishing(false);
       }
     },
-    (errors) => {
-      console.error("❌ PUBLISH VALIDATION FAILED:", errors);
-
-      toast.error("Please fix the form errors");
-
-      console.log("FORM ERRORS:", errors);
+    () => {
+      toast.error("لطفاً خطاهای فرم را برطرف کنید");
     },
   );
 
@@ -185,11 +174,11 @@ export function BlogForm({ existing }: { existing?: BlogPost }) {
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between gap-4">
-          <CardTitle>{existing ? "Edit post" : "New blog post"}</CardTitle>
+          <CardTitle>{existing ? "ویرایش نوشته" : "نوشته جدید"}</CardTitle>
 
           {existing && (
             <Badge variant={existing.isPublished ? "success" : "secondary"}>
-              {existing.isPublished ? "Published" : "Draft"}
+              {existing.isPublished ? "منتشر شده" : "پیش‌نویس"}
             </Badge>
           )}
         </div>
@@ -210,11 +199,11 @@ export function BlogForm({ existing }: { existing?: BlogPost }) {
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel>عنوان</FormLabel>
 
                   <FormControl>
                     <Input
-                      placeholder="A first-timer's guide to renting a tent"
+                      placeholder="مثلاً: راهنمای اجاره خودرو برای سفر"
                       {...field}
                     />
                   </FormControl>
@@ -236,7 +225,7 @@ export function BlogForm({ existing }: { existing?: BlogPost }) {
                 name="category"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category</FormLabel>
+                    <FormLabel>دسته‌بندی</FormLabel>
 
                     <Select
                       value={field.value}
@@ -248,8 +237,8 @@ export function BlogForm({ existing }: { existing?: BlogPost }) {
                           <SelectValue
                             placeholder={
                               loadingCategories
-                                ? "Loading categories..."
-                                : "Select a category"
+                                ? "در حال بارگذاری دسته‌بندی‌ها..."
+                                : "یک دسته‌بندی انتخاب کنید"
                             }
                           />
                         </SelectTrigger>
@@ -263,8 +252,8 @@ export function BlogForm({ existing }: { existing?: BlogPost }) {
                             </SelectItem>
                           ))
                         ) : (
-                          <div className="px-2 py-2 text-sm text-muted-foreground">
-                            No categories found
+                          <div className="px-2 py-2 text-sm text-muted">
+                            دسته‌بندی‌ای یافت نشد
                           </div>
                         )}
                       </SelectContent>
@@ -282,10 +271,11 @@ export function BlogForm({ existing }: { existing?: BlogPost }) {
                 name="coverImage"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Cover image URL (optional)</FormLabel>
+                    <FormLabel>آدرس تصویر جلد (اختیاری)</FormLabel>
 
                     <FormControl>
                       <Input
+                        dir="ltr"
                         placeholder="https://images.example.com/cover.jpg"
                         {...field}
                       />
@@ -306,11 +296,11 @@ export function BlogForm({ existing }: { existing?: BlogPost }) {
               name="excerpt"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Excerpt</FormLabel>
+                  <FormLabel>خلاصه</FormLabel>
 
                   <FormControl>
                     <Textarea
-                      placeholder="One or two sentences shown on the blog listing card…"
+                      placeholder="یک یا دو جمله که در کارت فهرست وبلاگ نمایش داده می‌شود..."
                       className="min-h-[70px]"
                       {...field}
                     />
@@ -330,11 +320,11 @@ export function BlogForm({ existing }: { existing?: BlogPost }) {
               name="content"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Content</FormLabel>
+                  <FormLabel>محتوا</FormLabel>
 
                   <FormControl>
                     <Textarea
-                      placeholder="Write the full article here…"
+                      placeholder="متن کامل نوشته را اینجا بنویسید..."
                       className="min-h-[280px]"
                       {...field}
                     />
@@ -359,7 +349,7 @@ export function BlogForm({ existing }: { existing?: BlogPost }) {
                 disabled={savingDraft || publishing}
                 onClick={onSaveDraft}
               >
-                Save as draft
+                ذخیره به‌عنوان پیش‌نویس
               </Button>
 
               {/* Publish */}
@@ -368,12 +358,9 @@ export function BlogForm({ existing }: { existing?: BlogPost }) {
                 type="button"
                 loading={publishing}
                 disabled={savingDraft || publishing}
-                onClick={() => {
-                  console.log("PUBLISH BUTTON CLICKED");
-                  onPublish();
-                }}
+                onClick={() => onPublish()}
               >
-                {existing?.isPublished ? "Save & keep published" : "Publish"}
+                {existing?.isPublished ? "ذخیره و نگه‌داشتن انتشار" : "انتشار"}
               </Button>
             </div>
           </form>

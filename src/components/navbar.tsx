@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useAuth } from "@/lib/auth-context";
+import { roleLabel } from "@/lib/labels";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -27,15 +28,15 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const loggedOutLinks = [
-  { href: "/", label: "Home" },
-  { href: "/gear", label: "Browse Gear" },
-  { href: "/how-it-works", label: "How It Works" },
-  { href: "/about", label: "About" },
+  { href: "/", label: "خانه" },
+  { href: "/gear", label: "جستجوی کالا" },
+  { href: "/how-it-works", label: "نحوه کار" },
+  { href: "/about", label: "درباره ما" },
 ];
 
 const loggedInExtra = [
-  { href: "/blog", label: "Blog" },
-  { href: "/contact", label: "Contact" },
+  { href: "/blog", label: "وبلاگ" },
+  { href: "/contact", label: "تماس با ما" },
 ];
 
 export function Navbar() {
@@ -63,7 +64,7 @@ export function Navbar() {
           className="flex items-center gap-2 font-display text-lg font-semibold"
         >
           <Aperture className="h-6 w-6 text-primary" strokeWidth={1.75} />
-          LensLoop
+          رنتینو
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
@@ -83,7 +84,7 @@ export function Navbar() {
               href={dashboardHref}
               className="rounded-md px-3 py-2 text-sm font-medium text-foreground/80 transition-colors hover:text-primary"
             >
-              Dashboard
+              پنل کاربری
             </Link>
           )}
         </nav>
@@ -92,7 +93,7 @@ export function Navbar() {
           <Button
             variant="ghost"
             size="icon"
-            aria-label="Toggle theme"
+            aria-label="تغییر تم"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           >
             <Sun className="hidden h-4 w-4 dark:block" />
@@ -102,14 +103,14 @@ export function Navbar() {
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="ml-1 rounded-full ring-offset-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                <button className="ms-1 rounded-full ring-offset-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
                   <Avatar>
                     <AvatarImage
                       src={user.avatarUrl ?? undefined}
                       alt={user.name}
                     />
                     <AvatarFallback>
-                      {(user?.name ?? user?.email ?? "U")
+                      {(user?.name ?? user?.email ?? "؟")
                         .slice(0, 2)
                         .toUpperCase()}
                     </AvatarFallback>
@@ -118,7 +119,7 @@ export function Navbar() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel className="exif-chip normal-case">
-                  {user.role}
+                  {roleLabel[user.role]}
                 </DropdownMenuLabel>
                 <div className="px-2 py-1.5 text-sm font-medium">
                   {user.name}
@@ -126,12 +127,12 @@ export function Navbar() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link href={dashboardHref}>
-                    <LayoutDashboard /> Dashboard
+                    <LayoutDashboard /> پنل کاربری
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href={`${dashboardHref}/profile`}>
-                    <User /> Profile
+                    <User /> پروفایل
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -139,17 +140,17 @@ export function Navbar() {
                   onClick={handleLogout}
                   className="text-danger"
                 >
-                  <LogOut /> Log out
+                  <LogOut /> خروج
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <>
               <Button variant="ghost" asChild>
-                <Link href="/login">Log in</Link>
+                <Link href="/login">ورود</Link>
               </Button>
               <Button asChild>
-                <Link href="/register">Get started</Link>
+                <Link href="/register">شروع کنید</Link>
               </Button>
             </>
           )}
@@ -158,7 +159,7 @@ export function Navbar() {
         <button
           className="inline-flex items-center justify-center rounded-md p-2 md:hidden"
           onClick={() => setOpen(!open)}
-          aria-label="Toggle menu"
+          aria-label="باز و بسته کردن منو"
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
@@ -184,22 +185,22 @@ export function Navbar() {
                   onClick={() => setOpen(false)}
                   className="rounded-md px-3 py-2 text-sm font-medium hover:bg-surface-muted"
                 >
-                  Dashboard
+                  پنل کاربری
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="rounded-md px-3 py-2 text-left text-sm font-medium text-danger hover:bg-surface-muted"
+                  className="rounded-md px-3 py-2 text-start text-sm font-medium text-danger hover:bg-surface-muted"
                 >
-                  Log out
+                  خروج
                 </button>
               </>
             ) : (
               <div className="mt-2 flex gap-2">
                 <Button variant="outline" className="flex-1" asChild>
-                  <Link href="/login">Log in</Link>
+                  <Link href="/login">ورود</Link>
                 </Button>
                 <Button className="flex-1" asChild>
-                  <Link href="/register">Get started</Link>
+                  <Link href="/register">شروع کنید</Link>
                 </Button>
               </div>
             )}

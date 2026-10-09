@@ -20,6 +20,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { api, ApiRequestError } from "@/lib/api";
 import { toast } from "sonner";
 
+import { formatJalali, formatToman } from "@/lib/format";
+import { rentalOrders } from "@/lib/content";
+
 import type { RentalStatus } from "@/types";
 
 // =====================================================
@@ -165,6 +168,17 @@ function extractPaymentResponse(response: unknown): PaymentResponse {
   return {};
 }
 
+function fixtureToOrder(fixture: (typeof rentalOrders)[number]): CustomerOrder {
+  return {
+    id: fixture.id,
+    startDate: fixture.startDate,
+    endDate: fixture.endDate,
+    totalAmount: fixture.totalAmount,
+    status: fixture.status,
+    gearTitle: fixture.gearTitle,
+  };
+}
+
 function getGearTitle(order: CustomerOrder) {
   if (order.gearTitle) {
     return order.gearTitle;
@@ -173,20 +187,20 @@ function getGearTitle(order: CustomerOrder) {
   const items = order.items ?? [];
 
   if (items.length === 0) {
-    return "Rental gear";
+    return "کالای اجاره‌ای";
   }
 
   const names = items.map((item) => item.gearItem?.name).filter(Boolean);
 
   if (names.length === 0) {
-    return "Rental gear";
+    return "کالای اجاره‌ای";
   }
 
   if (names.length === 1) {
     return names[0] as string;
   }
 
-  return `${names[0]} + ${names.length - 1} more`;
+  return `${names[0]} + ${names.length - 1} مورد دیگر`;
 }
 
 function getGearImage(order: CustomerOrder) {
@@ -236,11 +250,14 @@ export default function PayOrderPage({
 
         if (!mounted) return;
 
-        console.log("RENTALS RESPONSE:", response);
-
         const orders = extractOrders(response);
 
-        const foundOrder = orders.find((item) => item.id === id) ?? null;
+        let foundOrder = orders.find((item) => item.id === id) ?? null;
+
+        if (!foundOrder) {
+          const fixture = rentalOrders.find((item) => item.id === id);
+          foundOrder = fixture ? fixtureToOrder(fixture) : null;
+        }
 
         setOrder(foundOrder);
       } catch (error) {
@@ -248,13 +265,13 @@ export default function PayOrderPage({
 
         console.error("LOAD RENTAL ORDER ERROR:", error);
 
-        setLoadError(true);
+        const fixture = rentalOrders.find((item) => item.id === id);
 
-        toast.error(
-          error instanceof ApiRequestError
-            ? error.message
-            : "Could not load this rental order.",
-        );
+        if (fixture) {
+          setOrder(fixtureToOrder(fixture));
+        } else {
+          setLoadError(true);
+        }
       } finally {
         if (mounted) {
           setLoadingOrder(false);
@@ -281,7 +298,7 @@ export default function PayOrderPage({
     }
 
     if (!method) {
-      toast.error("Please select a payment method.");
+      toast.error("لطفاً یک روش پرداخت انتخاب کنید.");
       return;
     }
 
@@ -290,7 +307,7 @@ export default function PayOrderPage({
 
       const response = await api.post<unknown>("/payments/create", {
         rentalOrderId: order.id,
-        method: "STRIPE",
+        method: "ZARINPAL",
       });
 
       console.log("PAYMENT CREATE RESPONSE:", response);
@@ -299,7 +316,7 @@ export default function PayOrderPage({
 
       if (!result.redirectUrl) {
         throw new Error(
-          "Stripe payment redirect URL was not returned by the server.",
+          "آدرس بازگشت پرداخت زرین‌پال از سمت سرور دریافت نشد.",
         );
       }
 
@@ -315,7 +332,7 @@ export default function PayOrderPage({
           ? error.message
           : error instanceof Error
             ? error.message
-            : "Failed to create Stripe payment session.",
+            : "ایجاد نشست پرداخت ناموفق بود.",
       );
     } finally {
       setLoading(false);
@@ -336,11 +353,11 @@ export default function PayOrderPage({
             </div>
 
             <h2 className="mt-4 text-lg font-semibold">
-              Unable to load this rental order
+              بارگذاری این سفارش اجاره ممکن نیست
             </h2>
 
-            <p className="mt-2 text-sm text-muted-foreground">
-              Please try again later.
+            <p className="mt-2 text-sm text-muted">
+              لطفاً بعداً دوباره تلاش کنید.
             </p>
           </CardContent>
         </Card>
@@ -480,10 +497,10 @@ export default function PayOrderPage({
             </div>
 
             <div>
-              <CardTitle>Complete your payment</CardTitle>
+              <CardTitle>تکمیل پرداخت</CardTitle>
 
               <CardDescription>
-                Choose your preferred payment method to complete this rental.
+                روش پرداخت دلخواه خود را برای تکمیل این اجاره انتخاب کنید.
               </CardDescription>
             </div>
           </div>
@@ -507,26 +524,28 @@ export default function PayOrderPage({
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <Package className="h-6 w-6 text-muted-foreground" />
+                    <Package className="h-6 w-6 text-muted" />
                   )}
                 </div>
 
                 <div>
                   <p className="font-medium">{gearTitle}</p>
 
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {order.startDate}
+                  <p className="mt-1 text-sm text-muted">
+                    {formatJalali(order.startDate)}
                     {" → "}
-                    {order.endDate}
+                    {formatJalali(order.endDate)}
                   </p>
                 </div>
               </div>
 
-              <div className="text-left sm:text-right">
-                <p className="text-sm text-muted-foreground">Total due</p>
+              <div className="text-start sm:text-end">
+                <p className="text-sm text-muted">
+                  مبلغ قابل پرداخت
+                </p>
 
                 <p className="text-xl font-bold">
-                  ${Number(order.totalAmount).toFixed(2)}
+                  {formatToman(Number(order.totalAmount))}
                 </p>
               </div>
             </div>
@@ -537,7 +556,7 @@ export default function PayOrderPage({
           ================================================= */}
 
           <div className="space-y-3">
-            <p className="text-sm font-medium">Select payment method</p>
+            <p className="text-sm font-medium">روش پرداخت را انتخاب کنید</p>
 
             {/* Stripe */}
 
@@ -545,7 +564,7 @@ export default function PayOrderPage({
               type="button"
               onClick={() => setMethod("stripe")}
               disabled={loading}
-              className={`flex w-full items-center gap-3 rounded-lg border p-4 text-left transition-colors ${
+              className={`flex w-full items-center gap-3 rounded-lg border p-4 text-start transition-colors ${
                 method === "stripe"
                   ? "border-primary bg-primary/10"
                   : "border-border hover:bg-muted/50"
@@ -557,15 +576,15 @@ export default function PayOrderPage({
 
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <p className="font-medium">Pay with Stripe</p>
+                  <p className="font-medium">پرداخت با زرین‌پال</p>
 
                   <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
-                    Available
+                    موجود
                   </span>
                 </div>
 
-                <p className="mt-1 text-sm text-muted-foreground">
-                  International cards
+                <p className="mt-1 text-sm text-muted">
+                  همه کارت‌های بانکی عضو شتاب
                 </p>
               </div>
 
@@ -573,7 +592,7 @@ export default function PayOrderPage({
                 className={`h-4 w-4 rounded-full border-2 ${
                   method === "stripe"
                     ? "border-primary bg-primary"
-                    : "border-muted-foreground"
+                    : "border-muted"
                 }`}
               />
             </button>
@@ -582,26 +601,26 @@ export default function PayOrderPage({
 
             <div className="flex w-full cursor-not-allowed items-center gap-3 rounded-lg border border-border bg-muted/30 p-4 opacity-70">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-background">
-                <CreditCard className="h-5 w-5 text-muted-foreground" />
+                <CreditCard className="h-5 w-5 text-muted" />
               </div>
 
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <p className="font-medium text-muted-foreground">
-                    Pay with SSLCommerz
+                  <p className="font-medium text-muted">
+                    پرداخت در محل
                   </p>
 
-                  <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
-                    Coming Soon
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted">
+                    به‌زودی
                   </span>
                 </div>
 
-                <p className="mt-1 text-sm text-muted-foreground">
-                  bKash, Nagad, cards
+                <p className="mt-1 text-sm text-muted">
+                  هنگام تحویل کالا
                 </p>
               </div>
 
-              <div className="h-4 w-4 rounded-full border-2 border-muted-foreground/40" />
+              <div className="h-4 w-4 rounded-full border-2 border-muted/40" />
             </div>
           </div>
 
@@ -615,11 +634,11 @@ export default function PayOrderPage({
             <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
 
             <div>
-              <p className="text-sm font-medium">Secure payment</p>
+              <p className="text-sm font-medium">پرداخت امن</p>
 
-              <p className="mt-1 text-xs text-muted-foreground">
-                Your payment is processed securely through Stripe. We do not
-                store your card details.
+              <p className="mt-1 text-xs text-muted">
+                پرداخت شما به‌صورت امن از طریق درگاه زرین‌پال انجام می‌شود. اطلاعات
+                کارت شما ذخیره نمی‌شود.
               </p>
             </div>
           </div>
@@ -637,17 +656,17 @@ export default function PayOrderPage({
           >
             {loading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Redirecting to Stripe...
+                <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                در حال انتقال به Stripe...
               </>
             ) : (
-              <>Pay ${Number(order.totalAmount).toFixed(2)}</>
+              <>پرداخت {formatToman(Number(order.totalAmount))}</>
             )}
           </Button>
 
           {!method && (
-            <p className="text-center text-xs text-muted-foreground">
-              Please select Stripe to continue.
+            <p className="text-center text-xs text-muted">
+              برای ادامه، روش پرداخت را انتخاب کنید.
             </p>
           )}
         </CardContent>

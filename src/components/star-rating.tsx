@@ -1,5 +1,6 @@
 import { Star } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatNumber } from "@/lib/format";
 
 export function StarRating({ rating, count, className }: { rating: number; count?: number; className?: string }) {
   return (
@@ -15,8 +16,10 @@ export function StarRating({ rating, count, className }: { rating: number; count
           />
         ))}
       </div>
-      <span className="font-medium">{rating.toFixed(1)}</span>
-      {typeof count === "number" && <span className="text-muted">({count})</span>}
+      <span className="font-medium">{formatNumber(rating)}</span>
+      {typeof count === "number" && (
+        <span className="text-muted">({formatNumber(count)} نظر)</span>
+      )}
     </div>
   );
 }

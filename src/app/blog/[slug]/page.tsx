@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import { blogPosts as mockBlogPosts } from "@/lib/content";
+import { formatJalali } from "@/lib/format";
 
 interface BlogPost {
   id: string;
@@ -62,7 +64,25 @@ export default async function BlogPostPage({
 }) {
   const { slug } = await params;
 
-  const post = await getBlogPost(slug);
+  const livePost = await getBlogPost(slug);
+
+  // Backend not available — fall back to bundled demo post.
+  const mock = mockBlogPosts.find((p) => p.slug === slug);
+
+  const post: BlogPost | null =
+    livePost ??
+    (mock
+      ? {
+          id: mock.slug,
+          title: mock.title,
+          slug: mock.slug,
+          excerpt: mock.excerpt,
+          content: mock.content,
+          category: mock.category,
+          createdAt: mock.date,
+          publishedAt: mock.date,
+        }
+      : null);
 
   if (!post) {
     notFound();
@@ -81,27 +101,27 @@ export default async function BlogPostPage({
             href="/blog"
             className="mb-10 inline-flex items-center gap-2 text-sm font-medium text-muted transition-colors hover:text-primary"
           >
-            <span className="text-base">←</span>
-            Back to Blog
+            <span className="text-base">→</span>
+            بازگشت به وبلاگ
           </Link>
 
           {/* Header */}
           <header className="mx-auto max-w-3xl text-center">
             {/* Category */}
             {post.category && (
-              <span className="inline-flex rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
+              <span className="inline-flex rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
                 {post.category}
               </span>
             )}
 
             {/* Title */}
-            <h1 className="mt-5 font-display text-4xl font-semibold leading-[1.12] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+            <h1 className="mt-5 font-display text-4xl font-semibold leading-[1.3] text-foreground sm:text-5xl">
               {post.title}
             </h1>
 
             {/* Excerpt */}
             {post.excerpt && (
-              <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-muted sm:text-lg sm:leading-8">
+              <p className="mx-auto mt-6 max-w-2xl text-base leading-8 text-muted sm:text-lg">
                 {post.excerpt}
               </p>
             )}
@@ -111,7 +131,7 @@ export default async function BlogPostPage({
               {post.author?.name && (
                 <>
                   <span>
-                    By{" "}
+                    نویسنده:{" "}
                     <span className="font-medium text-foreground">
                       {post.author.name}
                     </span>
@@ -123,15 +143,7 @@ export default async function BlogPostPage({
                 </>
               )}
 
-              {date && (
-                <time dateTime={date}>
-                  {new Date(date).toLocaleDateString("en-US", {
-                    month: "long",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                </time>
-              )}
+              {date && <time dateTime={date}>{formatJalali(date)}</time>}
             </div>
           </header>
 
@@ -149,22 +161,13 @@ export default async function BlogPostPage({
           {/* Content */}
           <div className="mx-auto mt-12 max-w-3xl sm:mt-16">
             {post.content ? (
-              <div
-                className="
-                  whitespace-pre-wrap
-                  text-[15px]
-                  leading-8
-                  text-foreground/90
-                  sm:text-base
-                  sm:leading-8
-                "
-              >
+              <div className="whitespace-pre-wrap text-[15px] leading-8 text-foreground/90 sm:text-base">
                 {post.content}
               </div>
             ) : (
               <div className="rounded-xl border border-border bg-surface p-8 text-center">
                 <p className="text-sm text-muted">
-                  This article does not have any content yet.
+                  این نوشته هنوز محتوایی ندارد.
                 </p>
               </div>
             )}
@@ -176,8 +179,8 @@ export default async function BlogPostPage({
               href="/blog"
               className="inline-flex items-center gap-2 text-sm font-medium text-primary transition-opacity hover:opacity-80"
             >
-              <span>←</span>
-              Back to all articles
+              <span>→</span>
+              بازگشت به همه نوشته‌ها
             </Link>
           </div>
         </article>

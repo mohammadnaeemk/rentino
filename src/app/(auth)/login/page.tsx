@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { loginSchema, type LoginInput } from "@/lib/validations";
 import { useAuth } from "@/lib/auth-context";
 import { ApiRequestError } from "@/lib/api";
+import type { Role } from "@/types";
 
 export default function LoginPage() {
   return (
@@ -27,7 +28,7 @@ export default function LoginPage() {
 }
 
 function LoginForm() {
-  const { login, googleLogin } = useAuth();
+  const { login, googleLogin, demoLogin } = useAuth();
 
   const router = useRouter();
   const params = useSearchParams();
@@ -37,7 +38,6 @@ function LoginForm() {
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors, isSubmitting },
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
@@ -53,7 +53,7 @@ function LoginForm() {
     try {
       const user = await login(data);
 
-      toast.success("Welcome back!");
+      toast.success("خوش آمدید!");
 
       const next = params.get("next");
 
@@ -64,41 +64,27 @@ function LoginForm() {
       const message =
         err instanceof ApiRequestError
           ? err.message
-          : "Something went wrong. Try again.";
+          : "خطا در برقراری ارتباط با سرور. دوباره تلاش کنید.";
 
       setServerError(message);
     }
   }
 
   // =====================================================
-  // DEMO LOGIN
+  // DEMO LOGIN (no backend required)
   // =====================================================
 
-  function fillDemo(role: "customer" | "provider" | "admin") {
-    const creds = {
-      customer: {
-        email: "demo.customer@lensloop.app",
-        password: "Demo1234@",
-      },
-
-      provider: {
-        email: "demo.provider@lensloop.app",
-        password: "Demo1234@",
-      },
-
-      admin: {
-        email: "admin@gmail.com",
-        password: "123456abc@A",
-      },
-    }[role];
-
-    setValue("email", creds.email);
-    setValue("password", creds.password);
-
+  async function handleDemoLogin(role: Role) {
     setServerError(null);
 
-    toast.success(
-      `${role.charAt(0).toUpperCase() + role.slice(1)} demo credentials filled`,
+    const user = await demoLogin(role);
+
+    toast.success("ورود آزمایشی انجام شد");
+
+    const next = params.get("next");
+
+    router.replace(
+      next?.startsWith("/") ? next : `/dashboard/${user.role.toLowerCase()}`,
     );
   }
 
@@ -112,7 +98,7 @@ function LoginForm() {
     try {
       const user = await googleLogin(credential);
 
-      toast.success("Google login successful!");
+      toast.success("ورود با گوگل انجام شد");
 
       const next = params.get("next");
 
@@ -125,7 +111,7 @@ function LoginForm() {
           ? err.message
           : err instanceof Error
             ? err.message
-            : "Google login failed. Please try again.";
+            : "ورود با گوگل ناموفق بود. دوباره تلاش کنید.";
 
       setServerError(message);
       toast.error(message);
@@ -146,18 +132,18 @@ function LoginForm() {
           className="mb-8 flex items-center justify-center gap-2 font-display text-lg font-semibold"
         >
           <Aperture className="h-6 w-6 text-primary" strokeWidth={1.75} />
-          LensLoop
+          رنتینو
         </Link>
 
         {/* LOGIN CARD */}
 
         <div className="rounded-lg border border-border bg-background p-6 shadow-sm">
           <h1 className="font-display text-xl font-semibold">
-            Log in to your account
+            ورود به حساب کاربری
           </h1>
 
           <p className="mt-1 text-sm text-muted">
-            Book gear or manage your listings.
+            کالا رزرو کنید یا آگهی‌هایتان را مدیریت کنید.
           </p>
 
           {/* SERVER ERROR */}
@@ -181,11 +167,12 @@ function LoginForm() {
             {/* Email */}
 
             <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">ایمیل</Label>
 
               <Input
                 id="email"
                 type="email"
+                dir="ltr"
                 placeholder="you@example.com"
                 autoComplete="email"
                 {...register("email")}
@@ -199,11 +186,12 @@ function LoginForm() {
             {/* Password */}
 
             <div className="space-y-1.5">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">رمز عبور</Label>
 
               <Input
                 id="password"
                 type="password"
+                dir="ltr"
                 placeholder="••••••••"
                 autoComplete="current-password"
                 {...register("password")}
@@ -215,7 +203,7 @@ function LoginForm() {
             </div>
 
             <Button type="submit" className="w-full" loading={isSubmitting}>
-              Log in
+              ورود
             </Button>
           </form>
 
@@ -224,9 +212,7 @@ function LoginForm() {
           <div className="my-5 flex items-center gap-3">
             <Separator className="flex-1" />
 
-            <span className="text-xs uppercase tracking-wide text-muted">
-              or try a demo
-            </span>
+            <span className="text-xs text-muted">یا نسخه آزمایشی</span>
 
             <Separator className="flex-1" />
           </div>
@@ -236,76 +222,78 @@ function LoginForm() {
               variant="outline"
               size="sm"
               type="button"
-              onClick={() => fillDemo("customer")}
+              onClick={() => handleDemoLogin("CUSTOMER")}
             >
-              Customer
+              مشتری
             </Button>
 
             <Button
               variant="outline"
               size="sm"
               type="button"
-              onClick={() => fillDemo("provider")}
+              onClick={() => handleDemoLogin("PROVIDER")}
             >
-              Provider
+              تأمین‌کننده
             </Button>
 
             <Button
               variant="outline"
               size="sm"
               type="button"
-              onClick={() => fillDemo("admin")}
+              onClick={() => handleDemoLogin("ADMIN")}
             >
-              Admin
+              مدیر
             </Button>
           </div>
 
-          {/* GOOGLE LOGIN */}
+          {/* GOOGLE LOGIN (only when a client id is configured) */}
 
-          <div className="my-5 flex items-center gap-3">
-            <Separator className="flex-1" />
+          {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && (
+            <>
+              <div className="my-5 flex items-center gap-3">
+                <Separator className="flex-1" />
 
-            <span className="text-xs uppercase tracking-wide text-muted">
-              or continue with
-            </span>
+                <span className="text-xs text-muted">یا ادامه با</span>
 
-            <Separator className="flex-1" />
-          </div>
+                <Separator className="flex-1" />
+              </div>
 
-          <div className="flex justify-center">
-            <GoogleLogin
-              onSuccess={(credentialResponse) => {
-                if (!credentialResponse.credential) {
-                  const message =
-                    "Google authentication failed. No credential received.";
+              <div className="flex justify-center">
+                <GoogleLogin
+                  onSuccess={(credentialResponse) => {
+                    if (!credentialResponse.credential) {
+                      const message =
+                        "ورود با گوگل ناموفق بود؛ اعتبارنامه‌ای دریافت نشد.";
 
-                  setServerError(message);
-                  toast.error(message);
+                      setServerError(message);
+                      toast.error(message);
 
-                  return;
-                }
+                      return;
+                    }
 
-                handleGoogleSuccess(credentialResponse.credential);
-              }}
-              onError={() => {
-                const message = "Google login failed. Please try again.";
+                    handleGoogleSuccess(credentialResponse.credential);
+                  }}
+                  onError={() => {
+                    const message = "ورود با گوگل ناموفق بود. دوباره تلاش کنید.";
 
-                setServerError(message);
-                toast.error(message);
-              }}
-              width="100%"
-            />
-          </div>
+                    setServerError(message);
+                    toast.error(message);
+                  }}
+                  width="100%"
+                />
+              </div>
+            </>
+          )}
 
           {/* REGISTER */}
 
           <p className="mt-6 text-center text-sm text-muted">
-            Don&apos;t have an account?{" "}
+            حساب ندارید؟{" "}
             <Link
               href="/register"
               className="font-medium text-primary hover:underline"
             >
-              Create one
+              ساخت حساب
             </Link>
           </p>
         </div>

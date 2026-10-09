@@ -53,9 +53,9 @@
   --color-danger: var(--danger);
   --color-success: var(--success);
 
-  --font-display: var(--font-space-grotesk);
-  --font-sans: var(--font-inter);
-  --font-mono: var(--font-plex-mono);
+  --font-display: var(--font-vazirmatn);
+  --font-sans: var(--font-vazirmatn);
+  --font-mono: var(--font-vazirmatn);
 
   --radius-sm: calc(var(--radius) - 0.25rem);
   --radius-md: var(--radius);
@@ -70,13 +70,14 @@ body {
   background: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans);
+  line-height: 1.8;
 }
 
+/* Small chip label (category, role, spec). Persian-safe: no uppercase, no tracking. */
 .exif-chip {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 0.6875rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  line-height: 1.6;
   display: inline-flex;
   align-items: center;
   gap: 0.35em;
@@ -98,6 +99,7 @@ body {
   .iris-loader { animation: none; }
   * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
 }
+
 @keyframes loading {
   0% {
     transform: translateX(-120%);

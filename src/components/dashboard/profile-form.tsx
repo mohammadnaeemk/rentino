@@ -73,7 +73,7 @@ export function ProfileForm() {
 
       await api.put("/users/me", payload);
 
-      toast.success("Profile updated");
+      toast.success("پروفایل به‌روزرسانی شد");
 
       reset({
         name: data.name.trim(),
@@ -87,7 +87,7 @@ export function ProfileForm() {
           ? error.message
           : error instanceof Error
             ? error.message
-            : "Could not update profile.",
+            : "به‌روزرسانی پروفایل ممکن نشد.",
       );
     }
   }
@@ -138,8 +138,8 @@ export function ProfileForm() {
   return (
     <Card className="max-w-xl">
       <CardHeader>
-        <CardTitle>Your profile</CardTitle>
-        <CardDescription>Update your account information.</CardDescription>
+        <CardTitle>پروفایل شما</CardTitle>
+        <CardDescription>اطلاعات حساب خود را به‌روزرسانی کنید.</CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -151,18 +151,19 @@ export function ProfileForm() {
           {/* Avatar */}
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16">
-              <AvatarImage src={avatarUrl || undefined} alt={name || "User"} />
+              <AvatarImage src={avatarUrl || undefined} alt={name || "کاربر"} />
 
               <AvatarFallback className="text-lg">
-                {name ? name.slice(0, 2).toUpperCase() : "?"}
+                {name ? name.slice(0, 2).toUpperCase() : "؟"}
               </AvatarFallback>
             </Avatar>
 
             <div className="flex-1 space-y-1.5">
-              <Label htmlFor="avatarUrl">Avatar URL</Label>
+              <Label htmlFor="avatarUrl">آدرس تصویر پروفایل</Label>
 
               <Input
                 id="avatarUrl"
+                dir="ltr"
                 placeholder="https://example.com/avatar.jpg"
                 {...register("avatarUrl")}
               />
@@ -177,7 +178,7 @@ export function ProfileForm() {
 
           {/* Name */}
           <div className="space-y-1.5">
-            <Label htmlFor="name">Full name</Label>
+            <Label htmlFor="name">نام کامل</Label>
 
             <Input id="name" {...register("name")} />
 
@@ -188,18 +189,22 @@ export function ProfileForm() {
 
           {/* Email */}
           <div className="space-y-1.5">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">ایمیل</Label>
 
-            <Input id="email" type="email" value={user.email ?? ""} disabled />
+            <Input
+              id="email"
+              type="email"
+              dir="ltr"
+              value={user.email ?? ""}
+              disabled
+            />
 
-            <p className="text-xs text-muted">
-              Email address cannot be changed.
-            </p>
+            <p className="text-xs text-muted">آدرس ایمیل قابل تغییر نیست.</p>
           </div>
 
           {/* Submit */}
           <Button type="submit" loading={isSubmitting}>
-            Save changes
+            ذخیره تغییرات
           </Button>
         </form>
       </CardContent>

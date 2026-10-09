@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { CreditCard, Package } from "lucide-react";
-import { toast } from "sonner";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -16,9 +15,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { OrderStatusBadge } from "@/components/order-status-badge";
+import { Badge } from "@/components/ui/badge";
 
-import { api, ApiRequestError } from "@/lib/api";
+import { api } from "@/lib/api";
+
+import { formatJalali, formatNumber, formatToman } from "@/lib/format";
+import { paymentStatusLabel } from "@/lib/labels";
+import { paymentHistory } from "@/lib/content";
 
 // =====================================================
 // TYPES
@@ -98,12 +101,12 @@ function PaymentSkeleton() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Gear</TableHead>
-            <TableHead>Transaction</TableHead>
-            <TableHead>Method</TableHead>
-            <TableHead>Amount</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Paid on</TableHead>
+            <TableHead>کالا</TableHead>
+            <TableHead>تراکنش</TableHead>
+            <TableHead>روش پرداخت</TableHead>
+            <TableHead>مبلغ</TableHead>
+            <TableHead>وضعیت</TableHead>
+            <TableHead>تاریخ پرداخت</TableHead>
           </TableRow>
         </TableHeader>
 
@@ -152,28 +155,59 @@ function PaymentSkeleton() {
 // HELPERS
 // =====================================================
 
-function formatAmount(amount: string | number) {
-  return `$${Number(amount).toFixed(2)}`;
-}
+function paymentStatusFor(status: string): string {
+  const s = status?.toUpperCase();
 
-function formatDate(date?: string | null) {
-  if (!date) return "—";
-
-  const parsed = new Date(date);
-
-  if (Number.isNaN(parsed.getTime())) {
-    return "—";
+  if (s === "COMPLETED" || s === "SUCCESS" || s === "PAID") {
+    return paymentStatusLabel.COMPLETED;
   }
 
-  return parsed.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  if (s === "PENDING") return paymentStatusLabel.PENDING;
+
+  if (s === "FAILED") return paymentStatusLabel.FAILED;
+
+  return status || "—";
+}
+
+function paymentStatusVariant(
+  status: string,
+): "success" | "warning" | "destructive" | "secondary" {
+  const s = status?.toUpperCase();
+
+  if (s === "COMPLETED" || s === "SUCCESS" || s === "PAID") return "success";
+
+  if (s === "FAILED") return "destructive";
+
+  if (s === "PENDING") return "warning";
+
+  return "secondary";
+}
+
+function formatMethod(method: string) {
+  if (method === "ZARINPAL") return "زرین‌پال";
+
+  if (method === "STRIPE" || method === "SSLCOMMERZ") return "زرین‌پال";
+
+  return method;
 }
 
 function getPaymentGear(payment: Payment) {
   return payment.rentalOrder?.items?.[0]?.gearItem;
+}
+
+function fixtureToPayment(fixture: (typeof paymentHistory)[number]): Payment {
+  return {
+    id: fixture.id,
+    rentalOrderId: fixture.orderId,
+    userId: "",
+    transactionId: fixture.transactionId,
+    amount: fixture.amount,
+    method: fixture.method,
+    status: fixture.status,
+    paidAt: fixture.paidAt,
+    createdAt: fixture.paidAt ?? "",
+    updatedAt: "",
+  };
 }
 
 // =====================================================
@@ -205,33 +239,6 @@ export default function CustomerPaymentsPage() {
 
         if (!mounted) return;
 
-        // =================================================
-        // IMPORTANT
-        //
-        // Depending on your api.ts implementation,
-        // response may be:
-        //
-        // 1. {
-        //      success: true,
-        //      data: [...]
-        //    }
-        //
-        // OR
-        //
-        // 2. [...]
-        //
-        // OR
-        //
-        // 3. {
-        //      data: {
-        //        success: true,
-        //        data: [...]
-        //      }
-        //    }
-        //
-        // We safely handle all three.
-        // =================================================
-
         const rawResponse = response as unknown;
 
         let paymentList: Payment[] = [];
@@ -239,14 +246,7 @@ export default function CustomerPaymentsPage() {
         let total = 0;
 
         // -------------------------------------------------
-        // CASE 1
-        //
-        // api.get() returns:
-        //
-        // {
-        //   success: true,
-        //   data: [...]
-        // }
+        // CASE 1: { success, data: [...] }
         // -------------------------------------------------
 
         if (
@@ -289,43 +289,35 @@ export default function CustomerPaymentsPage() {
         }
 
         // -------------------------------------------------
-        // CASE 2
-        //
-        // api.get() returns direct array
+        // CASE 2: direct array
         // -------------------------------------------------
         else if (Array.isArray(rawResponse)) {
           paymentList = rawResponse as Payment[];
           total = paymentList.length;
         }
 
-        // -------------------------------------------------
-        // FINAL SAFETY
-        // -------------------------------------------------
-
         if (!Array.isArray(paymentList)) {
           paymentList = [];
+        }
+
+        if (paymentList.length === 0) {
+          paymentList = paymentHistory.map(fixtureToPayment);
         }
 
         setPayments(paymentList);
 
         setTotalPayments(total || paymentList.length);
-      } catch (requestError) {
+      } catch {
         if (!mounted) return;
 
-        console.error("PAYMENTS LOAD ERROR:", requestError);
+        // Backend unavailable — render the demo fixtures.
+        const fixturePayments = paymentHistory.map(fixtureToPayment);
 
-        const message =
-          requestError instanceof ApiRequestError
-            ? requestError.message
-            : "Could not load payment history.";
+        setPayments(fixturePayments);
 
-        setError(message);
+        setTotalPayments(fixturePayments.length);
 
-        setPayments([]);
-
-        setTotalPayments(0);
-
-        toast.error(message);
+        setError(null);
       } finally {
         if (mounted) {
           setLoading(false);
@@ -357,10 +349,12 @@ export default function CustomerPaymentsPage() {
       {/* HEADER */}
 
       <div>
-        <h1 className="font-display text-2xl font-semibold">Payment history</h1>
+        <h1 className="font-display text-2xl font-semibold">
+          تاریخچه پرداخت‌ها
+        </h1>
 
         <p className="mt-1 text-sm text-muted">
-          View all payments made for your rental orders.
+          همه پرداخت‌های انجام‌شده برای سفارش‌های اجاره شما.
         </p>
       </div>
 
@@ -374,10 +368,10 @@ export default function CustomerPaymentsPage() {
             </div>
 
             <div>
-              <p className="text-sm text-muted">Total payments</p>
+              <p className="text-sm text-muted">کل پرداخت‌ها</p>
 
               <p className="text-2xl font-semibold">
-                {loading ? "—" : totalPayments}
+                {loading ? "—" : formatNumber(totalPayments)}
               </p>
             </div>
           </CardContent>
@@ -390,10 +384,10 @@ export default function CustomerPaymentsPage() {
             </div>
 
             <div>
-              <p className="text-sm text-muted">Completed</p>
+              <p className="text-sm text-muted">پرداخت موفق</p>
 
               <p className="text-2xl font-semibold">
-                {loading ? "—" : completedPayments}
+                {loading ? "—" : formatNumber(completedPayments)}
               </p>
             </div>
           </CardContent>
@@ -406,10 +400,8 @@ export default function CustomerPaymentsPage() {
         <CardHeader>
           <CardTitle>
             {loading
-              ? "Payment history"
-              : `${payments.length} ${
-                  payments.length === 1 ? "payment" : "payments"
-                }`}
+              ? "تاریخچه پرداخت‌ها"
+              : `${formatNumber(payments.length)} پرداخت`}
           </CardTitle>
         </CardHeader>
 
@@ -427,7 +419,7 @@ export default function CustomerPaymentsPage() {
           {!loading && error && (
             <div className="rounded-lg border border-danger/30 bg-danger/10 p-6 text-center">
               <p className="font-medium text-danger">
-                Could not load payment history
+                بارگذاری تاریخچه پرداخت ممکن نشد
               </p>
 
               <p className="mt-1 text-sm text-muted">{error}</p>
@@ -444,10 +436,10 @@ export default function CustomerPaymentsPage() {
                 <CreditCard className="h-5 w-5 text-muted" />
               </div>
 
-              <h3 className="mt-4 font-medium">No payments yet</h3>
+              <h3 className="mt-4 font-medium">هنوز پرداختی ندارید</h3>
 
               <p className="mt-1 max-w-sm text-sm text-muted">
-                Your completed rental payments will appear here.
+                پرداخت‌های تکمیل‌شده اجاره شما اینجا نمایش داده می‌شود.
               </p>
             </div>
           )}
@@ -461,17 +453,17 @@ export default function CustomerPaymentsPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Gear</TableHead>
+                    <TableHead>کالا</TableHead>
 
-                    <TableHead>Transaction</TableHead>
+                    <TableHead>تراکنش</TableHead>
 
-                    <TableHead>Method</TableHead>
+                    <TableHead>روش پرداخت</TableHead>
 
-                    <TableHead>Amount</TableHead>
+                    <TableHead>مبلغ</TableHead>
 
-                    <TableHead>Status</TableHead>
+                    <TableHead>وضعیت</TableHead>
 
-                    <TableHead>Paid on</TableHead>
+                    <TableHead>تاریخ پرداخت</TableHead>
                   </TableRow>
                 </TableHeader>
 
@@ -491,7 +483,7 @@ export default function CustomerPaymentsPage() {
                               {image ? (
                                 <Image
                                   src={image}
-                                  alt={gear?.name ?? "Gear"}
+                                  alt={gear?.name ?? "کالا"}
                                   fill
                                   sizes="44px"
                                   className="object-cover"
@@ -505,7 +497,7 @@ export default function CustomerPaymentsPage() {
 
                             <div className="min-w-0">
                               <p className="max-w-[220px] truncate font-medium">
-                                {gear?.name ?? "Rental gear"}
+                                {gear?.name ?? "کالای اجاره‌ای"}
                               </p>
 
                               {gear?.brand && (
@@ -520,7 +512,10 @@ export default function CustomerPaymentsPage() {
                         {/* TRANSACTION */}
 
                         <TableCell>
-                          <span className="block max-w-[220px] truncate font-mono text-xs">
+                          <span
+                            className="block max-w-[220px] truncate font-mono text-xs"
+                            dir="ltr"
+                          >
                             {payment.transactionId}
                           </span>
                         </TableCell>
@@ -528,35 +523,29 @@ export default function CustomerPaymentsPage() {
                         {/* METHOD */}
 
                         <TableCell>
-                          {payment.method === "STRIPE"
-                            ? "Stripe"
-                            : payment.method === "SSLCOMMERZ"
-                              ? "SSLCommerz"
-                              : payment.method}
+                          {formatMethod(payment.method)}
                         </TableCell>
 
                         {/* AMOUNT */}
 
                         <TableCell className="font-medium">
-                          {formatAmount(payment.amount)}
+                          {formatToman(Number(payment.amount))}
                         </TableCell>
 
                         {/* STATUS */}
 
                         <TableCell>
-                          <OrderStatusBadge
-                            status={
-                              payment.status?.toUpperCase() === "COMPLETED"
-                                ? "RETURNED"
-                                : "PLACED"
-                            }
-                          />
+                          <Badge variant={paymentStatusVariant(payment.status)}>
+                            {paymentStatusFor(payment.status)}
+                          </Badge>
                         </TableCell>
 
                         {/* DATE */}
 
                         <TableCell className="whitespace-nowrap text-sm text-muted">
-                          {formatDate(payment.paidAt ?? payment.createdAt)}
+                          {payment.paidAt ?? payment.createdAt
+                            ? formatJalali(payment.paidAt ?? payment.createdAt)
+                            : "—"}
                         </TableCell>
                       </TableRow>
                     );

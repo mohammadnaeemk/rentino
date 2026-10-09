@@ -12,13 +12,13 @@ import {
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 
 const navItems = [
-  { href: "/dashboard/admin", label: "Overview", icon: LayoutDashboard },
-  { href: "/dashboard/admin/users", label: "Manage Users", icon: Users },
-  { href: "/dashboard/admin/gear", label: "Manage Gear", icon: Package },
-  { href: "/dashboard/admin/rentals", label: "Rentals", icon: ClipboardList },
-  { href: "/dashboard/admin/categories", label: "Categories", icon: Tags },
-  { href: "/dashboard/admin/blog", label: "Blog", icon: Newspaper },
-  { href: "/dashboard/admin/profile", label: "Profile", icon: UserCircle },
+  { href: "/dashboard/admin", label: "نمای کلی", icon: LayoutDashboard },
+  { href: "/dashboard/admin/users", label: "مدیریت کاربران", icon: Users },
+  { href: "/dashboard/admin/gear", label: "مدیریت کالاها", icon: Package },
+  { href: "/dashboard/admin/rentals", label: "اجاره‌ها", icon: ClipboardList },
+  { href: "/dashboard/admin/categories", label: "دسته‌بندی‌ها", icon: Tags },
+  { href: "/dashboard/admin/blog", label: "وبلاگ", icon: Newspaper },
+  { href: "/dashboard/admin/profile", label: "پروفایل", icon: UserCircle },
 ];
 
 export default function AdminLayout({
@@ -27,7 +27,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <DashboardShell navItems={navItems} roleLabel="Admin">
+    <DashboardShell navItems={navItems} roleLabel="مدیر">
       {children}
     </DashboardShell>
   );

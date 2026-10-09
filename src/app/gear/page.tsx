@@ -18,8 +18,10 @@ import {
 } from "@/components/ui/select";
 
 import { GearCard } from "@/components/gear/gear-card";
-import { api, ApiRequestError } from "@/lib/api";
+import { api } from "@/lib/api";
 import { toGearItem, type ApiGear } from "@/lib/gear";
+import { gearItems as mockGear, categories as mockCategories } from "@/lib/content";
+import { formatNumber } from "@/lib/format";
 import type { Category, GearItem } from "@/types";
 
 const PAGE_SIZE = 6;
@@ -102,16 +104,10 @@ export default function GearListingPage() {
       } catch (error) {
         console.error("Failed to load gear:", error);
 
-        setItems([]);
-        setCategories([]);
-
-        if (error instanceof ApiRequestError) {
-          setError(error.message);
-        } else if (error instanceof Error) {
-          setError(error.message);
-        } else {
-          setError("Could not load gear.");
-        }
+        // Backend not available yet — fall back to bundled demo data.
+        setItems(mockGear);
+        setCategories(mockCategories);
+        setError("");
       } finally {
         setLoading(false);
       }
@@ -265,19 +261,19 @@ export default function GearListingPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="font-display text-2xl font-semibold sm:text-3xl">
-            Browse gear
+            جستجوی کالا
           </h1>
 
           <p className="mt-1 text-sm text-muted">
             {loading
-              ? "Loading gear..."
-              : `${filtered.length} listings match your filters.`}
+              ? "در حال بارگذاری کالاها..."
+              : `${formatNumber(filtered.length)} آگهی مطابق فیلترهای شما.`}
           </p>
         </div>
 
         {/* Error */}
         {error && !loading && (
-          <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          <div className="mb-6 rounded-lg border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">
             {error}
           </div>
         )}
@@ -286,25 +282,25 @@ export default function GearListingPage() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           {/* Search */}
           <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+            <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
 
             <Input
-              placeholder="Search by gear name or brand..."
-              className="pl-9"
+              placeholder="جستجو بر اساس نام یا برند کالا..."
+              className="ps-9"
               value={search}
               onChange={(e) => handleSearchChange(e.target.value)}
-              aria-label="Search gear"
+              aria-label="جستجوی کالا"
             />
           </div>
 
           {/* Category */}
           <Select value={category} onValueChange={handleCategoryChange}>
             <SelectTrigger className="sm:w-48">
-              <SelectValue placeholder="Category" />
+              <SelectValue placeholder="دسته‌بندی" />
             </SelectTrigger>
 
             <SelectContent>
-              <SelectItem value="all">All categories</SelectItem>
+              <SelectItem value="all">همه دسته‌بندی‌ها</SelectItem>
 
               {categories.map((c) => (
                 <SelectItem key={c.id} value={c.slug}>
@@ -317,17 +313,17 @@ export default function GearListingPage() {
           {/* Price */}
           <Select value={priceRange} onValueChange={handlePriceChange}>
             <SelectTrigger className="sm:w-44">
-              <SelectValue placeholder="Price range" />
+              <SelectValue placeholder="بازه قیمت" />
             </SelectTrigger>
 
             <SelectContent>
-              <SelectItem value="all">Any price</SelectItem>
+              <SelectItem value="all">هر قیمتی</SelectItem>
 
-              <SelectItem value="0-30">Under $30/day</SelectItem>
+              <SelectItem value="0-3000000">تا ۳۰۰ هزار تومان</SelectItem>
 
-              <SelectItem value="30-60">$30–$60/day</SelectItem>
+              <SelectItem value="3000000-6000000">۳۰۰ تا ۶۰۰ هزار تومان</SelectItem>
 
-              <SelectItem value="60-1000">$60+/day</SelectItem>
+              <SelectItem value="6000000-999999999">بالای ۶۰۰ هزار تومان</SelectItem>
             </SelectContent>
           </Select>
 
@@ -337,17 +333,17 @@ export default function GearListingPage() {
             onValueChange={(value) => handleSortChange(value as SortKey)}
           >
             <SelectTrigger className="sm:w-44">
-              <SelectValue placeholder="Sort by" />
+              <SelectValue placeholder="مرتب‌سازی" />
             </SelectTrigger>
 
             <SelectContent>
-              <SelectItem value="recommended">Recommended</SelectItem>
+              <SelectItem value="recommended">پیشنهادی</SelectItem>
 
-              <SelectItem value="price-asc">Price: low to high</SelectItem>
+              <SelectItem value="price-asc">قیمت: کم به زیاد</SelectItem>
 
-              <SelectItem value="price-desc">Price: high to low</SelectItem>
+              <SelectItem value="price-desc">قیمت: زیاد به کم</SelectItem>
 
-              <SelectItem value="rating">Top rated</SelectItem>
+              <SelectItem value="rating">بیشترین امتیاز</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -368,15 +364,15 @@ export default function GearListingPage() {
         {/* Empty state */}
         {!loading && !error && filtered.length === 0 && (
           <div className="mt-16 flex flex-col items-center justify-center text-center">
-            <h2 className="text-lg font-semibold">No gear found</h2>
+            <h2 className="text-lg font-semibold">کالایی یافت نشد</h2>
 
             <p className="mt-2 max-w-md text-sm text-muted">
-              No gear matches those filters yet. Try changing your search or
-              filters.
+              هیچ کالایی با این فیلترها مطابقت ندارد. جستجو یا فیلترها را تغییر
+              دهید.
             </p>
 
             <Button variant="outline" className="mt-4" onClick={clearFilters}>
-              Clear filters
+              حذف فیلترها
             </Button>
           </div>
         )}
@@ -390,11 +386,11 @@ export default function GearListingPage() {
               disabled={safePage === 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
             >
-              Previous
+              قبلی
             </Button>
 
             <span className="px-2 text-sm text-muted">
-              Page {safePage} of {totalPages}
+              صفحه {formatNumber(safePage)} از {formatNumber(totalPages)}
             </span>
 
             <Button
@@ -403,7 +399,7 @@ export default function GearListingPage() {
               disabled={safePage === totalPages}
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             >
-              Next
+              بعدی
             </Button>
           </div>
         )}

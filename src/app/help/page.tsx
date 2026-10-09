@@ -11,20 +11,20 @@ import {
 
 const topics = [
   {
-    q: "How do I cancel a rental order?",
-    a: "Go to My Rentals in your dashboard and open the order. Orders that haven't been confirmed by the provider yet can be cancelled with no charge.",
+    q: "چطور یک سفارش اجاره را لغو کنم؟",
+    a: "به بخش «اجاره‌های من» در پنل کاربری بروید و سفارش را باز کنید. سفارش‌هایی که هنوز توسط تأمین‌کننده تأیید نشده‌اند، بدون هزینه قابل لغو هستند.",
   },
   {
-    q: "My gear arrived damaged — what do I do?",
-    a: "Photograph the issue immediately and report it from the order page within 2 hours of pickup. Our support team will mediate with the provider.",
+    q: "کالا هنگام تحویل آسیب‌دیده بود — چه کنم؟",
+    a: "بلافاصله از مشکل عکس بگیرید و ظرف ۲ ساعت پس از تحویل، از صفحه سفارش گزارش دهید. تیم پشتیبانی با تأمین‌کننده میانجی‌گری می‌کند.",
   },
   {
-    q: "How do provider payouts work?",
-    a: "Payouts are released automatically 24 hours after a rental is marked Returned, direct to the bank account on file in your provider profile.",
+    q: "پرداخت تأمین‌کنندگان چگونه است؟",
+    a: "پس از ثبت بازگشت کالا، تسویه‌حساب به‌صورت خودکار و طی ۲۴ ساعت به حساب بانکی ثبت‌شده در پروفایل تأمین‌کننده واریز می‌شود.",
   },
   {
-    q: "Can I extend an active rental?",
-    a: "Yes, as long as the gear isn't already booked for the following dates. Request an extension from the order detail page.",
+    q: "آیا می‌توانم اجاره فعال را تمدید کنم؟",
+    a: "بله، به شرطی که کالا برای روزهای بعد رزرو نشده باشد. درخواست تمدید را از صفحه جزئیات سفارش ثبت کنید.",
   },
 ];
 
@@ -33,8 +33,8 @@ export default function HelpPage() {
     <div className="flex min-h-screen flex-col">
       <Navbar />
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-16 sm:px-6 lg:px-8">
-        <h1 className="font-display text-3xl font-semibold">Help &amp; support</h1>
-        <p className="mt-2 text-muted">Answers to the most common questions from renters and providers.</p>
+        <h1 className="font-display text-3xl font-semibold">راهنما و پشتیبانی</h1>
+        <p className="mt-2 text-muted">پاسخ رایج‌ترین پرسش‌های اجاره‌کنندگان و تأمین‌کنندگان.</p>
 
         <Accordion type="single" collapsible className="mt-8">
           {topics.map((t) => (
@@ -46,9 +46,9 @@ export default function HelpPage() {
         </Accordion>
 
         <div className="mt-10 rounded-lg border border-border bg-surface p-6 text-center">
-          <p className="text-sm text-muted">Still need help?</p>
+          <p className="text-sm text-muted">هنوز به کمک نیاز دارید؟</p>
           <Button className="mt-3" asChild>
-            <Link href="/contact">Contact support</Link>
+            <Link href="/contact">تماس با پشتیبانی</Link>
           </Button>
         </div>
       </main>

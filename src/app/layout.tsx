@@ -1,27 +1,22 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/lib/auth-context";
 import { Toaster } from "@/components/ui/sonner";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-space-grotesk",
-});
-const plexMono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-plex-mono",
+const vazirmatn = localFont({
+  src: "../../public/fonts/Vazirmatn-Variable.ttf",
+  variable: "--font-vazirmatn",
+  display: "swap",
+  weight: "100 900",
 });
 
 export const metadata: Metadata = {
-  title: "LensLoop — Your Outdoor Equipment, Ready to Explore",
-
+  title: "رنتینو — بازارچه آنلاین اجاره کالا",
   description:
-    "Discover and Book quality outdoor equipment from trusted local providers. Book easily, pick up, explore, and return hassle-free.",
+    "رنتینو؛ بازارچه آنلاین اجاره خودرو، کنسول بازی، دوچرخه، دوربین و دیگر کالاها. رزرو آسان، قیمت شفاف و تحویل سریع از تأمین‌کنندگان معتبر.",
 };
 
 export default function RootLayout({
@@ -30,17 +25,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${inter.variable} ${spaceGrotesk.variable} ${plexMono.variable} font-sans antialiased`}
-      >
+    <html lang="fa" dir="rtl" suppressHydrationWarning className={vazirmatn.variable}>
+      <body className="font-sans antialiased">
         <GoogleOAuthProvider
-          clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
+          clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? ""}
         >
           <ThemeProvider>
             <AuthProvider>
               {children}
-              <Toaster position="top-right" />
+              <Toaster dir="rtl" position="bottom-center" />
             </AuthProvider>
           </ThemeProvider>
         </GoogleOAuthProvider>

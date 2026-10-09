@@ -14,7 +14,7 @@ export default function EditBlogPostPage() {
 
   if (loading) return <Skeleton className="h-96 w-full max-w-3xl" />;
   if (error || !post)
-    return <ErrorBanner message={error || "Post not found"} />;
+    return <ErrorBanner message={error || "نوشته پیدا نشد"} />;
 
   return <BlogForm existing={post} />;
 }

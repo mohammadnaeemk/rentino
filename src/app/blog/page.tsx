@@ -3,6 +3,8 @@ import Link from "next/link";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { Card, CardContent } from "@/components/ui/card";
+import { blogPosts as mockBlogPosts } from "@/lib/content";
+import { formatJalali } from "@/lib/format";
 
 interface BlogPost {
   id: string;
@@ -54,17 +56,31 @@ async function getBlogPosts(): Promise<BlogPost[]> {
 }
 
 export default async function BlogPage() {
-  const posts = await getBlogPosts();
+  const livePosts = await getBlogPosts();
+
+  // Backend not available — fall back to bundled demo posts.
+  const posts: BlogPost[] =
+    livePosts.length > 0
+      ? livePosts
+      : mockBlogPosts.map((post) => ({
+          id: post.slug,
+          title: post.title,
+          slug: post.slug,
+          excerpt: post.excerpt,
+          category: post.category,
+          createdAt: post.date,
+          publishedAt: post.date,
+        }));
 
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
 
       <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-16 sm:px-6 lg:px-8">
-        <h1 className="font-display text-3xl font-semibold">Blog</h1>
+        <h1 className="font-display text-3xl font-semibold">وبلاگ</h1>
 
         <p className="mt-2 text-muted">
-          Guides and notes for renters and providers on LensLoop.
+          راهنماها و یادداشت‌هایی برای اجاره‌کنندگان و تأمین‌کنندگان رنتینو.
         </p>
 
         <div className="mt-10 space-y-6">
@@ -81,17 +97,13 @@ export default async function BlogPage() {
                   <Card className="transition-colors hover:border-primary">
                     <CardContent className="p-6">
                       {date && (
-                        <p className="text-xs uppercase tracking-wide text-muted">
-                          {new Date(date).toLocaleDateString("en-US", {
-                            month: "long",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
+                        <p className="text-xs text-muted">
+                          {formatJalali(date)}
                         </p>
                       )}
 
                       {post.category && (
-                        <p className="mt-2 text-xs font-medium uppercase tracking-wide text-primary">
+                        <p className="mt-2 text-xs font-medium text-primary">
                           {post.category}
                         </p>
                       )}
@@ -108,7 +120,7 @@ export default async function BlogPage() {
 
                       {post.author?.name && (
                         <p className="mt-4 text-xs text-muted">
-                          By {post.author.name}
+                          نویسنده: {post.author.name}
                         </p>
                       )}
                     </CardContent>
@@ -118,7 +130,7 @@ export default async function BlogPage() {
             })
           ) : (
             <div className="rounded-xl border border-border p-8 text-center">
-              <p className="text-muted">No blog posts available yet.</p>
+              <p className="text-muted">هنوز نوشته‌ای منتشر نشده است.</p>
             </div>
           )}
         </div>

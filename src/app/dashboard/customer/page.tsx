@@ -4,10 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Package, Wallet, Star, Clock } from "lucide-react";
-import { toast } from "sonner";
 
 import { StatCard } from "@/components/dashboard/stat-card";
 import { OrderStatusBadge } from "@/components/order-status-badge";
+import { Badge } from "@/components/ui/badge";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -24,7 +24,11 @@ import {
 
 import { Button } from "@/components/ui/button";
 
-import { api, ApiRequestError, type ApiResponse } from "@/lib/api";
+import { api, type ApiResponse } from "@/lib/api";
+
+import { formatJalali, formatNumber, formatToman } from "@/lib/format";
+import { paymentStatusLabel, rentalStatusLabel } from "@/lib/labels";
+import { paymentHistory, rentalOrders } from "@/lib/content";
 
 import type { RentalStatus } from "@/types";
 
@@ -121,40 +125,44 @@ const tabs: {
   value: RentalStatus | "ALL";
   label: string;
 }[] = [
-  { value: "ALL", label: "All" },
-  { value: "PLACED", label: "Placed" },
-  { value: "CONFIRMED", label: "Confirmed" },
-  { value: "PAID", label: "Paid" },
-  { value: "PICKED_UP", label: "Picked up" },
-  { value: "RETURNED", label: "Returned" },
+  { value: "ALL", label: "همه" },
+  { value: "PLACED", label: rentalStatusLabel.PLACED },
+  { value: "CONFIRMED", label: rentalStatusLabel.CONFIRMED },
+  { value: "PAID", label: rentalStatusLabel.PAID },
+  { value: "PICKED_UP", label: rentalStatusLabel.PICKED_UP },
+  { value: "RETURNED", label: rentalStatusLabel.RETURNED },
 ];
 
 /* =========================================================
    HELPERS
 ========================================================= */
 
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 2,
-  }).format(value);
-}
+function paymentStatusFor(status: string): string {
+  const s = status?.toUpperCase();
 
-function formatDate(value?: string) {
-  if (!value) return "—";
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return value;
+  if (s === "COMPLETED" || s === "SUCCESS" || s === "PAID") {
+    return paymentStatusLabel.COMPLETED;
   }
 
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(date);
+  if (s === "PENDING") return paymentStatusLabel.PENDING;
+
+  if (s === "FAILED") return paymentStatusLabel.FAILED;
+
+  return status || "—";
+}
+
+function paymentStatusVariant(
+  status: string,
+): "success" | "warning" | "destructive" | "secondary" {
+  const s = status?.toUpperCase();
+
+  if (s === "COMPLETED" || s === "SUCCESS" || s === "PAID") return "success";
+
+  if (s === "FAILED") return "destructive";
+
+  if (s === "PENDING") return "warning";
+
+  return "secondary";
 }
 
 /* =========================================================
@@ -166,7 +174,7 @@ function toRentalOrder(order: ApiRental): RentalOrder {
 
   const gear = firstItem?.gear ?? order.gear;
 
-  const gearTitle = order.gearTitle ?? gear?.title ?? gear?.name ?? "Gear item";
+  const gearTitle = order.gearTitle ?? gear?.title ?? gear?.name ?? "کالا";
 
   const image = order.image ?? gear?.images?.[0] ?? gear?.image;
 
@@ -191,13 +199,43 @@ function toPaymentHistory(payment: ApiPayment): PaymentHistoryItem {
 
     transactionId: payment.transactionId ?? payment.id,
 
-    method: payment.method ?? "Payment",
+    method: payment.method ?? "پرداخت",
 
     amount: Number(payment.amount) || 0,
 
     status: payment.status,
 
     paidAt: payment.paidAt ?? payment.createdAt ?? null,
+  };
+}
+
+/* =========================================================
+   FIXTURE MAPPERS (backend unavailable → demo data)
+========================================================= */
+
+function toRentalOrderFromFixture(
+  fixture: (typeof rentalOrders)[number],
+): RentalOrder {
+  return {
+    id: fixture.id,
+    gearTitle: fixture.gearTitle,
+    startDate: fixture.startDate,
+    endDate: fixture.endDate,
+    totalAmount: fixture.totalAmount,
+    status: fixture.status,
+  };
+}
+
+function toPaymentHistoryFromFixture(
+  fixture: (typeof paymentHistory)[number],
+): PaymentHistoryItem {
+  return {
+    id: fixture.id,
+    transactionId: fixture.transactionId,
+    method: fixture.method,
+    amount: fixture.amount,
+    status: fixture.status,
+    paidAt: fixture.paidAt,
   };
 }
 
@@ -233,8 +271,8 @@ function RentalTableSkeleton() {
             <div className="h-6 w-20 animate-pulse rounded-full bg-surface-muted" />
           </TableCell>
 
-          <TableCell className="text-right">
-            <div className="ml-auto h-8 w-20 animate-pulse rounded bg-surface-muted" />
+          <TableCell className="text-end">
+            <div className="ms-auto h-8 w-20 animate-pulse rounded bg-surface-muted" />
           </TableCell>
         </TableRow>
       ))}
@@ -331,7 +369,11 @@ export default function CustomerOverviewPage() {
 
         const rentalArray = Array.isArray(rentalData) ? rentalData : [];
 
-        setRentals(rentalArray.map(toRentalOrder));
+        setRentals(
+          rentalArray.length > 0
+            ? rentalArray.map(toRentalOrder)
+            : rentalOrders.map(toRentalOrderFromFixture),
+        );
 
         /* -----------------------------------------------
            PAYMENTS
@@ -342,18 +384,18 @@ export default function CustomerOverviewPage() {
 
         const paymentArray = Array.isArray(paymentData) ? paymentData : [];
 
-        setPayments(paymentArray.map(toPaymentHistory));
-      } catch (requestError) {
+        setPayments(
+          paymentArray.length > 0
+            ? paymentArray.map(toPaymentHistory)
+            : paymentHistory.map(toPaymentHistoryFromFixture),
+        );
+      } catch {
         if (!active) return;
 
-        const message =
-          requestError instanceof ApiRequestError
-            ? requestError.message
-            : "Could not load your dashboard.";
-
-        setError(message);
-
-        toast.error(message);
+        // Backend unavailable — render the demo fixtures.
+        setRentals(rentalOrders.map(toRentalOrderFromFixture));
+        setPayments(paymentHistory.map(toPaymentHistoryFromFixture));
+        setError(null);
       } finally {
         if (active) {
           setLoading(false);
@@ -422,10 +464,10 @@ export default function CustomerOverviewPage() {
       ================================================= */}
 
       <div>
-        <h1 className="font-display text-2xl font-semibold">Welcome back</h1>
+        <h1 className="font-display text-2xl font-semibold">خوش آمدید</h1>
 
         <p className="mt-1 text-sm text-muted">
-          Here&apos;s what&apos;s happening with your rentals.
+          در ادامه وضعیت اجاره‌های شما را می‌بینید.
         </p>
       </div>
 
@@ -445,32 +487,32 @@ export default function CustomerOverviewPage() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          label="Active rentals"
-          value={loading ? "..." : String(activeRentals)}
+          label="اجاره‌های فعال"
+          value={loading ? "..." : formatNumber(activeRentals)}
           icon={Package}
         />
 
         <StatCard
-          label="Total spent"
-          value={loading ? "..." : formatCurrency(totalSpent)}
+          label="مجموع پرداختی"
+          value={loading ? "..." : formatToman(totalSpent)}
           icon={Wallet}
         />
 
         <StatCard
-          label="Upcoming pickup"
+          label="تحویل بعدی"
           value={
             loading
               ? "..."
               : upcomingRental
-                ? formatDate(upcomingRental.startDate)
+                ? formatJalali(upcomingRental.startDate)
                 : "—"
           }
           icon={Clock}
         />
 
         <StatCard
-          label="Reviews left"
-          value={loading ? "..." : String(reviewsLeft)}
+          label="نظرهای باقی‌مانده"
+          value={loading ? "..." : formatNumber(reviewsLeft)}
           icon={Star}
         />
       </div>
@@ -483,10 +525,10 @@ export default function CustomerOverviewPage() {
         {/* Header ALWAYS visible */}
 
         <CardHeader className="flex-row items-center justify-between">
-          <CardTitle>Rental order history</CardTitle>
+          <CardTitle>تاریخچه سفارش‌های اجاره</CardTitle>
 
           <Button variant="outline" size="sm" asChild>
-            <Link href="/gear">Rent more gear</Link>
+            <Link href="/gear">اجاره کالای جدید</Link>
           </Button>
         </CardHeader>
 
@@ -516,15 +558,15 @@ export default function CustomerOverviewPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Gear</TableHead>
+                  <TableHead>کالا</TableHead>
 
-                  <TableHead>Dates</TableHead>
+                  <TableHead>تاریخ‌ها</TableHead>
 
-                  <TableHead>Total</TableHead>
+                  <TableHead>جمع کل</TableHead>
 
-                  <TableHead>Status</TableHead>
+                  <TableHead>وضعیت</TableHead>
 
-                  <TableHead className="text-right">Action</TableHead>
+                  <TableHead className="text-end">عملیات</TableHead>
                 </TableRow>
               </TableHeader>
 
@@ -562,7 +604,9 @@ export default function CustomerOverviewPage() {
                                 {order.gearTitle}
                               </p>
 
-                              <p className="text-xs text-muted">Rental item</p>
+                              <p className="text-xs text-muted">
+                                کالای اجاره‌ای
+                              </p>
                             </div>
                           </div>
                         </TableCell>
@@ -570,15 +614,15 @@ export default function CustomerOverviewPage() {
                         {/* Dates */}
 
                         <TableCell className="whitespace-nowrap text-muted">
-                          {formatDate(order.startDate)}
+                          {formatJalali(order.startDate)}
                           {" → "}
-                          {formatDate(order.endDate)}
+                          {formatJalali(order.endDate)}
                         </TableCell>
 
                         {/* Total */}
 
                         <TableCell>
-                          {formatCurrency(order.totalAmount)}
+                          {formatToman(order.totalAmount)}
                         </TableCell>
 
                         {/* Status */}
@@ -589,20 +633,20 @@ export default function CustomerOverviewPage() {
 
                         {/* Action */}
 
-                        <TableCell className="text-right">
+                        <TableCell className="text-end">
                           {order.status === "CONFIRMED" && (
                             <Button size="sm" asChild>
                               <Link
                                 href={`/dashboard/customer/orders/${order.id}/pay`}
                               >
-                                Pay now
+                                پرداخت کن
                               </Link>
                             </Button>
                           )}
 
                           {order.status === "RETURNED" && (
                             <Button size="sm" variant="outline">
-                              Leave review
+                              ثبت نظر
                             </Button>
                           )}
 
@@ -623,7 +667,7 @@ export default function CustomerOverviewPage() {
                             <Package className="h-8 w-8 text-muted" />
 
                             <p className="text-sm text-muted">
-                              No rentals in this status yet.
+                              هنوز اجاره‌ای با این وضعیت ثبت نشده است.
                             </p>
 
                             <Button
@@ -632,7 +676,7 @@ export default function CustomerOverviewPage() {
                               size="sm"
                               className="mt-2"
                             >
-                              <Link href="/gear">Browse gear</Link>
+                              <Link href="/gear">جستجوی کالا</Link>
                             </Button>
                           </div>
                         </TableCell>
@@ -654,7 +698,7 @@ export default function CustomerOverviewPage() {
         {/* Header ALWAYS visible */}
 
         <CardHeader>
-          <CardTitle>Payment history</CardTitle>
+          <CardTitle>تاریخچه پرداخت‌ها</CardTitle>
         </CardHeader>
 
         <CardContent>
@@ -662,15 +706,15 @@ export default function CustomerOverviewPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Transaction</TableHead>
+                  <TableHead>تراکنش</TableHead>
 
-                  <TableHead>Method</TableHead>
+                  <TableHead>روش پرداخت</TableHead>
 
-                  <TableHead>Amount</TableHead>
+                  <TableHead>مبلغ</TableHead>
 
-                  <TableHead>Status</TableHead>
+                  <TableHead>وضعیت</TableHead>
 
-                  <TableHead>Paid on</TableHead>
+                  <TableHead>تاریخ پرداخت</TableHead>
                 </TableRow>
               </TableHeader>
 
@@ -683,28 +727,24 @@ export default function CustomerOverviewPage() {
                   <>
                     {payments.map((payment) => (
                       <TableRow key={payment.id}>
-                        <TableCell className="font-mono text-xs">
+                        <TableCell className="font-mono text-xs" dir="ltr">
                           {payment.transactionId}
                         </TableCell>
 
                         <TableCell>{payment.method}</TableCell>
 
-                        <TableCell>{formatCurrency(payment.amount)}</TableCell>
+                        <TableCell>{formatToman(payment.amount)}</TableCell>
 
                         <TableCell>
-                          <OrderStatusBadge
-                            status={
-                              payment.status === "COMPLETED" ||
-                              payment.status === "SUCCESS" ||
-                              payment.status === "PAID"
-                                ? "RETURNED"
-                                : "PLACED"
-                            }
-                          />
+                          <Badge variant={paymentStatusVariant(payment.status)}>
+                            {paymentStatusFor(payment.status)}
+                          </Badge>
                         </TableCell>
 
                         <TableCell className="text-muted">
-                          {formatDate(payment.paidAt ?? undefined)}
+                          {payment.paidAt
+                            ? formatJalali(payment.paidAt)
+                            : "—"}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -718,7 +758,7 @@ export default function CustomerOverviewPage() {
                             <Wallet className="h-8 w-8 text-muted" />
 
                             <p className="text-sm text-muted">
-                              No payment history yet.
+                              هنوز پرداختی ثبت نشده است.
                             </p>
                           </div>
                         </TableCell>

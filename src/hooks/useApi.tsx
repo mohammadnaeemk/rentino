@@ -23,6 +23,7 @@ export function useApi<T>(path: string | null) {
 
   useEffect(() => {
     if (path === null) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(false);
       return;
     }
@@ -82,6 +83,7 @@ export function useApiList<T>(path: string | null) {
 
   useEffect(() => {
     if (path === null) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(false);
       return;
     }

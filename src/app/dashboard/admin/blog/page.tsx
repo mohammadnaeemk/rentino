@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
 "use client";
 
 import Link from "next/link";
@@ -67,13 +66,15 @@ export default function AdminBlogPage() {
       );
 
       toast.success(
-        post.isPublished ? "Moved back to draft" : "Post published",
+        post.isPublished ? "به پیش‌نویس بازگشت" : "نوشته منتشر شد",
       );
 
       refetch();
     } catch (err) {
       toast.error(
-        err instanceof ApiRequestError ? err.message : "Could not update post",
+        err instanceof ApiRequestError
+          ? err.message
+          : "به‌روزرسانی نوشته ممکن نشد",
       );
     }
   };
@@ -82,12 +83,12 @@ export default function AdminBlogPage() {
     try {
       await api.delete(`/admin/blog/${id}`);
 
-      toast.success("Post deleted");
+      toast.success("نوشته حذف شد");
 
       refetch();
     } catch (err) {
       toast.error(
-        err instanceof ApiRequestError ? err.message : "Could not delete post",
+        err instanceof ApiRequestError ? err.message : "حذف نوشته ممکن نشد",
       );
     }
   };
@@ -97,17 +98,17 @@ export default function AdminBlogPage() {
       {/* Page Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-display text-2xl font-semibold">Blog posts</h1>
+          <h1 className="font-display text-2xl font-semibold">نوشته‌های وبلاگ</h1>
 
           <p className="mt-1 text-sm text-muted">
-            Create, manage, and publish articles for the LensLoop journal.
+            ساخت، مدیریت و انتشار نوشته‌ها برای وبلاگ رنتینو.
           </p>
         </div>
 
         <Button asChild>
           <Link href="/dashboard/admin/blog/new">
-            <Plus className="mr-2 h-4 w-4" />
-            New post
+            <Plus className="me-2 h-4 w-4" />
+            نوشته جدید
           </Link>
         </Button>
       </div>
@@ -124,11 +125,11 @@ export default function AdminBlogPage() {
           }}
         >
           <TabsList>
-            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="all">همه</TabsTrigger>
 
-            <TabsTrigger value="published">Published</TabsTrigger>
+            <TabsTrigger value="published">منتشر شده</TabsTrigger>
 
-            <TabsTrigger value="draft">Draft</TabsTrigger>
+            <TabsTrigger value="draft">پیش‌نویس</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
@@ -146,11 +147,11 @@ export default function AdminBlogPage() {
           {!loading && posts.length === 0 ? (
             <EmptyState
               icon={Newspaper}
-              title="No posts yet"
-              description="Write your first article for the GearUp journal."
+              title="هنوز نوشته‌ای وجود ندارد"
+              description="اولین نوشته خود را برای وبلاگ رنتینو بنویسید."
               action={
                 <Button asChild>
-                  <Link href="/dashboard/admin/blog/new">New post</Link>
+                  <Link href="/dashboard/admin/blog/new">نوشته جدید</Link>
                 </Button>
               }
               className="border-0"
@@ -159,11 +160,11 @@ export default function AdminBlogPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Updated</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>عنوان</TableHead>
+                  <TableHead>دسته‌بندی</TableHead>
+                  <TableHead>وضعیت</TableHead>
+                  <TableHead>آخرین به‌روزرسانی</TableHead>
+                  <TableHead className="text-end">عملیات</TableHead>
                 </TableRow>
               </TableHeader>
 
@@ -178,7 +179,7 @@ export default function AdminBlogPage() {
                           {post.title}
                         </TableCell>
 
-                        <TableCell className="text-sm text-stone-500">
+                        <TableCell className="text-sm text-muted">
                           {post.category}
                         </TableCell>
 
@@ -186,15 +187,15 @@ export default function AdminBlogPage() {
                           <Badge
                             variant={post.isPublished ? "success" : "secondary"}
                           >
-                            {post.isPublished ? "Published" : "Draft"}
+                            {post.isPublished ? "منتشر شده" : "پیش‌نویس"}
                           </Badge>
                         </TableCell>
 
-                        <TableCell className="text-sm text-stone-500">
+                        <TableCell className="text-sm text-muted">
                           {formatDate(post.updatedAt)}
                         </TableCell>
 
-                        <TableCell className="text-right">
+                        <TableCell className="text-end">
                           <div className="flex justify-end gap-1.5">
                             {/* Publish / Unpublish */}
                             <Button
@@ -202,7 +203,7 @@ export default function AdminBlogPage() {
                               variant="outline"
                               onClick={() => togglePublish(post)}
                             >
-                              {post.isPublished ? "Unpublish" : "Publish"}
+                              {post.isPublished ? "بازگشت به پیش‌نویس" : "انتشار"}
                             </Button>
 
                             {/* Edit */}
@@ -220,7 +221,7 @@ export default function AdminBlogPage() {
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  className="text-rust-500 hover:text-rust-600"
+                                  className="text-danger hover:opacity-80"
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
@@ -229,21 +230,21 @@ export default function AdminBlogPage() {
                               <AlertDialogContent>
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>
-                                    Delete "{post.title}"?
+                                    «{post.title}» حذف شود؟
                                   </AlertDialogTitle>
 
                                   <AlertDialogDescription>
-                                    This can't be undone.
+                                    این عمل قابل بازگشت نیست.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
 
                                 <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogCancel>انصراف</AlertDialogCancel>
 
                                   <AlertDialogAction
                                     onClick={() => removePost(post.id)}
                                   >
-                                    Delete
+                                    حذف
                                   </AlertDialogAction>
                                 </AlertDialogFooter>
                               </AlertDialogContent>

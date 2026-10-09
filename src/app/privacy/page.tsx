@@ -6,35 +6,36 @@ export default function PrivacyPage() {
     <div className="flex min-h-screen flex-col">
       <Navbar />
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-16 sm:px-6 lg:px-8">
-        <h1 className="font-display text-3xl font-semibold">Privacy Policy</h1>
-        <p className="mt-2 text-sm text-muted">Last updated August 2026</p>
+        <h1 className="font-display text-3xl font-semibold">حریم خصوصی</h1>
+        <p className="mt-2 text-sm text-muted">آخرین به‌روزرسانی: مرداد ۱۴۰۵</p>
         <div className="mt-8 space-y-6 text-sm leading-relaxed text-foreground/90">
           <section>
-            <h2 className="font-display text-lg font-semibold">Information we collect</h2>
+            <h2 className="font-display text-lg font-semibold">اطلاعاتی که جمع‌آوری می‌کنیم</h2>
             <p className="mt-2 text-muted">
-              We collect the information you provide when creating an account — name, email, and
-              role — along with rental and payment activity needed to operate the marketplace.
+              اطلاعاتی که هنگام ساخت حساب وارد می‌کنید — نام، ایمیل و نقش — به‌همراه
+              فعالیت‌های اجاره و پرداخت لازم برای فعالیت بازارچه را جمع‌آوری می‌کنیم.
             </p>
           </section>
           <section>
-            <h2 className="font-display text-lg font-semibold">How we use it</h2>
+            <h2 className="font-display text-lg font-semibold">نحوه استفاده</h2>
             <p className="mt-2 text-muted">
-              Your information is used to process bookings, facilitate payments through Stripe or
-              SSLCommerz, verify providers, and improve the LensLoop platform.
+              اطلاعات شما برای پردازش رزروها، تسهیل پرداخت از طریق زرین‌پال، تأیید
+              تأمین‌کنندگان و بهبود پلتفرم رنتینو استفاده می‌شود.
             </p>
           </section>
           <section>
-            <h2 className="font-display text-lg font-semibold">Data sharing</h2>
+            <h2 className="font-display text-lg font-semibold">اشتراک‌گذاری داده‌ها</h2>
             <p className="mt-2 text-muted">
-              We share only the information necessary to complete a rental (such as your name and
-              pickup details) with the relevant provider or customer. We never sell personal data.
+              تنها اطلاعات لازم برای تکمیل اجاره (مانند نام و جزئیات تحویل) را با
+              تأمین‌کننده یا مشتری مرتبط به اشتراک می‌گذاریم. ما هرگز اطلاعات شخصی را
+              نمی‌فروشیم.
             </p>
           </section>
           <section>
-            <h2 className="font-display text-lg font-semibold">Your rights</h2>
+            <h2 className="font-display text-lg font-semibold">حقوق شما</h2>
             <p className="mt-2 text-muted">
-              You can request a copy of your data or ask us to delete your account at any time by
-              contacting hello@lensloop.app.
+              در هر زمان می‌توانید با تماس با <bdi>hello@rentino.ir</bdi> نسخه‌ای از
+              داده‌هایتان را درخواست کنید یا حذف حساب‌تان را بخواهید.
             </p>
           </section>
         </div>

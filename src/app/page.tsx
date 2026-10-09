@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import {
-  ArrowRight,
+  ArrowLeft,
   ShieldCheck,
   Truck,
   Wallet,
@@ -23,9 +23,15 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-import { testimonials, blogPosts as fallbackBlogPosts } from "@/lib/content";
+import {
+  testimonials,
+  blogPosts as fallbackBlogPosts,
+  gearItems as mockGearItems,
+  categories as mockCategories,
+} from "@/lib/content";
 import { categoryIconMap } from "@/lib/category-icons";
 import { toGearItem, type ApiGear } from "@/lib/gear";
+import { formatJalali, formatNumber, toFaDigits } from "@/lib/format";
 
 import type { Category, GearItem } from "@/types";
 
@@ -66,9 +72,7 @@ interface BlogPost {
 // =====================================================
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_BACKEND_API_URL ??
-  process.env.NEXT_PUBLIC_API_URL ??
-  "http://localhost:8000/api";
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
 
 // =====================================================
 // Generic API helper
@@ -121,10 +125,6 @@ async function getHomeData(): Promise<{
       fetchApi<BlogPost[]>("/blog?page=1&limit=3"),
     ]);
 
-    // ---------------------------------------------------
-    // Gear
-    // ---------------------------------------------------
-
     const apiGear = Array.isArray(gearResponse?.data) ? gearResponse.data : [];
 
     const gear = apiGear
@@ -140,26 +140,14 @@ async function getHomeData(): Promise<{
 
     const totalGear = gearResponse?.meta?.total ?? apiGear.length;
 
-    // ---------------------------------------------------
-    // Categories
-    // ---------------------------------------------------
-
     const categories = Array.isArray(categoryResponse?.data)
       ? categoryResponse.data
       : [];
-
-    // ---------------------------------------------------
-    // Blog
-    // ---------------------------------------------------
 
     const liveBlogPosts = Array.isArray(blogResponse?.data)
       ? blogResponse.data
       : [];
 
-    /*
-     * If backend blog API is unavailable, use local fallback
-     * content instead of breaking the homepage.
-     */
     const blogData =
       liveBlogPosts.length > 0
         ? liveBlogPosts
@@ -173,19 +161,20 @@ async function getHomeData(): Promise<{
           }));
 
     return {
-      gear,
-      categories,
+      // Backend not available yet — fall back to bundled demo data.
+      gear: gear.length > 0 ? gear : mockGearItems,
+      categories: categories.length > 0 ? categories : mockCategories,
       blogPosts: blogData,
-      totalGear,
+      totalGear: gear.length > 0 ? totalGear : mockGearItems.length,
     };
   } catch (error) {
     console.error("Failed to load homepage data:", error);
 
     return {
-      gear: [],
-      categories: [],
+      gear: mockGearItems,
+      categories: mockCategories,
       blogPosts: [],
-      totalGear: 0,
+      totalGear: mockGearItems.length,
     };
   }
 }
@@ -196,66 +185,66 @@ async function getHomeData(): Promise<{
 
 const steps = [
   {
-    frame: "01A",
-    title: "Pick your dates",
-    body: "Browse verified listings and check live availability for the exact days you're shooting.",
+    frame: "۰۱",
+    title: "تاریخ را انتخاب کنید",
+    body: "آگهی‌های تأییدشده را ببینید و موجودی را برای روزهای موردنظرتان بررسی کنید.",
   },
   {
-    frame: "02A",
-    title: "Book & pay securely",
-    body: "Reserve instantly with Stripe or SSLCommerz. Funds are held until pickup is confirmed.",
+    frame: "۰۲",
+    title: "رزرو و پرداخت امن",
+    body: "با درگاه امن زرین‌پال رزرو کنید. مبلغ تا تأیید تحویل نزد رنتینو نگهداری می‌شود.",
   },
   {
-    frame: "03A",
-    title: "Pick up & shoot",
-    body: "Meet your provider, do a quick condition check together, and you're rolling.",
+    frame: "۰۳",
+    title: "تحویل بگیرید و استفاده کنید",
+    body: "با تأمین‌کننده هماهنگ کنید، وضعیت کالا را با هم بررسی کنید و آماده شوید.",
   },
   {
-    frame: "04A",
-    title: "Return & review",
-    body: "Drop the gear back, get your deposit released, and leave a review for the next renter.",
+    frame: "۰۴",
+    title: "بازگردانید و نظر بدهید",
+    body: "کالا را سر وقت برگردانید، ودیعه آزاد می‌شود و می‌توانید نظرتان را ثبت کنید.",
   },
 ];
 
 const features = [
   {
     icon: ShieldCheck,
-    title: "Verified providers only",
-    body: "Every provider passes an ID and equipment-condition check before listing.",
+    title: "فقط تأمین‌کنندگان معتبر",
+    body: "هر تأمین‌کننده پیش از ثبت آگهی، احراز هویت و بررسی کیفیت کالا می‌شود.",
   },
   {
     icon: Wallet,
-    title: "Transparent daily pricing",
-    body: "No hidden fees — the price per day shown is the price you pay, insurance included.",
+    title: "قیمت روزانه شفاف",
+    body: "هزینه پنهانی در کار نیست؛ همان قیمت هر روز که می‌بینید پرداخت می‌کنید.",
   },
   {
     icon: CalendarClock,
-    title: "Real-time availability",
-    body: "Calendars sync the moment a booking is made, so you never chase a phantom listing.",
+    title: "موجودی لحظه‌ای",
+    body: "به محض ثبت رزرو، تقویم به‌روز می‌شود تا روی آگهی ناموجود نمانید.",
   },
   {
     icon: Truck,
-    title: "Flexible pickup & delivery",
-    body: "Meet in person for same-day pickups, or arrange courier delivery for tighter schedules.",
+    title: "تحویل انعطاف‌پذیر",
+    body: "تحویل حضوری در همان روز یا ارسال با پیک برای برنامه‌های فشرده.",
   },
 ];
 
 const faqs = [
   {
-    q: "What happens if the gear is damaged during my rental?",
-    a: "Every booking includes basic protection against normal wear. Accidental damage is covered up to the listed deposit; anything beyond that is assessed jointly with the provider before your deposit is released.",
+    q: "اگر کالا در طول اجاره آسیب ببیند چه می‌شود؟",
+    a: "هر رزرو شامل پوشش اولیه برای فرسودگی عادی است. خسارت تصادفی تا سقف ودیعه پوشش داده می‌شود و مازاد آن با توافق طرفین بررسی می‌شود.",
   },
   {
-    q: "How fast can I get gear on the same day?",
-    a: 'Most providers confirm within 30 minutes and offer same-day pickup within their city. Filter by "available today" on the browse page to see real-time options near you.',
+    q: "چقدر سریع می‌توانم کالا را تحویل بگیرم؟",
+    a: "بیشتر تأمین‌کنندگان تا ۳۰ دقیقه تأیید می‌کنند و تحویل همان‌روز در شهر خود را ارائه می‌دهند.",
   },
   {
-    q: "Can I list my own gear as a provider?",
-    a: "Yes — register as a provider, add your gear with photos and specs, and set your own daily rate. Payouts are released automatically once a rental is marked returned.",
+    q: "آیا می‌توانم به‌عنوان تأمین‌کننده کالای خودم را ثبت کنم؟",
+    a: "بله؛ به‌عنوان تأمین‌کننده ثبت‌نام کنید، کالا را با عکس و مشخصات اضافه کنید و قیمت روزانه خودتان را تعیین کنید.",
   },
   {
-    q: "Which payment methods are supported?",
-    a: "Stripe for international cards and SSLCommerz for local bKash, Nagad, and card payments in Bangladesh.",
+    q: "چه روش‌های پرداختی پشتیبانی می‌شود؟",
+    a: "پرداخت آنلاین از طریق درگاه امن زرین‌پال انجام می‌شود.",
   },
 ];
 
@@ -273,18 +262,9 @@ export default async function HomePage() {
   ).length;
 
   const platformStats = [
-    {
-      label: "Live listings",
-      value: String(totalGear),
-    },
-    {
-      label: "Available now",
-      value: String(availableGear),
-    },
-    {
-      label: "Categories",
-      value: String(categories.length),
-    },
+    { label: "آگهی فعال", value: formatNumber(totalGear) },
+    { label: "موجود همین حالا", value: formatNumber(availableGear) },
+    { label: "دسته‌بندی", value: formatNumber(categories.length) },
   ];
 
   return (
@@ -298,38 +278,36 @@ export default async function HomePage() {
       <section className="relative overflow-hidden border-b border-border">
         <div className="mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:items-center lg:px-8 lg:py-24">
           <div>
-            <span className="exif-chip">Rent · Shoot · Return</span>
+            <span className="exif-chip">اجاره آسان · تحویل سریع</span>
 
-            <h1 className="mt-5 font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
-              Professional gear,
+            <h1 className="mt-5 font-display text-4xl font-semibold leading-[1.3] sm:text-5xl lg:text-6xl">
+              هر کالایی که لازم دارید،
               <br />
-              booked like a lens change.
+              فقط برای چند روز اجاره کنید.
             </h1>
 
             <p className="mt-5 max-w-md text-base text-muted sm:text-lg">
-              Cameras, lighting, audio and full event rigs from verified local
-              providers — reserved by the day, ready when your call time is.
+              خودرو، کنسول بازی، دوربین، دوچرخه و لپ‌تاپ از تأمین‌کنندگان
+              معتبر — با قیمت روزانه شفاف و تحویل سریع.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
               <Button size="lg" asChild>
                 <Link href="/gear">
-                  Browse gear
-                  <ArrowRight className="h-4 w-4" />
+                  جستجوی کالا
+                  <ArrowLeft className="h-4 w-4" />
                 </Link>
               </Button>
 
               <Button size="lg" variant="outline" asChild>
-                <Link href="/register">Become a provider</Link>
+                <Link href="/register">تأمین‌کننده شوید</Link>
               </Button>
             </div>
 
             <dl className="mt-10 grid grid-cols-2 gap-6 sm:grid-cols-3">
               {platformStats.map((stat) => (
                 <div key={stat.label}>
-                  <dt className="text-xs uppercase tracking-wide text-muted">
-                    {stat.label}
-                  </dt>
+                  <dt className="text-xs text-muted">{stat.label}</dt>
 
                   <dd className="font-display text-2xl font-semibold">
                     {stat.value}
@@ -361,8 +339,8 @@ export default async function HomePage() {
                       className="object-cover opacity-90 transition-opacity group-hover:opacity-100"
                     />
 
-                    <span className="absolute left-1.5 top-1.5 rounded bg-black/60 px-1.5 py-0.5 font-mono text-[10px] tracking-wide text-white">
-                      {String(index + 1).padStart(2, "0")}A
+                    <span className="absolute start-1.5 top-1.5 rounded bg-black/60 px-1.5 py-0.5 font-mono text-[10px] tracking-wide text-white">
+                      {toFaDigits(String(index + 1).padStart(2, "0"))}
                     </span>
                   </div>
                 );
@@ -373,7 +351,7 @@ export default async function HomePage() {
               <div className="text-center">
                 <Camera className="mx-auto h-10 w-10 text-muted" />
                 <p className="mt-3 text-sm text-muted">
-                  Gear listings are coming soon.
+                  به‌زودی آگهی‌ها اضافه می‌شوند.
                 </p>
               </div>
             </div>
@@ -389,19 +367,19 @@ export default async function HomePage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between">
             <h2 className="font-display text-2xl font-semibold sm:text-3xl">
-              Browse by category
+              مرور بر اساس دسته‌بندی
             </h2>
 
             <Link
               href="/gear"
               className="hidden text-sm font-medium text-primary hover:underline sm:block"
             >
-              View all gear →
+              مشاهده همه ←
             </Link>
           </div>
 
           {categories.length > 0 ? (
-            <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+            <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
               {categories.map((cat) => {
                 const Icon = categoryIconMap[cat.icon ?? ""] ?? Camera;
 
@@ -420,7 +398,7 @@ export default async function HomePage() {
             </div>
           ) : (
             <p className="mt-8 text-sm text-muted">
-              No categories available yet.
+              هنوز دسته‌بندی‌ای ثبت نشده است.
             </p>
           )}
         </div>
@@ -435,11 +413,11 @@ export default async function HomePage() {
           <div className="flex items-end justify-between">
             <div>
               <h2 className="font-display text-2xl font-semibold sm:text-3xl">
-                Featured this week
+                پیشنهاد این هفته
               </h2>
 
               <p className="mt-1 text-sm text-muted">
-                Popular picks currently available near you.
+                انتخاب‌های محبوب که همین حالا موجود هستند.
               </p>
             </div>
 
@@ -447,19 +425,19 @@ export default async function HomePage() {
               href="/gear"
               className="hidden text-sm font-medium text-primary hover:underline sm:block"
             >
-              View all gear →
+              مشاهده همه ←
             </Link>
           </div>
 
           {gear.length > 0 ? (
             <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {gear.map((item) => (
+              {gear.slice(0, 6).map((item) => (
                 <GearCard key={item.id} gear={item} />
               ))}
             </div>
           ) : (
             <p className="mt-8 text-sm text-muted">
-              No gear is available right now. Please check back soon.
+              در حال حاضر کالایی موجود نیست. به‌زودی سر بزنید.
             </p>
           )}
         </div>
@@ -472,7 +450,7 @@ export default async function HomePage() {
       <section className="border-b border-border bg-surface py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="font-display text-2xl font-semibold sm:text-3xl">
-            How it works
+            نحوه کار
           </h2>
 
           <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
@@ -500,7 +478,7 @@ export default async function HomePage() {
       <section className="border-b border-border py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="font-display text-2xl font-semibold sm:text-3xl">
-            Why creators choose LensLoop
+            چرا رنتینو؟
           </h2>
 
           <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -532,25 +510,25 @@ export default async function HomePage() {
         <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-2 lg:items-center lg:px-8">
           <div>
             <span className="exif-chip !border-background/20 !bg-background/10 !text-background/70">
-              For Providers
+              برای تأمین‌کنندگان
             </span>
 
             <h2 className="mt-4 font-display text-2xl font-semibold sm:text-3xl">
-              Turn idle gear into recurring income.
+              کالای بلااستفاده‌تان را به درآمد تبدیل کنید.
             </h2>
 
             <p className="mt-3 max-w-lg text-background/70">
-              List your cameras, lenses, or staging equipment in minutes. Set
-              your own rates, approve bookings, and get paid out automatically
-              once gear is returned.
+              خودرو، کنسول یا دوربین بلااستفاده‌تان را در چند دقیقه ثبت کنید.
+              قیمت را خودتان تعیین کنید و پس از بازگشت کالا، درآمدتان را دریافت
+              کنید.
             </p>
           </div>
 
           <div className="flex lg:justify-end">
             <Button size="lg" variant="secondary" asChild>
               <Link href="/register">
-                Start listing gear
-                <ArrowRight className="h-4 w-4" />
+                ثبت کالا
+                <ArrowLeft className="h-4 w-4" />
               </Link>
             </Button>
           </div>
@@ -564,7 +542,7 @@ export default async function HomePage() {
       <section className="border-b border-border py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="font-display text-2xl font-semibold sm:text-3xl">
-            Trusted by working creators
+            اعتماد کاربران رنتینو
           </h2>
 
           <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
@@ -595,14 +573,14 @@ export default async function HomePage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between">
             <h2 className="font-display text-2xl font-semibold sm:text-3xl">
-              From the blog
+              از وبلاگ
             </h2>
 
             <Link
               href="/blog"
               className="hidden text-sm font-medium text-primary hover:underline sm:block"
             >
-              View all posts →
+              مشاهده همه نوشته‌ها ←
             </Link>
           </div>
 
@@ -621,12 +599,8 @@ export default async function HomePage() {
                     <Card className="h-full">
                       <CardContent className="p-5">
                         {postDate && (
-                          <p className="text-xs uppercase tracking-wide text-muted">
-                            {new Date(postDate).toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric",
-                            })}
+                          <p className="text-xs text-muted">
+                            {formatJalali(postDate)}
                           </p>
                         )}
 
@@ -647,7 +621,7 @@ export default async function HomePage() {
             </div>
           ) : (
             <p className="mt-8 text-sm text-muted">
-              No published blog posts available yet.
+              هنوز نوشته‌ای منتشر نشده است.
             </p>
           )}
         </div>
@@ -660,7 +634,7 @@ export default async function HomePage() {
       <section className="border-b border-border py-16">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
           <h2 className="font-display text-2xl font-semibold sm:text-3xl">
-            Frequently asked questions
+            سوالات متداول
           </h2>
 
           <Accordion type="single" collapsible className="mt-6">
@@ -682,24 +656,24 @@ export default async function HomePage() {
       <section className="py-16">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
           <h2 className="font-display text-2xl font-semibold sm:text-3xl">
-            Ready to book your next shoot?
+            آماده‌اید رزرو کنید؟
           </h2>
 
           <p className="mx-auto mt-3 max-w-xl text-muted">
-            Create a free account and check live availability across every
-            provider on LensLoop.
+            حساب رایگان بسازید و موجودی لحظه‌ای همه تأمین‌کنندگان رنتینو را
+            ببینید.
           </p>
 
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Button size="lg" asChild>
               <Link href="/register">
-                Get started
-                <ArrowRight className="h-4 w-4" />
+                شروع کنید
+                <ArrowLeft className="h-4 w-4" />
               </Link>
             </Button>
 
             <Button size="lg" variant="outline" asChild>
-              <Link href="/gear">Browse gear</Link>
+              <Link href="/gear">جستجوی کالا</Link>
             </Button>
           </div>
         </div>
