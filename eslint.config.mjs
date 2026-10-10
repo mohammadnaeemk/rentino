@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // The NestJS backend is a separate package with its own ESLint config
+    // and its own `npm run lint`.
+    "backend/**",
   ]),
 ]);
 

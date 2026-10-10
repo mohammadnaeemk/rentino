@@ -1,0 +1,28 @@
+# Reproducible local PostgreSQL for the LensLoop backend.
+#   docker compose up -d
+#   # then: npm run prisma:migrate && npm run seed
+#
+# The databases `rentino` and `rentino_test` are created automatically by the
+# init script on first start (see docker/init-db.sql).
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: rentino-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: rentino
+      POSTGRES_PASSWORD: rentino
+      POSTGRES_DB: rentino
+    ports:
+      - "5432:5432"
+    volumes:
+      - rentino-pgdata:/var/lib/postgresql/data
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rentino -d rentino"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  rentino-pgdata:

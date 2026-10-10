@@ -1,0 +1,224 @@
+// LensLoop (رنتینو) — PostgreSQL schema
+// Money is stored as integer Rial (1 Toman = 10 Rial). Never use floats for money.
+// Rental dates are calendar-day @db.Date values; endDate is EXCLUSIVE.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum Role {
+  CUSTOMER
+  PROVIDER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum RentalStatus {
+  PLACED
+  CONFIRMED
+  PAID
+  PICKED_UP
+  RETURNED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+// ---------------------------------------------------------------------------
+// Users & auth
+// ---------------------------------------------------------------------------
+
+model User {
+  id           String     @id @default(uuid())
+  name         String
+  email        String     @unique
+  passwordHash String
+  role         Role       @default(CUSTOMER)
+  status       UserStatus @default(ACTIVE)
+  avatarUrl    String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  gearItems     GearItem[]     @relation("ProviderGear")
+  rentalOrders  RentalOrder[]  @relation("CustomerOrders")
+  payments      Payment[]
+  reviews       Review[]
+  blogPosts     BlogPost[]
+  refreshTokens RefreshToken[]
+
+  @@index([role])
+}
+
+// Refresh tokens are stored only as a SHA-256 hash — never in plaintext.
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// ---------------------------------------------------------------------------
+// Catalog
+// ---------------------------------------------------------------------------
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  icon        String?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  gearItems GearItem[]
+}
+
+model GearItem {
+  id             String   @id @default(uuid())
+  providerId     String
+  categoryId     String
+  name           String
+  slug           String   @unique
+  description    String
+  brand          String?
+  images         String[]
+  pricePerDay    Int // Rial
+  stock          Int      @default(1)
+  availableStock Int      @default(1)
+  specifications Json     @default("{}") // Record<string,string>, category-specific
+  isActive       Boolean  @default(true)
+  avgRating      Float    @default(0)
+  reviewCount    Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  provider   User              @relation("ProviderGear", fields: [providerId], references: [id])
+  category   Category          @relation(fields: [categoryId], references: [id])
+  orderItems RentalOrderItem[]
+  reviews    Review[]
+
+  @@index([categoryId])
+  @@index([providerId])
+  @@index([isActive, categoryId])
+  @@index([pricePerDay])
+}
+
+// ---------------------------------------------------------------------------
+// Rentals & orders
+// ---------------------------------------------------------------------------
+
+model RentalOrder {
+  id          String       @id @default(uuid())
+  customerId  String
+  startDate   DateTime     @db.Date
+  endDate     DateTime     @db.Date // exclusive
+  totalAmount Int // Rial
+  status      RentalStatus @default(PLACED)
+  notes       String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  customer User              @relation("CustomerOrders", fields: [customerId], references: [id])
+  items    RentalOrderItem[]
+  payment  Payment?
+
+  @@index([customerId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model RentalOrderItem {
+  id            String @id @default(uuid())
+  rentalOrderId String
+  gearItemId    String
+  quantity      Int    @default(1)
+  pricePerDay   Int // Rial, snapshot at booking time
+  subtotal      Int // Rial = days × pricePerDay × quantity
+
+  rentalOrder RentalOrder @relation(fields: [rentalOrderId], references: [id], onDelete: Cascade)
+  gearItem    GearItem    @relation(fields: [gearItemId], references: [id])
+
+  @@index([rentalOrderId])
+  @@index([gearItemId])
+}
+
+// One payment row per order. Simulated only — no real gateway is contacted.
+model Payment {
+  id            String        @id @default(uuid())
+  rentalOrderId String        @unique
+  userId        String
+  transactionId String        @unique
+  amount        Int // Rial
+  method        String        @default("SIMULATED")
+  status        PaymentStatus @default(PENDING)
+  paidAt        DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  rentalOrder RentalOrder @relation(fields: [rentalOrderId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+}
+
+// ---------------------------------------------------------------------------
+// Content
+// ---------------------------------------------------------------------------
+
+model Review {
+  id         String   @id @default(uuid())
+  gearItemId String
+  customerId String
+  rating     Int
+  comment    String
+  createdAt  DateTime @default(now())
+
+  gearItem GearItem @relation(fields: [gearItemId], references: [id], onDelete: Cascade)
+  customer User     @relation(fields: [customerId], references: [id])
+
+  @@unique([gearItemId, customerId])
+  @@index([gearItemId])
+}
+
+model BlogPost {
+  id          String    @id @default(uuid())
+  authorId    String
+  title       String
+  slug        String    @unique
+  excerpt     String
+  content     String
+  coverImage  String?
+  category    String
+  isPublished Boolean   @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  author User @relation(fields: [authorId], references: [id])
+
+  @@index([isPublished, publishedAt])
+}
