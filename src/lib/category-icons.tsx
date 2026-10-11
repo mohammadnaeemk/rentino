@@ -9,6 +9,7 @@ import {
   Gamepad2,
   Bike,
   Laptop,
+  Trophy,
   type LucideIcon,
 } from "lucide-react";
 
@@ -28,6 +29,8 @@ export const categoryIconMap: Record<string, LucideIcon> = {
   camera: Camera,
   laptops: Laptop,
   laptop: Laptop,
+  sports: Trophy,
+  sport: Trophy,
 
   // Legacy photo-gear keys (kept for backward compatibility)
   aperture: Aperture,

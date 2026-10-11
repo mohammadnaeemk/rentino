@@ -36,10 +36,10 @@ Schema in `lib/schemas/*` shared with the server action; messages in Persian; se
 
 ## Microcopy
 Use the glossary in `docs/UX-FLOWS.md` §5. Tone: polite «شما», short, concrete, verbs on buttons («رزرو کنید»، «ادامه»، «پرداخت و ثبت رزرو»). Error pattern: «چه شد + چه کنید». Avoid: exclamation marks pile-up, slang, English words where a Persian one exists, blame.
-Draft long copy (FAQ, rules, about) with the `persian-copywriter` agent.
+Draft long copy (FAQ, rules, about) as a focused subagent task with this glossary and tone as the brief.
 
 ## Trust elements for Iranian users
 Physical address and phone visible; clear cancellation and deposit rules; payment via known gateway logo/name; invoice; response time promise; enamad/samandehi badges as slots in footer (owner supplies).
 
-## Review heuristics (what `ux-rtl-auditor` checks)
+## Review heuristics (check these in any UI review)
 Primary action obvious · price/dates visible at decisions · no dead end · recoverable errors · state survives refresh · one-handed at 390px · targets 44px · focus order matches reading order · no truncation without recourse.

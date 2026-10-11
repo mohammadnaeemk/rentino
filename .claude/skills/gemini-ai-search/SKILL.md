@@ -38,7 +38,8 @@ export async function POST(req: NextRequest) {
 
 Keep `extractIntent` and `fallbackIntent` as separately exported, unit-testable
 pure functions in `src/lib/ai-search.ts` — don't inline parsing logic in the
-route handler, so `writing-vitest-tests` can mock the Gemini call cleanly.
+route handler, so a Vitest test can mock the Gemini call cleanly once the test
+runner is installed (see `_archive/skills/writing-vitest-tests/`).
 
 ## Calling Gemini
 ```ts

@@ -14,5 +14,5 @@ Rules:
 - RTL/Persian UI: wrap text-bearing components so they work under `dir="rtl"`; don't hardcode `ml-`/`mr-` where a logical property (`ms-`/`me-`) fits better.
 - Never put secrets behind `NEXT_PUBLIC_*`.
 - After finishing: run `npm run lint` and fix all reported issues in files you touched.
-- If you add non-trivial logic (parsing, mapping, scoring), write a Vitest unit test next to it using the `writing-vitest-tests` skill — don't skip this.
+- If you add non-trivial logic (parsing, mapping, scoring), write a Vitest unit test next to it (TDD guidance in `_archive/skills/writing-vitest-tests/`; no runner is installed yet — see `docs/STATUS.md`) — don't skip this.
 - Keep diffs minimal and focused on the requested feature only.

@@ -19,8 +19,9 @@
 - `src/app/page.tsx` also reads a legacy `NEXT_PUBLIC_BACKEND_API_URL` (to normalize).
 
 ## Current state vs. target
-- The app is the imported **English LTR** outdoor-gear starter: `src/app/layout.tsx`
-  uses `lang="en"`, no `dir="rtl"`, Google Fonts, Google OAuth, `Toaster position="top-right"`.
+- `src/app/layout.tsx` is now **Persian RTL**: `lang="fa" dir="rtl"`, self-hosted
+  Vazirmatn via `next/font/local`, `Toaster dir="rtl" position="bottom-center"`.
+  Google OAuth remains.
 - `src/middleware.ts.desabled` is a disabled role-guard (renamed to break Next.js
   wiring). No `proxy.ts`.
 - Payment types are `STRIPE | SSLCOMMERZ` (imported); the target is a **simulated**
@@ -29,6 +30,7 @@
 - No test runner installed (no Vitest, no `npm test`).
 
 ## RTL / localization
-Target: `dir="rtl" lang="fa"`, self-hosted Vazirmatn, logical Tailwind
-utilities, Jalali dates, Persian digits. None of this is applied yet — see
-`docs/STATUS.md`.
+Applied: `dir="rtl" lang="fa"`, self-hosted Vazirmatn, logical Tailwind
+utilities (enforced by `.claude/hooks/check-edit.mjs`). Jalali dates and Persian
+digits flow through the `rtl-persian-ui` skill's `lib/format.ts` templates.
+Remaining: 17 advisory `rtl-scan --review` items. See `docs/STATUS.md`.

@@ -1,7 +1,8 @@
 # Project invariants (always apply)
 
-- Target is Persian RTL (`dir="rtl" lang="fa"`, logical Tailwind utilities).
-  The code is currently English LTR — see `docs/STATUS.md`.
+- Persian RTL is live (`dir="rtl" lang="fa"`, logical Tailwind utilities,
+  self-hosted Vazirmatn). Never reintroduce physical `ml/mr/pl/pr/left/right`
+  utilities — the edit hook blocks them.
 - Never expose `GEMINI_API_KEY` or backend secrets to the client (server-only).
 - Category-specific behavior stays data-driven (`Category` + `specifications`
   JSON on `Gear`), not per-category code branching.

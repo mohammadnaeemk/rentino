@@ -70,11 +70,12 @@ export function BlogForm({ existing }: { existing?: BlogPost }) {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const data = await api.get<Category[]>("/categories", {
+        // `/categories` returns the standard envelope; the list is on `.data`.
+        const response = await api.get<{ data: Category[] }>("/categories", {
           auth: false,
         });
 
-        setCategories(data);
+        setCategories(Array.isArray(response?.data) ? response.data : []);
       } catch (error) {
         console.error("Failed to load categories:", error);
 

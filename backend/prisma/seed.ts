@@ -103,6 +103,12 @@ const CATEGORIES = [
     icon: "laptops",
     description: "لپ‌تاپ برای کار، تحصیل و گیمینگ",
   },
+  {
+    slug: "sports",
+    name: "ورزش و سرگرمی",
+    icon: "sports",
+    description: "لوازم ورزشی و سرگرمی برای تمرین، بازی و اوقات فراغت",
+  },
 ];
 
 interface SeedGear {
@@ -119,6 +125,16 @@ interface SeedGear {
   isActive?: boolean;
 }
 
+/**
+ * `slug` is a stable identifier used as the upsert key, so it is intentionally
+ * NOT renamed when a listing's display name changes (see `peugeot-206-tip2`
+ * and `mountain-bike-29`). Renaming a slug would insert a duplicate row and
+ * leave the original behind on the next seed run.
+ *
+ * Listings whose entry starts with a `// photo:` comment have a real product
+ * photo under `public/images/gear/`; the rest still use the category SVG
+ * placeholder until a real photo is available.
+ */
 const GEAR: SeedGear[] = [
   // ---- Cars (provider@rentino.ir)
   {
@@ -128,39 +144,62 @@ const GEAR: SeedGear[] = [
     providerEmail: "provider@rentino.ir",
     brand: "سایپا",
     description:
-      "پراید ۱۳۱ کم‌کارکرد و تمیز، مناسب سفرهای شهری و بین‌شهری. بیمه شخص ثالث و بدنه معتبر، تحویل با باک پر.",
+      "پراید ۱۳۱ مدل ۱۴۰۰، کم‌کارکرد (زیر ۴۰٬۰۰۰ کیلومتر) و کاملاً تمیز. بیمه شخص ثالث و بدنه تا پایان سال معتبر است و خودرو با باک پر و معاینه فنی تحویل داده می‌شود. مناسب سفرهای شهری و بین‌شهری و استفاده روزانه.",
     images: ["/images/cars.svg"],
     pricePerDay: 8_000_000,
     stock: 1,
-    specifications: { گیربکس: "دنده‌ای", "سال تولید": "۱۴۰۰", سوخت: "بنزین" },
+    specifications: {
+      گیربکس: "دنده‌ای",
+      "سال تولید": "۱۴۰۰",
+      سوخت: "بنزین",
+      "کیلومتر کارکرد": "۴۰٬۰۰۰",
+      بیمه: "شخص ثالث و بدنه",
+      "تحویل در محل": "دارد",
+    },
   },
+  // photo: پراید/۲۰۶ جای خود را به تصویر واقعی پژو ۲۰۷ می‌دهد (slug ثابت مانده است)
   {
     slug: "peugeot-206-tip2",
-    name: "پژو ۲۰۶ تیپ ۲",
+    name: "پژو ۲۰۷ مدل ۱۳۹۶",
     categorySlug: "cars",
     providerEmail: "provider@rentino.ir",
     brand: "ایران‌خودرو",
     description:
-      "پژو ۲۰۶ تیپ ۲ با کولر سالم و لاستیک‌های نو. مناسب اجاره روزانه و هفتگی با تحویل در محل.",
-    images: ["/images/cars.svg"],
+      "پژو ۲۰۷ مدل ۱۳۹۶ با موتور ۱.۶ لیتری، کولر سالم و لاستیک‌های نو. بدنه بدون خط و خش، سرویس دوره‌ای به‌موقع و بیمه معتبر. امکان تحویل در محل و اجاره روزانه، هفتگی یا ماهانه.",
+    images: ["/images/gear/peugeot-207.jpg"],
     pricePerDay: 12_000_000,
     stock: 2,
-    specifications: { گیربکس: "دنده‌ای", "سال تولید": "۱۳۹۸", سوخت: "بنزین" },
+    specifications: {
+      گیربکس: "دنده‌ای",
+      "سال تولید": "۱۳۹۶",
+      سوخت: "بنزین",
+      "حجم موتور": "۱.۶ لیتر",
+      کولر: "دارد",
+      لاستیک: "نو",
+    },
   },
   {
     slug: "samand-lx",
-    name: "سمند LX",
+    name: "سمند LX دوگانه‌سوز",
     categorySlug: "cars",
     providerEmail: "provider@rentino.ir",
     brand: "ایران‌خودرو",
     description:
-      "سمند LX جادار و مطمئن با دو کیسه هوا. گزینه‌ای اقتصادی برای سفرهای خانوادگی.",
+      "سمند LX دوگانه‌سوز با موتور EF7، جادار و مطمئن برای سفرهای خانوادگی. مجهز به دو کیسه هوا، ترمز ABS و کولر. صندوق بزرگ و مصرف اقتصادی، گزینه‌ای مناسب برای سفرهای جاده‌ای.",
     images: ["/images/cars.svg"],
     pricePerDay: 10_000_000,
     stock: 1,
-    specifications: { گیربکس: "دنده‌ای", "سال تولید": "۱۳۹۹", سوخت: "گازسوز" },
+    specifications: {
+      گیربکس: "دنده‌ای",
+      "سال تولید": "۱۳۹۹",
+      سوخت: "دوگانه‌سوز (بنزین/CNG)",
+      "حجم موتور": "۱.۷ لیتر (EF7)",
+      "کیسه هوا": "۲ عدد",
+      ترمز: "ABS",
+    },
   },
   // ---- Consoles (provider2@rentino.ir)
+  // photo: پلی‌استیشن ۵ اسلیم نسخه دیسک‌خور
   {
     slug: "playstation-5-disc",
     name: "پلی‌استیشن ۵ (نسخه دیسک‌خور)",
@@ -168,11 +207,18 @@ const GEAR: SeedGear[] = [
     providerEmail: "provider2@rentino.ir",
     brand: "Sony",
     description:
-      "کنسول پلی‌استیشن ۵ به‌همراه دو دسته و چند بازی روز. مناسب مهمانی و دورهمی‌های آخر هفته.",
-    images: ["/images/consoles.svg"],
+      "کنسول پلی‌استیشن ۵ نسخه دیسک‌خور به‌همراه دو دسته DualSense و پنج بازی روز. مناسب مهمانی و دورهمی‌های آخر هفته. در صورت درخواست، بازی دلخواه هم نصب می‌شود.",
+    images: ["/images/gear/playstation-5.jpg"],
     pricePerDay: 4_000_000,
     stock: 3,
-    specifications: { نسل: "نهم", حافظه: "۸۲۵ گیگابایت", دسته: "۲ عدد" },
+    specifications: {
+      نسخه: "دیسک‌خور (Slim)",
+      نسل: "نهم",
+      حافظه: "۱ ترابایت",
+      دسته: "۲ عدد DualSense",
+      "بازی همراه": "۵ عنوان",
+      رزولوشن: "۴K / ۱۲۰ هرتز",
+    },
   },
   {
     slug: "xbox-series-s",
@@ -181,25 +227,40 @@ const GEAR: SeedGear[] = [
     providerEmail: "provider2@rentino.ir",
     brand: "Microsoft",
     description:
-      "ایکس‌باکس سری S جمع‌وجور به‌همراه اشتراک گیم‌پس. تحویل با یک دسته اورجینال.",
+      "ایکس‌باکس سری S جمع‌وجور با حافظه ۵۱۲ گیگابایتی و اشتراک فعال Game Pass Ultimate. تحویل با یک دسته اورجینال و کابل HDMI. مناسب بازی‌های دیجیتال و اجرای ۱۴۴۰p.",
     images: ["/images/consoles.svg"],
     pricePerDay: 3_000_000,
     stock: 2,
-    specifications: { نسل: "نهم", حافظه: "۵۱۲ گیگابایت", دسته: "۱ عدد" },
+    specifications: {
+      نسل: "نهم",
+      حافظه: "۵۱۲ گیگابایت",
+      دسته: "۱ عدد",
+      اشتراک: "Game Pass Ultimate",
+      رزولوشن: "۱۴۴۰p / ۱۲۰ هرتز",
+    },
   },
   // ---- Bikes (provider2@rentino.ir)
+  // photo: دوچرخه کورسی اسکات جای دوچرخه کوهستان را می‌گیرد (slug ثابت مانده است)
   {
     slug: "mountain-bike-29",
-    name: "دوچرخه کوهستان ۲۹ اینچ",
+    name: "دوچرخه کورسی اسکات Addict",
     categorySlug: "bikes",
     providerEmail: "provider2@rentino.ir",
-    brand: "شیمانو",
+    brand: "Scott",
     description:
-      "دوچرخه کوهستان ۲۱ سرعته با ترمز دیسکی و دوشاخ کمک‌دار. مناسب مسیرهای کوهستانی و شهری.",
-    images: ["/images/bikes.svg"],
+      "دوچرخه کورسی اسکات سری Addict با بدنه کربنی سبک و گروه دنده SRAM. چرخ‌های Zipp با لاستیک تیوبلس و ترمز دیسک هیدرولیک. مناسب رکاب‌زنی جاده‌ای، تمرین و مسابقات.",
+    images: ["/images/gear/scott-road-bike.jpg"],
     pricePerDay: 2_000_000,
     stock: 4,
-    specifications: { سایز: "۲۹ اینچ", دنده: "۲۱ سرعته", ترمز: "دیسکی" },
+    specifications: {
+      برند: "Scott",
+      مدل: "Addict RC",
+      "جنس بدنه": "کربن",
+      دنده: "SRAM (۲۲ سرعته)",
+      ترمز: "دیسک هیدرولیک",
+      "سایز چرخ": "۷۰۰C",
+      وزن: "حدود ۸ کیلوگرم",
+    },
   },
   {
     slug: "city-bike",
@@ -208,13 +269,20 @@ const GEAR: SeedGear[] = [
     providerEmail: "provider2@rentino.ir",
     brand: "ترک",
     description:
-      "دوچرخه شهری سبک با زین راحت و سبد حمل‌بار. مناسب مسیرهای کوتاه و استفاده روزانه.",
+      "دوچرخه شهری سبک با زین طبی و سبد حمل بار، مناسب مسیرهای کوتاه شهری و پیک‌نیک. همراه با زنگ، چراغ و قفل تحویل داده می‌شود.",
     images: ["/images/bikes.svg"],
     pricePerDay: 1_500_000,
     stock: 1,
-    specifications: { سایز: "۲۶ اینچ", دنده: "۷ سرعته", ترمز: "لنت‌کشی" },
+    specifications: {
+      سایز: "۲۶ اینچ",
+      دنده: "۷ سرعته",
+      ترمز: "لنت‌کشی (V-Brake)",
+      "سبد حمل بار": "دارد",
+      "قفل و چراغ": "همراه",
+    },
   },
   // ---- Cameras (provider2@rentino.ir)
+  // photo: کانن EOS R6 با لنز RF
   {
     slug: "canon-eos-r6",
     name: "دوربین کانن EOS R6",
@@ -222,14 +290,17 @@ const GEAR: SeedGear[] = [
     providerEmail: "provider2@rentino.ir",
     brand: "Canon",
     description:
-      "دوربین فول‌فریم بدون آینه کانن R6 به‌همراه لنز ۲۴–۱۰۵ میلی‌متر. مناسب عکاسی عروسی و تبلیغاتی.",
-    images: ["/images/cameras.svg"],
+      "دوربین فول‌فریم بدون آینه کانن EOS R6 به‌همراه لنز RF 24-105mm f/4L. مجهز به لرزشگیر ۵ محوره بدنه و فیلم‌برداری ۴K. مناسب عکاسی عروسی، تبلیغاتی و فیلم‌برداری حرفه‌ای.",
+    images: ["/images/gear/canon-eos-r6.jpg"],
     pricePerDay: 7_000_000,
     stock: 2,
     specifications: {
-      حسگر: "فول‌فریم",
-      لنز: "۲۴–۱۰۵ میلی‌متر",
+      حسگر: "فول‌فریم CMOS",
       رزولوشن: "۲۰ مگاپیکسل",
+      لنز: "RF 24-105mm f/4L IS",
+      لرزشگیر: "۵ محوره (IBIS)",
+      فیلم‌برداری: "۴K ۶۰fps",
+      "کارت حافظه": "۲ اسلات SD",
     },
   },
   {
@@ -239,14 +310,17 @@ const GEAR: SeedGear[] = [
     providerEmail: "provider2@rentino.ir",
     brand: "Sony",
     description:
-      "دوربین سونی A7 III با باتری اضافه و دو کارت حافظه. گزینه‌ای مطمئن برای فیلم‌برداری و عکاسی.",
+      "دوربین سونی A7 III به‌همراه لنز 28-70mm، دو باتری و دو کارت حافظه. فوکوس خودکار سریع و پایدار، گزینه‌ای مطمئن برای فیلم‌برداری، عکاسی خبری و پرتره.",
     images: ["/images/cameras.svg"],
     pricePerDay: 6_500_000,
     stock: 1,
     specifications: {
       حسگر: "فول‌فریم",
-      لنز: "۲۸–۷۰ میلی‌متر",
       رزولوشن: "۲۴ مگاپیکسل",
+      لنز: "28-70mm f/3.5-5.6",
+      "باتری همراه": "۲ عدد",
+      "کارت حافظه": "۲ عدد ۶۴ گیگابایت",
+      فیلم‌برداری: "۴K ۳۰fps",
     },
   },
   {
@@ -256,11 +330,17 @@ const GEAR: SeedGear[] = [
     providerEmail: "provider2@rentino.ir",
     brand: "GoPro",
     description:
-      "اکشن‌کم گوپرو Hero 11 ضدآب به‌همراه پایه‌ها و لوازم جانبی. مناسب سفر و ورزش.",
+      "اکشن‌کم گوپرو Hero 11 با لرزشگیر HyperSmooth 5.0 و ضدآب تا ۱۰ متر بدون قاب. همراه با سه‌پایه، بند سینه، بند سر و دو باتری. مناسب سفر، ورزش و ثبت لحظه‌ها.",
     images: ["/images/cameras.svg"],
     pricePerDay: 3_500_000,
     stock: 3,
-    specifications: { رزولوشن: "۵.۳K", ضدآب: "تا ۱۰ متر", "لوازم جانبی": "کامل" },
+    specifications: {
+      رزولوشن: "۵.۳K ۶۰fps",
+      لرزشگیر: "HyperSmooth 5.0",
+      ضدآب: "تا ۱۰ متر",
+      "لوازم جانبی": "سه‌پایه، بند سینه، بند سر",
+      "باتری همراه": "۲ عدد",
+    },
   },
   // ---- Laptops (provider@rentino.ir)
   {
@@ -270,11 +350,17 @@ const GEAR: SeedGear[] = [
     providerEmail: "provider@rentino.ir",
     brand: "Apple",
     description:
-      "مک‌بوک ایر M2 سبک با شارژدهی بالا. مناسب جلسات، برنامه‌نویسی و کارهای روزمره.",
+      "مک‌بوک ایر M2 سبک و بی‌صدا با شارژدهی تا ۱۸ ساعت و نمایشگر ۱۳.۶ اینچی Liquid Retina. مناسب جلسات کاری، برنامه‌نویسی و کارهای دانشجویی. شارژر MagSafe همراه دستگاه است.",
     images: ["/images/laptops.svg"],
     pricePerDay: 5_000_000,
     stock: 2,
-    specifications: { پردازنده: "M2", رم: "۸ گیگابایت", حافظه: "۲۵۶ گیگابایت" },
+    specifications: {
+      پردازنده: "Apple M2",
+      رم: "۸ گیگابایت",
+      حافظه: "۲۵۶ گیگابایت SSD",
+      نمایشگر: "۱۳.۶ اینچ Liquid Retina",
+      شارژدهی: "تا ۱۸ ساعت",
+    },
   },
   {
     slug: "asus-tuf-gaming",
@@ -283,14 +369,37 @@ const GEAR: SeedGear[] = [
     providerEmail: "provider@rentino.ir",
     brand: "Asus",
     description:
-      "لپ‌تاپ گیمینگ ایسوس TUF با کارت گرافیک اختصاصی. مناسب بازی و رندرگیری.",
+      "لپ‌تاپ گیمینگ ایسوس TUF با پردازنده Ryzen 7 و کارت گرافیک RTX 3050. نمایشگر ۱۴۴ هرتز و سیستم خنک‌کننده قوی. مناسب بازی، رندرگیری و کارهای گرافیکی؛ شارژر و ماوس گیمینگ همراه.",
     images: ["/images/laptops.svg"],
     pricePerDay: 4_500_000,
     stock: 1,
     specifications: {
-      پردازنده: "Ryzen 7",
+      پردازنده: "AMD Ryzen 7",
       رم: "۱۶ گیگابایت",
-      گرافیک: "RTX 3050",
+      گرافیک: "RTX 3050 4GB",
+      حافظه: "۵۱۲ گیگابایت SSD",
+      نمایشگر: "۱۵.۶ اینچ ۱۴۴ هرتز",
+    },
+  },
+  // ---- Sports (provider2@rentino.ir)
+  // photo: ست راکت تنیس ویلسون
+  {
+    slug: "tennis-racket-wilson",
+    name: "ست راکت تنیس ویلسون",
+    categorySlug: "sports",
+    providerEmail: "provider2@rentino.ir",
+    brand: "Wilson",
+    description:
+      "ست کامل تنیس شامل دو راکت ویلسون، شش توپ مسابقه‌ای و کیف حمل. مناسب بازی تفریحی و تمرین در زمین‌های روباز و سرپوشیده. توپ‌ها نو تحویل داده می‌شوند.",
+    images: ["/images/gear/tennis-racket.jpg"],
+    pricePerDay: 900_000,
+    stock: 3,
+    specifications: {
+      برند: "Wilson",
+      "تعداد راکت": "۲ عدد",
+      "توپ همراه": "۶ عدد",
+      "کیف حمل": "دارد",
+      سطح: "تفریحی و تمرینی",
     },
   },
 ];

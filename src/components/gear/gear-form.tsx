@@ -186,13 +186,15 @@ export function GearForm({ initialGear }: GearFormProps) {
         setCategoryLoading(true);
         setCategoryError(null);
 
-        const response = await api.get<Category[]>("/categories", {
+        // `/categories` is wrapped in the standard envelope
+        // (`{ success, message, data }`), so the list lives on `.data`.
+        const response = await api.get<{ data: Category[] }>("/categories", {
           auth: false,
         });
 
         if (!mounted) return;
 
-        const categoryData = Array.isArray(response) ? response : [];
+        const categoryData = Array.isArray(response?.data) ? response.data : [];
 
         setCategories(categoryData);
       } catch (error) {

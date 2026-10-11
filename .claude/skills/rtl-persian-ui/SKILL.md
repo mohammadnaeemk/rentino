@@ -3,13 +3,17 @@ name: rtl-persian-ui
 description: How to build correct Persian (fa-IR) right-to-left UI in Next.js with Tailwind v4 and Radix: logical utilities, directional icons, bidi text, Persian digits, Jalali dates, Vazirmatn font, and RTL fixes for Radix/Sonner/Recharts/date pickers. Use for any UI, layout, text or date/number display work.
 ---
 
-> ⚠️ **Target guidance** — the app is currently English LTR (`src/app/layout.tsx`
-> has `lang="en"`, no `dir="rtl"`). Apply during the RTL sweep. Templates in
-> `templates/` copy to `src/lib/` (drop `.tpl`).
+> ✅ **Applied** — `src/app/layout.tsx` is `lang="fa" dir="rtl"` with self-hosted
+> Vazirmatn, and `rtl-scan` reports 0 hard violations. Use this skill to keep new
+> work correct and to judge the advisory items tools can't (icons, overlays,
+> charts). Templates in `templates/` copy to `src/lib/` (drop `.tpl`) if the
+> formatters aren't there yet.
 
 # RTL + Persian UI
 
-Enforced by tooling: edit hook, `npm run rtl:scan`, `npm run rtl:fix`. This skill explains the why and the cases tools cannot judge.
+Enforced by tooling: the `PostToolUse` edit hook (`.claude/hooks/check-edit.mjs`),
+`node .claude/scripts/rtl-scan.mjs`, `node .claude/scripts/rtl-codemod.mjs --write`.
+This skill explains the why and the cases tools cannot judge.
 
 ## Root setup (once, task F0.2)
 ```tsx
@@ -36,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   );
 }
 ```
-Font file: download Vazirmatn variable woff2 into `public/fonts/` (the user must supply it if the sandbox cannot; never link a CDN). For leftover template code run the codemod: `npm run rtl:fix`.
+Font file: download Vazirmatn variable woff2 into `public/fonts/` (the user must supply it if the sandbox cannot; never link a CDN). For leftover template code run the codemod: `node .claude/scripts/rtl-codemod.mjs --write`.
 
 ## Logical utility map (use right column)
 | Physical | Logical |

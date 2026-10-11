@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>راهنمای ساختار Claude در پروژهٔ LensLoop</title>
+<style>
+  /* Self-hosted Vazirmatn, same file the app uses — no CDN. */
+  @font-face {
+    font-family: Vazirmatn;
+    src: url("../public/fonts/Vazirmatn-Variable.ttf") format("truetype-variations");
+    font-weight: 100 900;
+    font-display: swap;
+  }
+  :root {
+    --bg: #f7f7f5;
+    --surface: #ffffff;
+    --ink: #1b1b1f;
+    --muted: #5c5c66;
+    --line: #e3e3df;
+    --accent: #0f6f5c;
+    --accent-soft: #e6f2ef;
+    --warn: #8a5a00;
+    --warn-soft: #fdf3e0;
+    --bad: #a02020;
+    --bad-soft: #fbeaea;
+    --code-bg: #f0f0ec;
+    --radius: 14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14141a;
+      --surface: #1c1c23;
+      --ink: #ecedf1;
+      --muted: #a3a3b0;
+      --line: #2e2e38;
+      --accent: #6fd0b8;
+      --accent-soft: #14342d;
+      --warn: #e0b96a;
+      --warn-soft: #332912;
+      --bad: #f08a8a;
+      --bad-soft: #3a1d1d;
+      --code-bg: #23232c;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: Vazirmatn, "Vazirmatn Variable", Tahoma, "Segoe UI", system-ui, sans-serif;
+    line-height: 1.9;
+    font-size: 16px;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 20px 96px; }
+  header.hero {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 28px 26px;
+    margin-bottom: 28px;
+  }
+  header.hero h1 { margin: 0 0 10px; font-size: 1.75rem; line-height: 1.5; }
+  header.hero p { margin: 0; color: var(--muted); }
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    margin-bottom: 32px;
+  }
+  .toc h2 { margin: 0 0 12px; font-size: 1rem; color: var(--muted); font-weight: 600; }
+  .toc ol { margin: 0; padding-inline-start: 20px; columns: 2; column-gap: 28px; }
+  @media (max-width: 560px) { .toc ol { columns: 1; } }
+  .toc a { color: var(--accent); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+  section {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 24px 26px;
+    margin-bottom: 22px;
+  }
+  h2 { font-size: 1.3rem; margin: 0 0 6px; }
+  h2 .num {
+    display: inline-block;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-radius: 8px;
+    font-size: .85rem;
+    padding: 1px 10px;
+    margin-inline-end: 8px;
+    vertical-align: middle;
+  }
+  h3 { font-size: 1.05rem; margin: 26px 0 8px; }
+  h4 { font-size: .97rem; margin: 20px 0 6px; color: var(--muted); }
+  p { margin: 8px 0; }
+  ul, ol { padding-inline-start: 22px; margin: 8px 0; }
+  li { margin: 5px 0; }
+  code {
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 1px 6px;
+    font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+    font-size: .88em;
+    direction: ltr;
+    unicode-bidi: embed;
+    display: inline-block;
+  }
+  pre {
+    background: var(--code-bg);
+    border-radius: 10px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    direction: ltr;
+    text-align: left;
+    font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+    font-size: .86rem;
+    line-height: 1.7;
+    margin: 12px 0;
+  }
+  pre code { background: none; padding: 0; display: block; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: .93rem;
+  }
+  th, td { text-align: start; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: .87rem; }
+  tr:last-child td { border-bottom: none; }
+  .callout {
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    border-inline-start: 4px solid var(--accent);
+    background: var(--accent-soft);
+  }
+  .callout.warn { border-inline-start-color: var(--warn); background: var(--warn-soft); }
+  .callout.bad { border-inline-start-color: var(--bad); background: var(--bad-soft); }
+  .callout strong { display: block; margin-bottom: 2px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin: 16px 0; }
+  .card {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+    background: var(--bg);
+  }
+  .card h4 { margin: 0 0 6px; color: var(--ink); font-size: .95rem; }
+  .card p { margin: 0; font-size: .9rem; color: var(--muted); }
+  .badge {
+    display: inline-block;
+    font-size: .75rem;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--code-bg);
+    color: var(--muted);
+    margin-inline-start: 6px;
+    vertical-align: middle;
+  }
+  .badge.on { background: var(--accent-soft); color: var(--accent); }
+  .badge.off { background: var(--bad-soft); color: var(--bad); }
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 16px 0;
+    font-size: .9rem;
+  }
+  .flow .step {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 6px 12px;
+  }
+  .flow .arrow { color: var(--muted); }
+  footer { color: var(--muted); font-size: .87rem; text-align: center; margin-top: 40px; }
+  a { color: var(--accent); }
+  .kbd { font-size: .85em; background: var(--code-bg); border: 1px solid var(--line); border-radius: 5px; padding: 0 6px; font-family: ui-monospace, monospace; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>راهنمای ساختار Claude در پروژهٔ LensLoop</h1>
+  <p>این سند برای کسی نوشته شده که با Claude Code تازه آشناست. توضیح می‌دهد کلاد اصلاً چیست، این پروژه چه چیزی برایش تعریف کرده، و این اجزا چطور با هم کار می‌کنند — از پایه، بدون پیش‌فرض دانش قبلی.</p>
+</header>
+
+<nav class="toc">
+  <h2>فهرست</h2>
+  <ol>
+    <li><a href="#s1">کلاد Code چیست؟</a></li>
+    <li><a href="#s2">مدل ذهنی: چطور کار می‌کند</a></li>
+    <li><a href="#s3">نقشهٔ فایل‌های پروژه</a></li>
+    <li><a href="#s4">لایهٔ ۱: دستورهای همیشه‌بار</a></li>
+    <li><a href="#s5">لایهٔ ۲: اسکیل‌ها</a></li>
+    <li><a href="#s6">لایهٔ ۳: ایجنت‌ها</a></li>
+    <li><a href="#s7">لایهٔ ۴: هوک‌ها</a></li>
+    <li><a href="#s8">لایهٔ ۵: اسکریپت‌های قطعی</a></li>
+    <li><a href="#s9">اسکیل تست وب (مهم)</a></li>
+    <li><a href="#s10">گردش‌کارهای روزمره</a></li>
+    <li><a href="#s11">مرجع سریع و واژه‌نامه</a></li>
+    <li><a href="#s12">چه چیزی نداریم</a></li>
+  </ol>
+</nav>
+
+<!-- ======================= 1 ======================= -->
+<section id="s1">
+  <h2><span class="num">۱</span>کلاد Code چیست؟</h2>
+
+  <p>Claude Code یک برنامهٔ خط فرمان است که یک مدل زبانی (Claude) را داخل پوشهٔ پروژهٔ شما می‌نشاند. تفاوتش با چت معمولی این است که <strong>دسترسی به فایل‌ها و اجرای دستورات</strong> دارد: می‌تواند فایل بخواند، ویرایش کند، دستور شل بزند، در مرورگر سایت را باز کند و نتیجه را ببیند.</p>
+
+  <p>خودِ Claude هیچ‌چیز دربارهٔ این پروژه نمی‌داند. هر چیزی که می‌داند از دو جا می‌آید:</p>
+  <ul>
+    <li>آنچه <strong>در همان لحظه می‌خواند</strong> (فایل‌ها، خروجی دستورها، صفحهٔ وب).</li>
+    <li>آنچه <strong>ما از قبل برایش نوشته‌ایم</strong> — همان ساختار <code>.claude/</code> که موضوع این سند است.</li>
+  </ul>
+
+  <div class="callout">
+    <strong>نکتهٔ کلیدی</strong>
+    بزرگی و کیفیت کاری که کلاد انجام می‌دهد، بیش از آنکه به «هوش» مدل وابسته باشد، به <em>کانتکستی</em> وابسته است که ما فراهم می‌کنیم. ساختار <code>.claude/</code> دقیقاً همین است: کانتکست درست، در زمان درست، بدون اینکه همه‌چیز همیشه در حافظه بار شود.
+  </div>
+
+  <h3>سه واژه‌ای که باید بلد باشید</h3>
+  <table>
+    <tr><th>واژه</th><th>یعنی</th></tr>
+    <tr><td><strong>کانتکست (Context)</strong></td><td>مجموع چیزی که مدل در یک لحظه می‌بیند. پر شدنش باعث فراموشی و افت کیفیت می‌شود.</td></tr>
+    <tr><td><strong>ابزار (Tool)</strong></td><td>توانایی عملی مدل: خواندن فایل، اجرای دستور، کلیک در مرورگر. مدل تصمیم می‌گیرد کدام ابزار را کِی صدا بزند.</td></tr>
+    <tr><td><strong>پرامپت سیستمی (System prompt)</strong></td><td>متن پنهانی که قبل از گفت‌وگو به مدل داده می‌شود و رفتار و لحنش را تعیین می‌کند. دستورهای پروژه نیز همین‌جا تزریق می‌شوند.</td></tr>
+  </table>
+</section>
+
+<!-- ======================= 2 ======================= -->
+<section id="s2">
+  <h2><span class="num">۲</span>مدل ذهنی: چطور کار می‌کند</h2>
+
+  <p>ساختاری که برای این پروژه ساختیم، پنج لایه دارد. هر لایه یک هدف دارد و در زمان متفاوتی بار می‌شود:</p>
+
+  <div class="flow">
+    <span class="step">۱. دستورهای همیشه‌بار</span><span class="arrow">←</span>
+    <span class="step">۲. اسکیل‌ها (درخواستی)</span><span class="arrow">←</span>
+    <span class="step">۳. ایجنت‌ها (زیرکار)</span><span class="arrow">←</span>
+    <span class="step">۴. هوک‌ها (خودکار)</span><span class="arrow">←</span>
+    <span class="step">۵. اسکریپت‌ها (قطعی)</span>
+  </div>
+
+  <table>
+    <tr><th>لایه</th><th>کِی اجرا می‌شود</th><th>چه کسی کنترل می‌کند</th></tr>
+    <tr><td>۱ — دستورهای همیشه‌بار</td><td>ابتدای هر گفت‌وگو، خودکار</td><td>—</td></tr>
+    <tr><td>۲ — اسکیل‌ها</td><td>وقتی موضوعش پیش می‌آید</td><td>مدل تصمیم می‌گیرد</td></tr>
+    <tr><td>۳ — ایجنت‌ها</td><td>وقتی کار باید واگذار شود</td><td>مدل یا شما</td></tr>
+    <tr><td>۴ — هوک‌ها</td><td>روی رویدادها (مثلاً بعد از هر ویرایش)</td><td>خود برنامه، بدون دخالت مدل</td></tr>
+    <tr><td>۵ — اسکریپت‌ها</td><td>وقتی کسی صدا بزند</td><td>شما یا مدل</td></tr>
+  </table>
+
+  <h3>تفاوت «اسکیل» و «ایجنت» — مهم‌ترین تمایز</h3>
+  <div class="grid">
+    <div class="card">
+      <h4>اسکیل = دانش</h4>
+      <p>یک فایل متنی که می‌گوید «این کار را این‌طور انجام بده». مثل یک چک‌لیست یا دفترچهٔ راهنما. در همان گفت‌وگوی فعلی خوانده می‌شود و کانتکست را پر می‌کند.</p>
+    </div>
+    <div class="card">
+      <h4>ایجنت = کارگر</h4>
+      <p>یک کلاد جداگانه که کار را در پنجرهٔ کانتکست مستقل خودش انجام می‌دهد و فقط <em>نتیجه</em> را برمی‌گرداند. برای جست‌وجوی پهن یا بررسی‌های سنگین، چون کانتکست شما را پاک نگه می‌دارد.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>چرا این تفکیک مهم است؟</strong>
+    اگر مدل بخواهد صد فایل را خودش بخواند تا یک چیز را پیدا کند، کانتکست گفت‌وگو پر می‌شود و کیفیت کارش افت می‌کند. راه درست: یک ایجنت بفرست که بگردد و فقط جواب را برگرداند.
+  </div>
+</section>
+
+<!-- ======================= 3 ======================= -->
+<section id="s3">
+  <h2><span class="num">۳</span>نقشهٔ فایل‌های پروژه</h2>
+
+  <p>این‌ها فایل‌هایی هستند که برای کنترل رفتار کلاد در این پروژه ساخته شده‌اند:</p>
+
+<pre><code>rentino/
+├── CLAUDE.md                     ← دستورهای همیشه‌بار (هر گفت‌وگو)
+├── AGENTS.md                     ← هشدار «Next.js 16 با آنچه مدل می‌داند فرق دارد»
+├── docs/
+│   ├── CONVENTIONS.md            ← قواعد کدنویسی و نقشهٔ پوشه‌ها
+│   ├── PROJECT.md                ← اهداف محصول
+│   ├── DOMAIN.md                 ← مدل داده
+│   ├── ARCHITECTURE.md           ← معماری تأییدشده
+│   ├── STATUS.md                 ← چه هست / چه نیست
+│   └── claude-guide.html         ← همین فایل
+└── .claude/
+    ├── settings.json             ← هوک‌ها + مجوزها
+    ├── rules/
+    │   └── project-invariants.md ← ثابت‌های غیرقابل‌مذاکره
+    ├── hooks/
+    │   ├── session-start.mjs     ← چاپ وضعیت در شروع گفت‌وگو
+    │   └── check-edit.mjs        ← بررسی هر ویرایش؛ تخلف را بلاک می‌کند
+    ├── scripts/
+    │   ├── rtl-rules.mjs         ← منبع واحد قواعد RTL/رنگ
+    │   ├── rtl-scan.mjs          ← آدیت کل پروژه
+    │   └── rtl-codemod.mjs       ← تعمیر خودکار
+    ├── agents/                   ← ۴ کارگر تخصصی
+    │   ├── code-reviewer.md
+    │   ├── debugger.md
+    │   ├── nextjs-feature-builder.md
+    │   └── gemini-search-engineer.md
+    └── skills/                   ← ۹ دفترچهٔ راهنما
+        ├── web-testing/          ← تست صفحه در مرورگر
+        ├── rtl-persian-ui/
+        ├── design-system/
+        ├── ux-flows/
+        ├── nextjs16-app-router/
+        ├── gemini-ai-search/
+        ├── iran-integrations/
+        ├── systematic-debugging/
+        └── verification-before-completion/</code></pre>
+
+  <div class="callout warn">
+    <strong>فایل‌های <code>_archive/</code> را جدی نگیرید</strong>
+    نسخهٔ قدیمی این ساختار در <code>_archive/lensloop-claude-kit/</code> است. آن نسخه فرض می‌کرد پروژه یک فروشگاه تک‌نفرهٔ دوربین است؛ پروژهٔ فعلی یک بازارگاه چندفروشنده است. آرشیو فقط مرجع مفهومی است، نه spec فعلی.
+  </div>
+</section>
+
+<!-- ======================= 4 ======================= -->
+<section id="s4">
+  <h2><span class="num">۴</span>لایهٔ ۱ — دستورهای همیشه‌بار</h2>
+
+  <p>این فایل‌ها در <strong>ابتدای هر گفت‌وگو</strong> خودکار خوانده می‌شوند. پس باید کوتاه باشند؛ هر کلمهٔ اضافه، در هر بار، کانتکست مصرف می‌کند.</p>
+
+  <h3>CLAUDE.md</h3>
+  <p>فایل اصلی. می‌گوید: این پروژه چیست، استک چیست، «منبع حقیقت» کدام اسناد هستند، چه ثابت‌هایی شکستنی نیستند. دستور <code>@AGENTS.md</code> در خط اول، آن فایل را هم ضمیمه می‌کند.</p>
+
+  <h3>AGENTS.md</h3>
+  <p>هشداری برای مدل: «این نسخهٔ Next.js با آنچه در آموزش‌هایت دیدی فرق دارد؛ قبل از کد نوشتن، داکیومنت‌های داخل <code>node_modules/next/dist/docs/</code> را بخوان.» این فایل را خودِ <code>next dev</code> تولید می‌کند.</p>
+
+  <h3>.claude/rules/project-invariants.md</h3>
+  <p>چیزهایی که هرگز نباید نقض شوند. مثلاً:</p>
+  <ul>
+    <li>فارسی/RTL هدف است و الان اعمال شده؛ کلاس‌های فیزیکی مثل <code>ml-4</code> ممنوع.</li>
+    <li>کلید <code>GEMINI_API_KEY</code> هرگز نباید کلاینت‌نشود.</li>
+    <li>رفتار مخصوص هر دسته باید داده‌محور باشد، نه با <code>if</code> روی نام دسته.</li>
+    <li>فقط یک نام برای آدرس بک‌اند: <code>NEXT_PUBLIC_API_URL</code>.</li>
+  </ul>
+
+  <div class="callout">
+    <strong>تفاوت <code>rules/</code> و <code>docs/</code></strong>
+    <code>rules/</code> خودکار بار می‌شود (پس کوتاه و امری است). <code>docs/</code> بار نمی‌شود و مدل فقط وقتی لازم داشت می‌خواند.
+  </div>
+</section>
+
+<!-- ======================= 5 ======================= -->
+<section id="s5">
+  <h2><span class="num">۵</span>لایهٔ ۲ — اسکیل‌ها</h2>
+
+  <p>اسکیل یک پوشه با یک فایل <code>SKILL.md</code> است. بالای فایل دو خط کلیدی دارد:</p>
+
+<pre><code>---
+name: web-testing
+description: Use when you need to verify that a page ... actually works ...
+---</code></pre>
+
+  <p>مدل همیشه فقط <code>name</code> و <code>description</code> همهٔ اسکیل‌ها را می‌بیند (فهرست کوتاه). وقتی موضوع با <code>description</code> بخواند، <strong>کل فایل را می‌خواند</strong>. به همین دلیل <code>description</code> از «Use when…» شروع می‌شود و فقط شرط استفاده را می‌گوید.</p>
+
+  <div class="callout warn">
+    <strong>چرا در description خلاصهٔ محتوا نمی‌نویسیم؟</strong>
+    اگر بنویسیم «این اسکیل ۳ مرحله دارد…»، مدل ممکن است همان خلاصه را اجرا کند و اصل فایل را نخواند. شرط استفاده را بنویس، نه راه‌حل را.
+  </div>
+
+  <h3>اسکیل‌های این پروژه</h3>
+  <table>
+    <tr><th>اسکیل</th><th>کِی استفاده می‌شود</th></tr>
+    <tr><td><code>web-testing</code></td><td>می‌خواهی مطمئن شوی یک صفحه/فرم واقعاً در مرورگر کار می‌کند</td></tr>
+    <tr><td><code>rtl-persian-ui</code></td><td>هر کار UI، متن، عدد یا تاریخ</td></tr>
+    <tr><td><code>design-system</code></td><td>ساخت یا تغییر ظاهر کامپوننت/صفحه/رنگ برند</td></tr>
+    <tr><td><code>ux-flows</code></td><td>تغییر هر صفحه، فرم، مرحلهٔ جریان، یا متن دکمه</td></tr>
+    <tr><td><code>nextjs16-app-router</code></td><td>قبل از نوشتن هر route/layout/data-fetching</td></tr>
+    <tr><td><code>gemini-ai-search</code></td><td>کار روی جست‌وجوی زبان‌طبیعی با Gemini</td></tr>
+    <tr><td><code>iran-integrations</code></td><td>ورود با OTP، پرداخت زرین‌پال، اعتبارسنجی کد ملی/شبا/کارت</td></tr>
+    <tr><td><code>systematic-debugging</code></td><td>خطای build/lint/runtime که علتش روشن نیست</td></tr>
+    <tr><td><code>verification-before-completion</code></td><td>دقیقاً قبل از گفتن «تمام شد»</td></tr>
+  </table>
+
+  <h3>چطور صدا زده می‌شوند؟</h3>
+  <p>دو راه دارد: مدل خودش تشخیص می‌دهد، یا شما صریح می‌خواهید. برای صریح، از دستور اسلش استفاده کنید:</p>
+<pre><code>/web-testing صفحهٔ /gear را چک کن</code></pre>
+</section>
+
+<!-- ======================= 6 ======================= -->
+<section id="s6">
+  <h2><span class="num">۶</span>لایهٔ ۳ — ایجنت‌ها</h2>
+
+  <p>هر ایجنت یک فایل در <code>.claude/agents/</code> است با فهرست ابزارهای مجاز. وقتی صدا زده می‌شود، یک کلاد مستقل با کانتکست خالی بالا می‌آید و فقط گزارش نهایی را برمی‌گرداند.</p>
+
+  <table>
+    <tr><th>ایجنت</th><th>کارش</th><th>ابزارها</th></tr>
+    <tr><td><code>code-reviewer</code></td><td>فقط فایل‌های تغییریافته را برای درستی، قواعد پروژه، امنیت و RTL بررسی می‌کند</td><td>فقط خواندن + Bash</td></tr>
+    <tr><td><code>debugger</code></td><td>خطا را با فرایند ۴ مرحله‌ای root-cause پیدا می‌کند</td><td>فقط خواندن + Bash</td></tr>
+    <tr><td><code>nextjs-feature-builder</code></td><td>فیچر جدید می‌سازد (صفحه، کامپوننت، route)</td><td>خواندن + نوشتن</td></tr>
+    <tr><td><code>gemini-search-engineer</code></td><td>مخصوص جست‌وجوی Gemini؛ کلید را فقط سمت سرور می‌خواند</td><td>خواندن + نوشتن</td></tr>
+  </table>
+
+  <p>دو ایجنت اول عمداً <strong>اجازهٔ نوشتن ندارند</strong>. یعنی فقط بررسی می‌کنند و نمی‌توانند خرابی درست کنند. این یک تصمیم طراحی است، نه محدودیت.</p>
+</section>
+
+<!-- ======================= 7 ======================= -->
+<section id="s7">
+  <h2><span class="num">۷</span>لایهٔ ۴ — هوک‌ها <span class="badge on">فعال</span></h2>
+
+  <p>هوک یک اسکریپت است که <strong>خودِ برنامه</strong> و بدون دخالت مدل، روی یک رویداد اجرا می‌کند. این مهم‌ترین تفاوت با اسکیل است: اسکیل «راهنما» است و ممکن است نادیده گرفته شود؛ هوک «قانون» است و دور زدنش ممکن نیست.</p>
+
+  <p>در <code>.claude/settings.json</code> دو هوک فعال است:</p>
+
+  <h3>۱) SessionStart — در شروع هر گفت‌وگو</h3>
+<pre><code>node "$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.mjs"</code></pre>
+  <p>یک وضعیت کوچک چاپ می‌کند: قدم بعدی از <code>docs/STATUS.md</code>، هشدار اگر <code>.env.local</code> نبود، و یادآوری بررسی مرورگر. خروجی‌اش:</p>
+<pre><code>Lensloop (Persian RTL rental marketplace). Rules in CLAUDE.md + …
+Next: Add a test runner (Vitest) — then restore the test gate in …
+Verify UI in a browser with the web-testing skill; never claim a page works without loading it.</code></pre>
+
+  <h3>۲) PostToolUse — بعد از هر Edit/Write</h3>
+<pre><code>node "$CLAUDE_PROJECT_DIR/.claude/hooks/check-edit.mjs"</code></pre>
+  <p>هر فایلی که کلاد ویرایش کند، بلافاصله بررسی می‌شود:</p>
+  <ul>
+    <li><strong>کلاس فیزیکی RTL</strong> مثل <code>ml-4</code> یا <code>text-left</code> → جلوی ویرایش گرفته می‌شود و مسیر اصلاح را می‌گوید.</li>
+    <li><strong>رنگ خام</strong> مثل <code>#ff0000</code> → ایراد گرفته می‌شود (مگر کامنت <code>allow-hex</code> داشته باشد).</li>
+    <li><strong>خطای ESLint</strong> در همان فایل → برگردانده می‌شود تا خودش اصلاح کند.</li>
+    <li><strong>آیکون جهتی</strong> → فقط تذکر، بلاک نمی‌کند.</li>
+  </ul>
+
+  <p>نمونهٔ واقعی خروجی (با یک فایل آزمایشی اجرا شد، کد خروج ۲):</p>
+<pre><code>RTL: physical Tailwind classes in probe.tsx (fix: node .claude/scripts/rtl-codemod.mjs --write probe.tsx)
+  L1 ml- -> ms-
+  L1 text-left -> text-start
+TOKENS: raw color literals in probe.tsx; use design tokens …
+  L1 #ff0000
+exit=2</code></pre>
+
+  <div class="callout">
+    <strong>چرا این بهتر از توضیح دادن به مدل است؟</strong>
+    اگر قاعده را فقط در یک اسکیل بنویسیم، مدل ممکن است زیر فشار (وقت کم، کار زیاد) از آن عبور کند. هوک این امکان را حذف می‌کند: قاعده در سطح ابزار اجرا می‌شود، نه در سطح تصمیم مدل.
+  </div>
+
+  <h3>مجوزها (permissions)</h3>
+  <p>همان فایل <code>settings.json</code> فهرست سفید و سیاه هم دارد. مثلاً <code>npm run lint</code> بدون سؤال اجرا می‌شود، ولی خواندن <code>.env.local</code> ممنوع است و <code>git push --force</code> بلاک است.</p>
+</section>
+
+<!-- ======================= 8 ======================= -->
+<section id="s8">
+  <h2><span class="num">۸</span>لایهٔ ۵ — اسکریپت‌های قطعی</h2>
+
+  <p>برای کارهایی که <em>قابل تشخیص با قاعده</em> هستند، نباید از مدل استفاده کرد. یک اسکریپت ارزان‌تر، سریع‌تر و تکرارپذیرتر است. اینجا سه اسکریپت داریم:</p>
+
+  <table>
+    <tr><th>اسکریپت</th><th>کار</th></tr>
+    <tr><td><code>rtl-rules.mjs</code></td><td>منبع واحد قواعد: فهرست تبدیل‌ها، الگوهای رنگ، CSS فیزیکی. دو اسکریپت دیگر از همین import می‌کنند.</td></tr>
+    <tr><td><code>rtl-scan.mjs</code></td><td>کل پروژه را می‌گردد؛ اگر تخلف قطعی باشد کد خروج ۱ می‌دهد.</td></tr>
+    <tr><td><code>rtl-codemod.mjs</code></td><td>تخلف‌ها را خودکار اصلاح می‌کند (<code>--write</code>).</td></tr>
+  </table>
+
+  <p>اجرا:</p>
+<pre><code>node .claude/scripts/rtl-scan.mjs            # آدیت
+node .claude/scripts/rtl-scan.mjs --review   # + موارد نیازمند بازبینی انسانی
+node .claude/scripts/rtl-codemod.mjs --write # تعمیر خودکار</code></pre>
+
+  <p>خروجی فعلی روی همین پروژه:</p>
+<pre><code>Scanned 94 files. Hard violations: 0 in 0 file(s). Review items: 17.</code></pre>
+</section>
+
+<!-- ======================= 9 ======================= -->
+<section id="s9">
+  <h2><span class="num">۹</span>اسکیل تست وب — مهم‌ترین بخش تست</h2>
+
+  <div class="callout bad">
+    <strong>واقعیت را بدانید</strong>
+    این پروژه <strong>هیچ تست خودکارِ ثبت‌شده‌ای ندارد</strong>: نه Vitest نصب است، نه فایل <code>*.spec.ts</code>، نه <code>playwright.config.ts</code>. پکیج‌اسکریپت‌ها فقط <code>dev</code>، <code>build</code>، <code>start</code>، <code>lint</code> هستند. تنها راه بررسی انتها-به-انتها، همین اسکیل <code>web-testing</code> است.
+  </div>
+
+  <h3>چرا لازم است؟</h3>
+  <p>عبور <code>npm run build</code> فقط ثابت می‌کند کد <em>کامپایل</em> می‌شود. ثابت نمی‌کند صفحه <em>رندر</em> می‌شود. خرابی‌های رایج این پروژه فقط در زمان اجرا دیده می‌شوند:</p>
+  <ul>
+    <li>لیست خالی می‌ماند چون پاسخ API در یک پوشه (<code>envelope</code>) پیچیده شده و کامپوننت انتظار آرایهٔ خام دارد.</li>
+    <li>خطای hydration در کنسول — صفحه سالم به نظر می‌رسد ولی خطا می‌دهد.</li>
+    <li>آدرس <code>/gear/[slug]</code> با یک slug ناموجود به‌جای ۴۰۴، کرش می‌کند.</li>
+    <li>چیدمان RTL در موبایل سرریز می‌کند.</li>
+    <li><strong>مورد واقعی که همین امروز پیدا شد:</strong> کاشی‌های دسته در صفحهٔ اصلی به <code>/gear?category=…</code> لینک می‌دهند، ولی صفحهٔ لیست این پارامتر را نمی‌خواند. صفحه بی‌نقص رندر می‌شود، هیچ خطایی در کنسول نیست، ولی فیلتر اعمال نمی‌شود — دقیقاً همان چیزی که تست «فقط رندر می‌شود» از دست می‌دهد.</li>
+  </ul>
+
+  <h3>ابزارش چیست؟</h3>
+  <p>یک اتصال <strong>Playwright MCP</strong> که به‌صورت پلاگین فعال است. مدل با آن واقعاً مرورگر را کنترل می‌کند: صفحه باز می‌کند، درخت دسترس‌پذیری را می‌گیرد، کلیک و تایپ می‌کند، اسکرین‌شات می‌گیرد و <strong>کنسول مرورگر</strong> را می‌خواند.</p>
+
+  <table>
+    <tr><th>ابزار</th><th>کاربرد</th></tr>
+    <tr><td><code>browser_navigate</code></td><td>رفتن به یک آدرس</td></tr>
+    <tr><td><code>browser_snapshot</code></td><td>درخت دسترس‌پذیری — منبع اصلی برای دیدن ساختار و متن</td></tr>
+    <tr><td><code>browser_console_messages</code></td><td>خواندن خطاهای کنسول — هرگز نباید رد شود</td></tr>
+    <tr><td><code>browser_click</code> / <code>browser_type</code> / <code>browser_fill_form</code></td><td>تعامل با فرم و دکمه</td></tr>
+    <tr><td><code>browser_wait_for</code></td><td>انتظار برای یک متن مشخص (به‌جای <code>sleep</code> حدسی)</td></tr>
+    <tr><td><code>browser_network_requests</code></td><td>بررسی اینکه فراخوانی API موفق بوده و شکل پاسخ درست است</td></tr>
+    <tr><td><code>browser_take_screenshot</code></td><td>وقتی درستی ظاهری (RTL، سرریز، دارک‌مود) سؤال است</td></tr>
+    <tr><td><code>browser_resize</code></td><td>تغییر اندازه به موبایل یا دسکتاپ</td></tr>
+  </table>
+
+  <h3>حلقهٔ کار</h3>
+  <div class="flow">
+    <span class="step">Navigate</span><span class="arrow">←</span>
+    <span class="step">Snapshot</span><span class="arrow">←</span>
+    <span class="step">Console</span><span class="arrow">←</span>
+    <span class="step">Interact</span><span class="arrow">←</span>
+    <span class="step">Screenshot</span>
+  </div>
+  <p>یعنی: به آدرس برو → ساختار را بگیر → <strong>کنسول را بخوان</strong> → تعامل کن → در صورت نیاز اسکرین‌شات بگیر.</p>
+
+  <h3>پیش‌نیازها</h3>
+  <table>
+    <tr><th>چه چیزی</th><th>چطور چک کنیم</th><th>مقدار درست</th></tr>
+    <tr><td>فرانت‌اند</td><td><code>lsof -nP -iTCP:3000 -sTCP:LISTEN</code></td><td>یک پروسهٔ <code>node</code></td></tr>
+    <tr><td>بک‌اند</td><td><code>curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/api/v1/gear</code></td><td><code>200</code></td></tr>
+  </table>
+
+  <div class="callout warn">
+    <strong>اگر بک‌اند خواب باشد</strong>
+    صفحه‌ای که فقط به‌خاطر در دسترس نبودن API خراب است، <em>باگ UI نیست</em>. این را باید صریح بگویید، نه اینکه به‌عنوان خرابی رابط گزارش کنید.
+  </div>
+
+  <h3>الگوی گزارش</h3>
+  <p>گزارش باید به همین شکل باشد، بدون پرگویی:</p>
+<pre><code>/gear — ✅ loads, 9 cards, console clean
+/gear/rentino-camera — ❌ console: "Cannot read properties of undefined (reading 'price')"
+/login — ⚠️ renders, but layout overflows at 390px</code></pre>
+  <p>و در انتها دقیقاً بگویید چه چیزی را بررسی <em>نکردید</em>. «صفحهٔ /gear و /login را چک کردم» با «اپ کار می‌کند» دو ادعای متفاوت است.</p>
+
+  <h3>قاعدهٔ اصلی و پرچم‌های خطر</h3>
+  <div class="callout bad">
+    <strong>صفحه تا وقتی مرورگر واقعی آن را بارگذاری نکرده، تأییدشده نیست.</strong>
+    خواندن سورس یا عبور build، فقط ثابت می‌کند کد کامپایل می‌شود.
+  </div>
+  <p>این‌ها یعنی «توقف کن و واقعاً نگاه کن»:</p>
+  <ul>
+    <li>داری می‌نویسی «صفحه کار می‌کند» بدون اینکه در همین نشست آن را باز کرده باشی.</li>
+    <li>از خواندن کامپوننت یا از موفقیت build، رفتار UI را حدس زده‌ای.</li>
+    <li>اسکرین‌شات گرفته‌ای ولی کنسول را نخوانده‌ای.</li>
+    <li>صفحهٔ خالی دیده‌ای و فرض کرده‌ای «داده‌ای نیست»، بدون چک کردن فراخوانی شبکه.</li>
+  </ul>
+
+  <h3>مثال عملی</h3>
+<pre><code>/web-testing  صفحهٔ /gear و /gear/[slug] را در مرورگر چک کن و
+              خطاهای کنسول را گزارش بده</code></pre>
+</section>
+
+<!-- ======================= 10 ======================= -->
+<section id="s10">
+  <h2><span class="num">۱۰</span>گردش‌کارهای روزمره</h2>
+
+  <h3>«یک صفحه/فیچر جدید بساز»</h3>
+  <ol>
+    <li>مدل <code>nextjs16-app-router</code> و <code>rtl-persian-ui</code> را می‌خواند.</li>
+    <li>الگوی مشابه موجود در <code>src/</code> را پیدا می‌کند و همان شکل را تکرار می‌کند.</li>
+    <li>کد را می‌نویسد — هوک روی هر ویرایش، RTL و ESLint را چک می‌کند.</li>
+    <li>با <code>web-testing</code> در مرورگر باز می‌کند و تأیید می‌کند.</li>
+    <li><code>verification-before-completion</code>: lint و build واقعاً اجرا می‌شوند.</li>
+    <li>در صورت نیاز، <code>code-reviewer</code> دیف را بررسی می‌کند.</li>
+  </ol>
+
+  <h3>«چیزی خراب است»</h3>
+  <ol>
+    <li>ایجنت <code>debugger</code> یا اسکیل <code>systematic-debugging</code>.</li>
+    <li>اول بازتولید دقیق با همان دستور خطا؛ حدس‌زدن ممنوع.</li>
+    <li>پیدا کردن ریشه، نه وصله کردن نشانه.</li>
+    <li>اجرای دوبارهٔ <em>همان</em> دستور به‌عنوان شاهد.</li>
+  </ol>
+
+  <h3>«مطمئن شو آمادهٔ merge است»</h3>
+  <ol>
+    <li><code>node .claude/scripts/rtl-scan.mjs</code> → باید ۰ تخلف قطعی بدهد.</li>
+    <li><code>npm run lint</code> و <code>npm run build</code> → باید با کد خروج ۰ تمام شوند.</li>
+    <li><code>code-reviewer</code> روی دیف.</li>
+    <li>صفحات کلیدی با <code>web-testing</code> در مرورگر.</li>
+  </ol>
+
+  <div class="callout">
+    <strong>قاعدهٔ طلایی</strong>
+    هیچ‌وقت «کار می‌کند» یا «تست‌ها پاس شدند» نگویید، مگر اینکه همان دستور در همان نشست اجرا شده و خروجی‌اش دیده شده باشد. گزارش باید شاهد داشته باشد، نه ادعا.
+  </div>
+</section>
+
+<!-- ======================= 11 ======================= -->
+<section id="s11">
+  <h2><span class="num">۱۱</span>مرجع سریع و واژه‌نامه</h2>
+
+  <table>
+    <tr><th>واژه</th><th>یعنی</th></tr>
+    <tr><td>Skill (اسکیل)</td><td>فایل راهنما که با موضوعش بار می‌شود؛ دانش است نه اجرا</td></tr>
+    <tr><td>Agent (ایجنت)</td><td>کلاد جداگانه با کانتکست مستقل؛ کار را انجام می‌دهد و نتیجه را برمی‌گرداند</td></tr>
+    <tr><td>Hook (هوک)</td><td>اسکریپتی که خود برنامه روی رویداد اجرا می‌کند؛ اجباری است</td></tr>
+    <tr><td>MCP</td><td>پروتکل اتصال ابزارهای بیرونی — اینجا برای کنترل مرورگر (Playwright)</td></tr>
+    <tr><td>Envelope</td><td>پوشش استاندارد پاسخ API این پروژه: <code>{ success, message, data }</code></td></tr>
+    <tr><td>Logical utility</td><td>کلاس‌های Tailwind مثل <code>ms-</code>/<code>me-</code> که در RTL و LTR هر دو درست‌اند</td></tr>
+  </table>
+
+  <h3>دستورهای پرکاربرد</h3>
+<pre><code>npm run dev                                  # اجرای سایت
+node .claude/scripts/rtl-scan.mjs            # آدیت RTL
+node .claude/scripts/rtl-codemod.mjs --write # تعمیر خودکار RTL
+npm run lint                                 # بررسی ESLint
+npm run build                                # بیلد کامل (type-check هم می‌کند)
+npx tsc --noEmit                             # فقط بررسی تایپ</code></pre>
+
+  <h3>دستورهای اسلش</h3>
+<pre><code>/web-testing &lt;چه چیزی را چک کن&gt;
+/rtl-persian-ui
+/systematic-debugging
+/verification-before-completion</code></pre>
+</section>
+
+<!-- ======================= 12 ======================= -->
+<section id="s12">
+  <h2><span class="num">۱۲</span>چه چیزی نداریم (صادقانه)</h2>
+
+  <p>ساختار بالا خوب است، ولی کامل نیست. این‌ها هنوز وجود ندارند:</p>
+
+  <table>
+    <tr><th>نبود</th><th>یعنی چه</th></tr>
+    <tr><td><strong>Test runner</strong></td><td>هیچ تست واحدی اجرا نمی‌شود. <code>npm test</code> وجود ندارد.</td></tr>
+    <tr><td><strong>تست e2e ثبت‌شده</strong></td><td>تست مرورگر تعاملی است، نه فایل قابل اجرا در CI. برای تکرارپذیری، باید Playwright به‌عنوان devDependency نصب و <code>e2e/*.spec.ts</code> نوشته شود.</td></tr>
+    <tr><td><strong>اسکریپت‌های npm</strong></td><td><code>npm run rtl:scan</code> وجود ندارد؛ باید مستقیم <code>node .claude/scripts/…</code> زد.</td></tr>
+    <tr><td><strong>۱۷ مورد بازبینی RTL</strong></td><td>تخلف قطعی نیستند ولی هنوز تأیید نشده‌اند: آیکون‌های جهتی، <code>translate-x</code>، <code>space-x</code>.</td></tr>
+  </table>
+
+  <p>هر کدام از این‌ها انتخاب آگاهانه‌اند، نه فراموشی — چون هر کدام هزینه و تعمیر و نگهداری دارند و باید در زمان خودشان اضافه شوند.</p>
+</section>
+
+<footer>
+  راهنمای ساختار Claude — پروژهٔ LensLoop (rentino) · این فایل بخشی از پیکربندی <code>.claude/</code> است.
+</footer>
+
+</div>
+</body>
+</html>
