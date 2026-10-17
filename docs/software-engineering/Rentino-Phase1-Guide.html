@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>راهنمای بستۀ مستندات فاز اول رنتینو</title>
+<style>
+  @font-face {
+    font-family: "Vazirmatn";
+    src: url("../../public/fonts/Vazirmatn-Variable.ttf") format("truetype-variations"),
+         url("../../public/fonts/Vazirmatn-Variable.ttf") format("truetype");
+    font-weight: 100 900;
+    font-display: swap;
+  }
+
+  :root {
+    --bg: #f5f7fa;
+    --surface: #ffffff;
+    --ink: #16202b;
+    --muted: #5b6b7c;
+    --line: #dde5ee;
+    --brand: #0f6e6e;
+    --brand-soft: #e6f3f3;
+    --accent: #a8412a;
+    --accent-soft: #fbece8;
+    --ok: #1f7a4d;
+    --ok-soft: #e7f5ee;
+    --radius: 14px;
+    --shadow: 0 1px 2px rgba(16, 32, 43, .05), 0 8px 24px rgba(16, 32, 43, .06);
+  }
+
+  * { box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Vazirmatn", "IRANSans", "Segoe UI", Tahoma, sans-serif;
+    font-size: 16px;
+    line-height: 1.9;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 0 16px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    background: linear-gradient(160deg, #0f6e6e 0%, #0b4f55 60%, #123a45 100%);
+    color: #fff;
+    padding: 40px 0 34px;
+    margin-bottom: 28px;
+  }
+
+  header.hero .wrap { padding-bottom: 0; }
+
+  .eyebrow {
+    display: inline-block;
+    font-size: .8rem;
+    letter-spacing: .02em;
+    background: rgba(255, 255, 255, .14);
+    border: 1px solid rgba(255, 255, 255, .22);
+    border-radius: 999px;
+    padding: 3px 12px;
+    margin-bottom: 14px;
+  }
+
+  h1 {
+    font-size: clamp(1.5rem, 4.4vw, 2.3rem);
+    line-height: 1.5;
+    margin: 0 0 12px;
+    font-weight: 800;
+  }
+
+  .lede {
+    margin: 0;
+    max-width: 62ch;
+    color: rgba(255, 255, 255, .88);
+    font-size: clamp(.95rem, 2.4vw, 1.05rem);
+  }
+
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-top: 24px;
+  }
+
+  .fact {
+    background: rgba(255, 255, 255, .1);
+    border: 1px solid rgba(255, 255, 255, .16);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+
+  .fact b { display: block; font-size: 1.15rem; }
+  .fact span { font-size: .8rem; color: rgba(255, 255, 255, .78); }
+
+  /* ---------- sections ---------- */
+  section {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px 20px;
+    margin-bottom: 22px;
+  }
+
+  h2 {
+    font-size: clamp(1.15rem, 3vw, 1.4rem);
+    margin: 0 0 6px;
+    color: var(--brand);
+    line-height: 1.6;
+  }
+
+  .sub {
+    color: var(--muted);
+    font-size: .92rem;
+    margin: 0 0 18px;
+  }
+
+  h3 {
+    font-size: 1.02rem;
+    margin: 22px 0 8px;
+    color: var(--ink);
+  }
+
+  p { margin: 0 0 12px; }
+
+  ul, ol { margin: 0 0 14px; padding-inline-start: 22px; }
+  li { margin-bottom: 6px; }
+
+  code {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: .86em;
+    background: #eef2f6;
+    border-radius: 5px;
+    padding: 1px 5px;
+    direction: ltr;
+    display: inline-block;
+  }
+
+  a { color: var(--brand); }
+
+  /* inline code sits on the dark hero as well; keep it readable there */
+  header.hero code {
+    background: rgba(255, 255, 255, .16);
+    border: 1px solid rgba(255, 255, 255, .22);
+    color: #fff;
+  }
+
+  /* ---------- file list ---------- */
+  .files { display: grid; gap: 10px; }
+
+  .file {
+    display: grid;
+    grid-template-columns: 198px 1fr;
+    gap: 4px 14px;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fbfcfe;
+  }
+
+  .file .name {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: .82rem;
+    direction: ltr;
+    text-align: left;
+    color: var(--brand);
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  .file .desc { font-size: .93rem; }
+
+  /* ---------- tables ---------- */
+  .scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 0 14px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .9rem;
+    min-width: 560px;
+  }
+
+  th, td {
+    border: 1px solid var(--line);
+    padding: 9px 11px;
+    text-align: right;
+    vertical-align: top;
+  }
+
+  thead th {
+    background: var(--brand-soft);
+    color: #0b4f55;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  tbody tr:nth-child(even) { background: #fafcfe; }
+
+  /* ---------- member cards ---------- */
+  .members { display: grid; gap: 16px; }
+
+  .member {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--surface);
+  }
+
+  .member > header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    padding: 13px 16px;
+    background: var(--brand-soft);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .member h3 { margin: 0; font-size: 1.02rem; color: #0b4f55; }
+
+  .role {
+    font-size: .78rem;
+    background: #fff;
+    border: 1px solid #c9dfe0;
+    color: #0b4f55;
+    border-radius: 999px;
+    padding: 1px 10px;
+  }
+
+  .member .body { padding: 14px 16px 6px; }
+
+  .task {
+    border-inline-start: 3px solid var(--brand);
+    background: #fbfcfe;
+    border-radius: 0 8px 8px 0;
+    padding: 10px 13px;
+    margin-bottom: 12px;
+  }
+
+  .task:last-child { margin-bottom: 6px; }
+
+  .task h4 {
+    margin: 0 0 6px;
+    font-size: .95rem;
+    color: var(--ink);
+  }
+
+  .task dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    gap: 2px 10px;
+    font-size: .88rem;
+  }
+
+  .task dt { color: var(--muted); }
+  .task dd { margin: 0; }
+
+  .due {
+    display: inline-block;
+    font-size: .78rem;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-radius: 999px;
+    padding: 1px 9px;
+    margin-inline-start: 6px;
+  }
+
+  /* ---------- checklist ---------- */
+  .checks { list-style: none; padding: 0; margin: 0; }
+
+  .checks li {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    gap: 10px;
+    align-items: start;
+    padding: 11px 0;
+    border-bottom: 1px dashed var(--line);
+  }
+
+  .checks li:last-child { border-bottom: none; }
+
+  .box {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #b9c7d6;
+    border-radius: 4px;
+    margin-top: 5px;
+  }
+
+  /* ---------- callouts ---------- */
+  .note {
+    border-inline-start: 4px solid var(--ok);
+    background: var(--ok-soft);
+    border-radius: 0 10px 10px 0;
+    padding: 12px 15px;
+    margin: 14px 0;
+    font-size: .92rem;
+  }
+
+  .warn {
+    border-inline-start: 4px solid var(--accent);
+    background: var(--accent-soft);
+    border-radius: 0 10px 10px 0;
+    padding: 12px 15px;
+    margin: 14px 0;
+    font-size: .92rem;
+  }
+
+  .note p:last-child, .warn p:last-child { margin-bottom: 0; }
+
+  /* ---------- timeline ---------- */
+  .timeline { list-style: none; padding: 0; margin: 0; }
+
+  .timeline li {
+    display: grid;
+    grid-template-columns: 84px 1fr;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: .9rem;
+  }
+
+  .timeline li:last-child { border-bottom: none; }
+
+  .timeline .d {
+    font-weight: 700;
+    color: var(--brand);
+    white-space: nowrap;
+  }
+
+  .pill {
+    display: inline-block;
+    font-size: .75rem;
+    border-radius: 999px;
+    padding: 1px 9px;
+    background: #eef2f6;
+    color: var(--muted);
+  }
+
+  .pill.ok { background: var(--ok-soft); color: var(--ok); }
+  .pill.warn { background: var(--accent-soft); color: var(--accent); }
+
+  footer.foot {
+    text-align: center;
+    color: var(--muted);
+    font-size: .82rem;
+    padding-top: 8px;
+  }
+
+  /* ---------- mobile ---------- */
+  @media (max-width: 680px) {
+    body { font-size: 15px; }
+    .wrap { padding: 0 12px 56px; }
+    header.hero { padding: 28px 0 24px; }
+    section { padding: 18px 14px; border-radius: 12px; }
+    .file { grid-template-columns: 1fr; }
+    .file .name { text-align: right; }
+    .task dl { grid-template-columns: 1fr; gap: 2px; }
+    .task dt { font-weight: 700; margin-top: 6px; }
+    .timeline li { grid-template-columns: 1fr; gap: 2px; }
+    table { font-size: .84rem; }
+    th, td { padding: 7px 8px; }
+  }
+
+  @media print {
+    body { background: #fff; font-size: 11pt; }
+    header.hero { background: #fff; color: #000; border-bottom: 2px solid #000; }
+    header.hero .lede, .fact span { color: #333; }
+    .fact { border-color: #bbb; background: #fff; }
+    section { box-shadow: none; border-color: #bbb; page-break-inside: avoid; }
+    .scroll { overflow: visible; }
+    table { min-width: 0; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow">پروژۀ مهندسی نرم‌افزار - دانشگاه اصفهان</span>
+    <h1>راهنمای بستۀ مستندات فاز اول رنتینو</h1>
+    <p class="lede">
+      این صفحه، نقشۀ پوشۀ <code>docs/software-engineering</code> است: هر فایل چه کاری می‌کند،
+      هر بخش گزارش بر چه اساسی نوشته شده، و هر عضو تیم دقیقاً چه کاری و تا چه تاریخی باید انجام دهد.
+    </p>
+    <div class="facts">
+      <div class="fact"><b>۱۱</b><span>بخش گزارش</span></div>
+      <div class="fact"><b>۲۰,۸۰۷</b><span>واژه</span></div>
+      <div class="fact"><b>۵۸</b><span>نیازمندی کارکردی</span></div>
+      <div class="fact"><b>۳۴</b><span>مرجع IEEE</span></div>
+      <div class="fact"><b>۶</b><span>عضو تیم</span></div>
+      <div class="fact"><b>۰۵/۰۸</b><span>تاریخ ارائه</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section id="what">
+    <h2>۱. این بسته چیست؟</h2>
+    <p class="sub">یک نگاه سریع به فایل‌ها و کاربرد هرکدام.</p>
+
+    <p>
+      این پوشه، خروجی <strong>فاز اول</strong> پروژه است: تعریف مسئله، بررسی بازار، تحلیل رقبا،
+      نیازهای بازار، ریسک‌ها، نیازمندی‌های کارکردی، پشتۀ فناوری و برنامۀ زمان‌بندی.
+      طراحی تفصیلی و پیاده‌سازی کامل جزء این فاز نیست.
+    </p>
+
+    <div class="files">
+      <div class="file">
+        <span class="name">Rentino-Phase1-Report.docx</span>
+        <span class="desc">سند اصلی تحویلی. یازده فصل + هفت پیوست، فارسی و راست‌به‌چپ، فهرست مطالب خودکار. این فایل را تحویل می‌دهید و از آن PDF می‌گیرید.</span>
+      </div>
+      <div class="file">
+        <span class="name">Rentino-Phase1-Report.md</span>
+        <span class="desc">منبع متنی همان گزارش. اگر محتوایی باید اصلاح شود، اینجا اصلاح می‌شود و سند Word دوباره ساخته می‌شود.</span>
+      </div>
+      <div class="file">
+        <span class="name">phase1/</span>
+        <span class="desc">سیزده فایل فصل‌به‌فصل (۰۰ تا ۱۱ و ۹۹). هر عضو فقط فایل خودش را ویرایش می‌کند تا هم‌زمانی خرابکاری نسازد.</span>
+      </div>
+      <div class="file">
+        <span class="name">Rentino-Phase1-MSP.xlsx</span>
+        <span class="desc">سه برگه: فهرست ۲۲ فعالیت با تاریخ و پیش‌نیاز، تقویم روزانه، و ماتریس RACI شش عضو.</span>
+      </div>
+      <div class="file">
+        <span class="name">Rentino-Phase1-MSP.csv</span>
+        <span class="desc">همان برنامه با قالب CSV برای ورود مستقیم به Microsoft Project یا ProjectLibre.</span>
+      </div>
+      <div class="file">
+        <span class="name">Rentino-Phase1-References.xlsx</span>
+        <span class="desc">۳۴ مرجع به سبک IEEE، دسته‌بندی‌شده. برای پیدا کردن سریع منبع یک ادعا.</span>
+      </div>
+      <div class="file">
+        <span class="name">Rentino-Phase1-Definitions.xlsx</span>
+        <span class="desc">۹۵ واژه و ۴۳ سرنام. اگر در متن به اصطلاحی برخوردید که معنی‌اش روشن نبود، اول اینجا را ببینید.</span>
+      </div>
+      <div class="file">
+        <span class="name">Rentino-Phase1-QA-Report.md</span>
+        <span class="desc">گزارش کنترل کیفیت: چه چیزی بررسی شد، چه چیزی بررسی نشد، و چه کارهایی هنوز دستی مانده است.</span>
+      </div>
+      <div class="file">
+        <span class="name">tools/</span>
+        <span class="desc">چهار اسکریپت که سند Word و فایل‌های اکسل را از روی Markdown می‌سازند. با اجرای دوبارۀ آن‌ها، خروجی‌ها بازتولید می‌شوند.</span>
+      </div>
+      <div class="file">
+        <span class="name">Rentino-Phase1-Guide.html</span>
+        <span class="desc">همین صفحه. راهنمای تیم؛ برای چاپ و نمایش روی موبایل هم تنظیم شده است.</span>
+      </div>
+    </div>
+
+    <div class="note">
+      <p><strong>قاعدۀ طلایی:</strong> فایل Word را دستی ویرایش نکنید. متن را در Markdown اصلاح کنید و سند را دوباره بسازید؛ در غیر این صورت تغییرات با بازسازی بعدی از بین می‌رود.</p>
+    </div>
+  </section>
+
+  <section id="basis">
+    <h2>۲. هر بخش بر چه اساسی نوشته شده؟</h2>
+    <p class="sub">سه نوع شاهد در این گزارش به کار رفته و برای هر فصل مشخص شده است.</p>
+
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>فصل</th>
+            <th>موضوع</th>
+            <th>مبنای اصلی</th>
+            <th>خروجی قابل بررسی</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>۱</td>
+            <td>مقدمه</td>
+            <td>تحلیل مسئله + وضعیت واقعی مخزن پروژه</td>
+            <td>بیان مسئله، دامنه، فهرست خارج از دامنه</td>
+          </tr>
+          <tr>
+            <td>۲</td>
+            <td>جمع‌بندی اهداف</td>
+            <td>جلسۀ هماهنگی تیم؛ قالب SMART و PMBOK</td>
+            <td>۸ تصمیم، ۶ هدف محصول، ۶ هدف فنی، جدول SMART</td>
+          </tr>
+          <tr>
+            <td>۳</td>
+            <td>تعاریف و سرنام‌ها</td>
+            <td>واژه‌نامه‌های مرجع اقتصاد اشتراکی و مهندسی نرم‌افزار</td>
+            <td>۹۵ واژه در ۵ دسته + ۴۳ سرنام</td>
+          </tr>
+          <tr>
+            <td>۴</td>
+            <td>مراجع</td>
+            <td>منابع رسمی، مقالات داوری‌شده و مستندات فنی</td>
+            <td>۳۴ مرجع با شمارۀ یکتا و تاریخ دسترسی</td>
+          </tr>
+          <tr>
+            <td>۵</td>
+            <td>بررسی بازار</td>
+            <td>پژوهش ثانویه: DataReportal، بانک جهانی، ITU، ادبیات علمی</td>
+            <td>۳ جدول شاخص و بخش‌بندی + چارچوب TAM/SAM/SOM</td>
+          </tr>
+          <tr>
+            <td>۶</td>
+            <td>تحلیل رقبا</td>
+            <td>مشاهدۀ صفحات رسمی دیوار، شیپور، تورو، گروور، لنزرنتالز</td>
+            <td>ماتریس ۱۰ قابلیت × ۷ بازیگر + پنج نیروی پورتر</td>
+          </tr>
+          <tr>
+            <td>۷</td>
+            <td>نیازهای بازار</td>
+            <td>سفر مشتری و سفر ارائه‌دهنده + اولویت‌بندی MoSCoW</td>
+            <td>نیازهای RN، PN، TN و ON با اولویت</td>
+          </tr>
+          <tr>
+            <td>۸</td>
+            <td>فرصت، چالش و ریسک</td>
+            <td>چارچوب ثبت ریسک (احتمال × اثر)</td>
+            <td>۸ فرصت، ۱۰ چالش، ۱۵ ریسک با پاسخ</td>
+          </tr>
+          <tr>
+            <td>۹</td>
+            <td>نیازمندی‌های کارکردی</td>
+            <td>بازبینی مستقیم کد و مسیرهای API موجود</td>
+            <td>۵۸ FR با شناسه، اولویت، وضعیت و معیار پذیرش</td>
+          </tr>
+          <tr>
+            <td>۱۰</td>
+            <td>شرح فناوری‌ها</td>
+            <td>خواندن <code>package.json</code>، <code>schema.prisma</code>، کنترلرها و صفحات</td>
+            <td>نسخۀ دقیق کتابخانه‌ها، ۹ مدل داده، تصمیم‌های معماری</td>
+          </tr>
+          <tr>
+            <td>۱۱</td>
+            <td>MSP</td>
+            <td>WBS و تقویم فشرده (گزینه ب)</td>
+            <td>۲۲ فعالیت، مسیر بحرانی، RACI، جدول ورود به MSP</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>سه سطح شاهد که در متن رعایت شده</h3>
+    <ol>
+      <li><strong>بازبینی کد:</strong> نسخه‌ها، مسیرهای API، مدل داده و وضعیت قابلیت‌ها از فایل‌های واقعی مخزن استخراج شده‌اند.</li>
+      <li><strong>پژوهش ثانویه:</strong> آمار از منابع رسمی، مفاهیم از مقالات داوری‌شده، و ویژگی محصول رقبا از صفحات عمومی خودشان.</li>
+      <li><strong>استنتاج تحلیلی:</strong> بخش‌بندی بازار، اولویت دسته‌ها و ریسک‌ها، بر پایۀ چارچوب‌های مهندسی نرم‌افزار.</li>
+    </ol>
+
+    <div class="warn">
+      <p><strong>آنچه انجام نشده و پنهان هم نشده:</strong> هیچ پرسش‌نامه یا مصاحبۀ میدانی اجرا نشده است؛ نیازهای فصل ۷ «فرضیه» هستند. عدد قطعی برای اندازۀ بازار اجارۀ کالا در ایران در منابع عمومی پیدا نشد و بنابراین هیچ عدد ساختگی در سند نیست. آزمون سرتاسری بک‌اند هم به دلیل آماده‌نبودن پایگاه دادۀ آزمون ناموفق بود و همین نتیجه در پیوست ثبت شده است.</p>
+    </div>
+  </section>
+
+  <section id="team">
+    <h2>۳. وظایف اعضا</h2>
+    <p class="sub">هر کارت، یک عضو؛ هر کار، با مبنای انجام، خروجی مشخص و تعریف «انجام‌شده».</p>
+
+    <div class="members">
+
+      <article class="member">
+        <header>
+          <h3>محمد نعیم کریم‌زاده</h3>
+          <span class="role">سرگروه، یکپارچه‌سازی</span>
+        </header>
+        <div class="body">
+          <div class="task">
+            <h4>تثبیت دامنه و مرز فاز <span class="due">۲۵/۰۷</span></h4>
+            <dl>
+              <dt>چه کاری</dt><dd>مشخص کن چه چیزی در فاز اول هست و چه چیزی نیست؛ همان را در فصل ۱ ثابت نگه دار.</dd>
+              <dt>بر چه اساسی</dt><dd>فهرست یازده‌بخشی نمونه و تصمیم‌های جلسۀ ۲۵/۰۷.</dd>
+              <dt>انجام‌شده یعنی</dt><dd>هیچ فصلی ادعای طراحی تفصیلی یا پیاده‌سازی جدید نداشته باشد.</dd>
+            </dl>
+          </div>
+          <div class="task">
+            <h4>یکپارچه‌سازی نسخۀ نهایی <span class="due">۳۰/۰۷ تا ۰۱/۰۸</span></h4>
+            <dl>
+              <dt>چه کاری</dt><dd>فصل‌ها را کنار هم بگذار، تکرار و تناقض را حذف کن، شماره‌گذاری جدول‌ها و ارجاع‌ها را یکدست کن.</dd>
+              <dt>بر چه اساسی</dt><dd>فایل‌های <code>phase1/</code> و اسکریپت <code>tools/merge_report.py</code>.</dd>
+              <dt>انجام‌شده یعنی</dt><dd>خروجی <code>build_docx.py</code> بدون خطا ساخته شود و شمارش FR و مرجع با جدول‌ها بخواند.</dd>
+            </dl>
+          </div>
+          <div class="task">
+            <h4>تأیید نهایی و تحویل <span class="due">۰۴/۰۸</span></h4>
+            <dl>
+              <dt>چه کاری</dt><dd>چک‌لیست پیوست ب را امضا کن و PDF نهایی را از Word بگیر.</dd>
+              <dt>انجام‌شده یعنی</dt><dd>نسخۀ PDF با فهرست مطالب به‌روزشده و نام استاد تکمیل‌شده تحویل شود.</dd>
+            </dl>
+          </div>
+        </div>
+      </article>
+
+      <article class="member">
+        <header>
+          <h3>معین نوری</h3>
+          <span class="role">پژوهش بازار</span>
+        </header>
+        <div class="body">
+          <div class="task">
+            <h4>بررسی بازار (فصل ۵) <span class="due">۲۶/۰۷</span></h4>
+            <dl>
+              <dt>چه کاری</dt><dd>شاخص‌های کلان دیجیتال، ساختار عرضه و تقاضا، بخش‌بندی شش دستۀ کالا و روندها.</dd>
+              <dt>بر چه اساسی</dt><dd>DataReportal، بانک جهانی، ITU و مقالات اقتصاد اشتراکی (Belk، Bardhi، Schlagwein).</dd>
+              <dt>انجام‌شده یعنی</dt><dd>هر عدد در جدول، منبع و سال داشته باشد؛ عدد بدون منبع حذف شود.</dd>
+            </dl>
+          </div>
+          <div class="task">
+            <h4>نیازهای بازار (فصل ۷) <span class="due">۲۷/۰۷</span></h4>
+            <dl>
+              <dt>چه کاری</dt><dd>نیازهای اجاره‌گیرنده، ارائه‌دهنده، اعتماد و عملیات را استخراج و با MoSCoW اولویت‌بندی کن.</dd>
+              <dt>بر چه اساسی</dt><dd>هفت مرحلۀ سفر مشتری در فصل ۵ و شکاف‌های فصل ۶.</dd>
+              <dt>انجام‌شده یعنی</dt><dd>هر نیاز شناسۀ یکتا (RN/PN/TN/ON) و اولویت Must/Should/Could/Won’t داشته باشد.</dd>
+            </dl>
+          </div>
+          <div class="task">
+            <h4>تجمیع مراجع (فصل ۴) <span class="due">۳۰/۰۷</span></h4>
+            <dl>
+              <dt>چه کاری</dt><dd>همۀ منابع را در یک فهرست IEEE با شمارۀ یکتا جمع کن.</dd>
+              <dt>انجام‌شده یعنی</dt><dd>شماره‌های داخل متن با فهرست بخوانند و تاریخ دسترسی همۀ منابع برخط ثبت شده باشد.</dd>
+            </dl>
+          </div>
+        </div>
+      </article>
+
+      <article class="member">
+        <header>
+          <h3>محمد سجاد حسین جعفرپور</h3>
+          <span class="role">تحلیل رقبا و نیازمندی‌ها</span>
+        </header>
+        <div class="body">
+          <div class="task">
+            <h4>تحلیل رقبا (فصل ۶) <span class="due">۲۶ تا ۲۷/۰۷</span></h4>
+            <dl>
+              <dt>چه کاری</dt><dd>دیوار، شیپور و فروشگاه‌های محلی را با Turo، Grover و Lensrentals مقایسه کن.</dd>
+              <dt>بر چه اساسی</dt><dd>صفحات عمومی محصول؛ آمار خودگزارشی با ذکر محدودیت.</dd>
+              <dt>انجام‌شده یعنی</dt><dd>ماتریس ۱۰ قابلیت کامل باشد و جای خالی «معاملۀ اجارۀ کامل» مستند شود.</dd>
+            </dl>
+          </div>
+          <div class="task">
+            <h4>تجمیع نیازمندی‌ها (فصل ۹) <span class="due">۲۹/۰۷</span></h4>
+            <dl>
+              <dt>چه کاری</dt><dd>FRهای پیش‌نویس اعضا را ادغام کن، تکرار را حذف و برای هر FR معیار پذیرش بنویس.</dd>
+              <dt>انجام‌شده یعنی</dt><dd>۵۸ FR با شناسۀ یکتا، اولویت، وضعیت پیاده‌سازی و معیار پذیرش.</dd>
+            </dl>
+          </div>
+          <div class="task">
+            <h4>بازبینی محتوا <span class="due">۰۱/۰۸</span></h4>
+            <dl>
+              <dt>چه کاری</dt><dd>ادعای «پیاده‌سازی‌شده» را با کد یا مسیر API تطبیق بده.</dd>
+              <dt>انجام‌شده یعنی</dt><dd>هیچ قابلیت برنامه‌ریزی‌شده‌ای به‌عنوان موجود معرفی نشده باشد.</dd>
+            </dl>
+          </div>
+        </div>
+      </article>
+
+      <article class="member">
+        <header>
+          <h3>امیرحسین ترک</h3>
+          <span class="role">فناوری و بازبینی فنی</span>
+        </header>
+        <div class="body">
+          <div class="task">
+            <h4>شرح فناوری‌ها (فصل ۱۰) <span class="due">۲۸/۰۷</span></h4>
+            <dl>
+              <dt>چه کاری</dt><dd>نسخۀ دقیق کتابخانه‌های فرانت و بک، معماری دولایه، ۹ مدل داده و تصمیم‌های معماری را مستند کن.</dd>
+              <dt>بر چه اساسی</dt><dd><code>package.json</code> هر دو بخش، <code>backend/prisma/schema.prisma</code> و کنترلرها.</dd>
+              <dt>انجام‌شده یعنی</dt><dd>هر نسخه از فایل واقعی خوانده شده باشد؛ هیچ نسخه‌ای از حافظه نوشته نشود.</dd>
+            </dl>
+          </div>
+          <div class="task">
+            <h4>ثبت شواهد فنی (پیوست و) <span class="due">۰۱/۰۸</span></h4>
+            <dl>
+              <dt>چه کاری</dt><dd>نتیجۀ آزمون، بررسی نوع، لینت و ساخت را با خروجی واقعی ثبت کن.</dd>
+              <dt>انجام‌شده یعنی</dt><dd>نتیجۀ ناموفق e2e با علت و راه‌حل نوشته شده باشد؛ هیچ «موفق» بی‌شاهد ثبت نشود.</dd>
+            </dl>
+          </div>
+          <div class="task">
+            <h4>بازبینی فنی <span class="due">۰۱/۰۸</span></h4>
+            <dl>
+              <dt>چه کاری</dt><dd>ادعاهای فنی فصل‌های ۹ و ۱۰ را با کد تطبیق بده.</dd>
+            </dl>
+          </div>
+        </div>
+      </article>
+
+      <article class="member">
+        <header>
+          <h3>امیررضا</h3>
+          <span class="role">ریسک و برنامه‌ریزی</span>
+        </header>
+        <div class="body">
+          <div class="task">
+            <h4>فرصت‌ها، چالش‌ها و ریسک‌ها (فصل ۸) <span class="due">۲۷/۰۷</span></h4>
+            <dl>
+              <dt>چه کاری</dt><dd>۸ فرصت، ۱۰ چالش و ۱۵ ریسک را با احتمال، اثر، امتیاز و پاسخ ثبت کن.</dd>
+              <dt>بر چه اساسی</dt><dd>چارچوب ثبت ریسک و یافته‌های فصل‌های ۵ و ۶.</dd>
+              <dt>انجام‌شده یعنی</dt><dd>هر ریسک مالک و راهبرد پاسخ مشخص داشته باشد.</dd>
+            </dl>
+          </div>
+          <div class="task">
+            <h4>WBS، زمان‌بندی و RACI (فصل ۱۱) <span class="due">۲۹/۰۷</span></h4>
+            <dl>
+              <dt>چه کاری</dt><dd>۲۲ فعالیت را با تاریخ، مدت، پیش‌نیاز و مسئول بچین؛ مسیر بحرانی و شناوری را حساب کن.</dd>
+              <dt>بر چه اساسی</dt><dd>تقویم فشردۀ گزینه ب (۲۵/۰۷ تا ۰۵/۰۸).</dd>
+              <dt>انجام‌شده یعنی</dt><dd>برگۀ MSP با جدول ۱۱-۳ گزارش یکی باشد و هر ردیف RACI دقیقاً یک پاسخ‌گوی نهایی داشته باشد.</dd>
+            </dl>
+          </div>
+        </div>
+      </article>
+
+      <article class="member">
+        <header>
+          <h3>ارشیا احمدی</h3>
+          <span class="role">اهداف، صفحه‌آرایی، اسلاید</span>
+        </header>
+        <div class="body">
+          <div class="task">
+            <h4>جمع‌بندی اهداف (فصل ۲) <span class="due">۲۷/۰۷</span></h4>
+            <dl>
+              <dt>چه کاری</dt><dd>تصمیم‌های جلسه، اهداف محصول/فنی/درسی و معیارهای SMART را ثبت کن.</dd>
+              <dt>انجام‌شده یعنی</dt><dd>هر معیار قابل اندازه‌گیری و زمان‌دار باشد.</dd>
+            </dl>
+          </div>
+          <div class="task">
+            <h4>تعاریف تجمیعی (فصل ۳) <span class="due">۳۰/۰۷</span></h4>
+            <dl>
+              <dt>چه کاری</dt><dd>واژه‌نامه و فهرست سرنام‌ها را یکدست کن.</dd>
+              <dt>انجام‌شده یعنی</dt><dd>هر اصطلاح یک تعریف و یک معادل انگلیسی داشته باشد.</dd>
+            </dl>
+          </div>
+          <div class="task">
+            <h4>صفحه‌آرایی و اسلاید <span class="due">۰۳/۰۸</span></h4>
+            <dl>
+              <dt>چه کاری</dt><dd>جدول‌های عریض، فهرست مطالب، شمارۀ صفحه و قالب دانشگاه را بررسی کن؛ سپس اسلاید ارائه را بساز.</dd>
+              <dt>انجام‌شده یعنی</dt><dd>سند در Word باز شود و هیچ جدولی از صفحه بیرون نزند؛ اسلاید ۱۲ بخش داشته باشد.</dd>
+            </dl>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <section id="calendar">
+    <h2>۴. تقویم فشرده (گزینه ب)</h2>
+    <p class="sub">از جلسۀ شروع تا روز ارائه، ده روز کاری.</p>
+    <ul class="timeline">
+      <li><span class="d">۲۵/۰۷</span><span>جلسۀ شروع، تثبیت دامنه، آغاز پژوهش <span class="pill ok">انجام شد</span></span></li>
+      <li><span class="d">۲۶/۰۷</span><span>فصل ۱، ۵ و ۶ و آغاز فصل ۷</span></li>
+      <li><span class="d">۲۷/۰۷</span><span>جلسۀ میانی، فصل ۲ و ۸، پایان فصل ۷</span></li>
+      <li><span class="d">۲۸/۰۷</span><span>پیش‌نویس FR هر عضو، فصل ۱۰</span></li>
+      <li><span class="d">۲۹/۰۷</span><span>تجمیع FR (فصل ۹)، ساخت MSP (فصل ۱۱)</span></li>
+      <li><span class="d">۳۰/۰۷</span><span>یکپارچه‌سازی، تعاریف و مراجع، بازبینی داخلی</span></li>
+      <li><span class="d">۰۱/۰۸</span><span>نسخۀ آمادۀ بازبینی <span class="pill warn">نقطۀ عطف</span></span></li>
+      <li><span class="d">۰۲/۰۸</span><span>اعمال بازخورد بازبین</span></li>
+      <li><span class="d">۰۳/۰۸</span><span>اسلاید ارائه</span></li>
+      <li><span class="d">۰۴/۰۸</span><span>تمرین نهایی و بافر</span></li>
+      <li><span class="d">۰۵/۰۸</span><span>ارائه <span class="pill warn">نقطۀ عطف</span></span></li>
+    </ul>
+  </section>
+
+  <section id="todo">
+    <h2>۵. کارهایی که هنوز دستی مانده</h2>
+    <p class="sub">این شش مورد را ابزار خودکار نمی‌تواند انجام دهد؛ قبل از تحویل تیک بخورند.</p>
+
+    <ul class="checks">
+      <li><span class="box"></span><span><strong>به‌روزرسانی فهرست مطالب.</strong> فایل Word را باز کنید؛ اگر پیام به‌روزرسانی آمد «Yes» بزنید، وگرنه <code>Ctrl+A</code> سپس <code>F9</code>.</span></li>
+      <li><span class="box"></span><span><strong>جاگذاری نام استاد</strong> در دو جای‌نگهدار صفحۀ عنوان و جدول جلسه.</span></li>
+      <li><span class="box"></span><span><strong>بازبینی چشمی جدول‌های عریض.</strong> جدول ریسک (۱۰ ستون) و RACI (۷ ستون) بیشترین احتمال تنگی را دارند.</span></li>
+      <li><span class="box"></span><span><strong>نصب فونت B Nazanin</strong> روی رایانه‌ای که فایل روی آن باز می‌شود.</span></li>
+      <li><span class="box"></span><span><strong>گرفتن PDF نهایی</strong> از داخل Word (ابزار تبدیل خودکار روی این ماشین نصب نیست).</span></li>
+      <li><span class="box"></span><span><strong>امضای چک‌لیست پیوست ب</strong> و تکمیل ستون تاریخ و نتیجه.</span></li>
+    </ul>
+  </section>
+
+  <section id="type">
+    <h2>۶. قواعد فارسی و راست‌به‌چپ که رعایت شده</h2>
+    <p class="sub">این بخش، مبنای فنی اصلاحات نگارشی است، نه ادعای سلیقه‌ای.</p>
+
+    <p>
+      فونت B Nazanin که قالب دانشگاه تعیین کرده است، فقط ۲۸۸ نویسه دارد. با تحلیل جدول نویسه‌های همان فایل فونت مشخص شد
+      که برخی کاراکترهای پرکاربرد در آن <strong>تعریف نشده‌اند</strong>. Word در این حالت فونت جانشین می‌گذارد و نتیجه،
+      کاراکترهای ناهماهنگ یا مربع خالی است. جدول زیر همان اندازه‌گیری است.
+    </p>
+
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr><th>کاراکتر</th><th>کد</th><th>وضعیت در B Nazanin</th><th>جایگزین اعمال‌شده</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>ه + همزه (پروژۀ)</td><td>U+0647 U+0654</td><td>تعریف نشده</td><td>ۀ (U+06C0)</td></tr>
+          <tr><td>ممیز عربی</td><td>U+066B</td><td>تعریف نشده</td><td>نقطه</td></tr>
+          <tr><td>جداکنندۀ هزارگان</td><td>U+066C</td><td>تعریف نشده</td><td>ویرگول لاتین</td></tr>
+          <tr><td>درصد عربی</td><td>U+066A</td><td>تعریف نشده</td><td>%</td></tr>
+          <tr><td>خط تیره‌های بلند و کوتاه</td><td>U+2014 U+2013</td><td>تعریف نشده</td><td>خط تیره معمولی</td></tr>
+          <tr><td>فلش، گلوله، تیک، خطوط جعبه</td><td>U+2192 U+2022 U+2714 U+2500</td><td>تعریف نشده</td><td>معادل متنی فارسی</td></tr>
+          <tr><td>ویرگول فارسی «،»</td><td>U+060C</td><td>موجود</td><td>بدون تغییر</td></tr>
+          <tr><td>گیومه «»</td><td>U+00AB U+00BB</td><td>موجود</td><td>بدون تغییر</td></tr>
+          <tr><td>نیم‌فاصله</td><td>U+200C</td><td>موجود</td><td>بدون تغییر</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>قواعد نگارشی اعمال‌شده</h3>
+    <ul>
+      <li>حروف فارسی «ی» و «ک» در همه‌جا؛ هیچ <code>ي</code> یا <code>ك</code> عربی باقی نمانده است.</li>
+      <li>نیم‌فاصله در ترکیب‌ها: می‌شود، پروژه‌ها، دو‌طرفه، صفحه‌آرایی.</li>
+      <li>گیومه فارسی «» به‌جای کوتیشن لاتین در متن فارسی.</li>
+      <li>بدون فاصله پیش از «،» و «؛» و «؟»؛ با فاصله پس از آن‌ها.</li>
+      <li>اعداد فارسی در متن و اعداد لاتین فقط در نام فایل، کد و نسخه.</li>
+      <li>جهت سند و جدول‌ها راست‌به‌چپ، با فونت فارسی روی همۀ اجراها.</li>
+    </ul>
+
+    <div class="note">
+      <p>پس از ساخت سند، یک بازبینی خودکار روی خود فایل Word اجرا می‌شود و اگر حتی یک نویسه از این فهرست باقی مانده باشد، ساخت متوقف می‌شود. خروجی آخر: «هیچ نویسه‌ای خارج از پوشش B Nazanin نیست».</p>
+    </div>
+  </section>
+
+  <section id="build">
+    <h2>۷. چطور سند را بازتولید کنیم؟</h2>
+    <p class="sub">اگر متنی اصلاح شد، این چهار فرمان را به‌ترتیب اجرا کنید.</p>
+
+    <p>در پوشۀ <code>docs/software-engineering</code>:</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>مرحله</th><th>فرمان</th><th>کار</th></tr></thead>
+        <tbody>
+          <tr><td>۱</td><td><code>python3 tools/normalize_fa.py</code></td><td>اصلاح نویسه‌ها و گزارش موارد غیرمجاز</td></tr>
+          <tr><td>۲</td><td><code>python3 tools/merge_report.py</code></td><td>ادغام سیزده فصل در یک فایل Markdown</td></tr>
+          <tr><td>۳</td><td><code>python3 tools/build_docx.py</code></td><td>ساخت Word و بازبینی خودکار نویسه‌ها</td></tr>
+          <tr><td>۴</td><td><code>python3 tools/build_xlsx.py</code></td><td>ساخت MSP، مراجع و واژه‌نامه</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="warn">
+      <p>ترتیب مهم است: اگر مرحلۀ ۲ را قبل از ۱ اجرا کنید، نویسه‌های اصلاح‌نشده به فایل Word راه پیدا می‌کنند.</p>
+    </div>
+  </section>
+
+  <section id="status">
+    <h2>۸. وضعیت فعلی</h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>مورد</th><th>وضعیت</th><th>توضیح</th></tr></thead>
+        <tbody>
+          <tr><td>یازده بخش گزارش</td><td><span class="pill ok">کامل</span></td><td>با همان ترتیب نمونه</td></tr>
+          <tr><td>نیازمندی‌های کارکردی</td><td><span class="pill ok">کامل</span></td><td>FR-001 تا FR-058، بدون شکاف</td></tr>
+          <tr><td>مراجع IEEE</td><td><span class="pill ok">کامل</span></td><td>۳۴ مرجع با تاریخ دسترسی</td></tr>
+          <tr><td>تعاریف و سرنام‌ها</td><td><span class="pill ok">کامل</span></td><td>۹۵ واژه و ۴۳ سرنام</td></tr>
+          <tr><td>برنامۀ زمان‌بندی</td><td><span class="pill ok">کامل</span></td><td>۲۲ فعالیت، مسیر بحرانی، RACI</td></tr>
+          <tr><td>دادۀ میدانی</td><td><span class="pill warn">انجام نشده</span></td><td>نیازها فرضیه‌اند؛ در متن صریح ذکر شده</td></tr>
+          <tr><td>آزمون سرتاسری بک‌اند</td><td><span class="pill warn">ناموفق</span></td><td>پایگاه دادۀ آزمون جدول ندارد؛ در پیوست ثبت شده</td></tr>
+          <tr><td>پرداخت واقعی</td><td><span class="pill">شبیه‌سازی</span></td><td>درگاه واقعی به محصول وصل نیست</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>رنتینو - بستۀ مستندات فاز اول پروژۀ مهندسی نرم‌افزار - دانشگاه اصفهان</p>
+    <p>آخرین بازبینی: ۲۵ مهر ۱۴۰۵ (۲۰۲۶-۱۰-۱۷)</p>
+  </footer>
+
+</div>
+</body>
+</html>
