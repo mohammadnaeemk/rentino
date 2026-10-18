@@ -107,6 +107,18 @@
 
 [34] W3C, “Web Content Accessibility Guidelines (WCAG) 2.2,” W3C Recommendation, Oct. 2023. [Online]. Available: https://www.w3.org/TR/WCAG22/. [Accessed: 2026-10-17].
 
+### ۴-۳-۵. منابع روش پژوهش
+
+[35] W. G. Cochran, *Sampling Techniques*, 3rd ed. New York: Wiley, 1977.
+
+[36] C. H. Lawshe, “A quantitative approach to content validity,” *Personnel Psychology*, vol. 28, no. 4, pp. 563-575, 1975, doi: 10.1111/j.1744-6570.1975.tb01393.x.
+
+[37] L. J. Cronbach, “Coefficient alpha and the internal structure of tests,” *Psychometrika*, vol. 16, no. 3, pp. 297-334, 1951, doi: 10.1007/BF02310555.
+
+[38] R. Likert, “A technique for the measurement of attitudes,” *Archives of Psychology*, vol. 22, no. 140, pp. 5-55, 1932.
+
+[39] R. V. Krejcie and D. W. Morgan, “Determining sample size for research activities,” *Educational and Psychological Measurement*, vol. 30, no. 3, pp. 607-610, 1970, doi: 10.1177/001316447003000308.
+
 ---
 
 ## ۴-۴. نگاشت مراجع محلی به تجمیعی
@@ -118,13 +130,13 @@
 | ۳ | [1]-[5] | [2]، [5]، [1]، [10]، [30] |
 | ۵ | [1]-[10] | [2]، [3]، [4]، [5]، [13]، [14]، [15]، [16]، [17]، [19] |
 | ۶ | [1]-[8] | [17]، [18]، [19]، [20]، [21]، [22]، [23]، [8] |
-| ۷ | [1]-[7] | [2]، [3]، [1]، [17]، [19]، [22]، [23] |
+| ۷ | [1]-[12] | [2]، [3]، [1]، [17]، [19]، [22]، [23]، [13]، [35]، [36]، [37]، [38]، [39] |
 | ۸ | [1]-[4] | [1]، [10]، [8]، [13] |
 | ۹ | [1]-[4] | [1]، [11]، [30]، [31] |
 | ۱۰ | [1]-[8] | [24]-[31] |
 | ۱۱ | [1]-[3] | [10]، [1]، [32] |
 
-**توجه:** نگاشت بالا تقریبی است؛ در نسخۀ نهایی صفحه‌آرایی، ارجاعات درون‌متنی باید یک‌بار دیگر با فهرست تجمیعی تطبیق داده شوند. این کار در چک‌لیست QA (پیوست ب) آمده است.
+**توجه:** نگاشت بالا تقریبی است؛ در نسخۀ نهایی صفحه‌آرایی، ارجاعات درون‌متنی باید یک‌بار دیگر با فهرست تجمیعی تطبیق داده شوند. این کار در چک‌لیست QA داخلی تیم آمده است.
 
 ---
 

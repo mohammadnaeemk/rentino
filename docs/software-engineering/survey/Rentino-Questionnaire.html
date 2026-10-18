@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>پرسش‌نامه نیازسنجی رنتینو</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --text: #16181d;
+    --muted: #5b6270;
+    --line: #d9dde4;
+    --accent: #0f6b5c;
+    --accent-soft: #e6f2ef;
+    --danger: #a3241f;
+    --radius: 14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #101216;
+      --surface: #181b20;
+      --text: #eef1f4;
+      --muted: #a3abb8;
+      --line: #2c313a;
+      --accent: #4fc3ac;
+      --accent-soft: #14302b;
+      --danger: #ff8a80;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Vazirmatn, "IRANSans", Tahoma, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.9;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 24px 16px 80px; }
+  header.top {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px 20px 16px;
+    margin-bottom: 16px;
+  }
+  header.top h1 { font-size: 1.35rem; margin: 0 0 6px; }
+  header.top p { margin: 0; color: var(--muted); font-size: .95rem; }
+  .progress {
+    position: sticky; top: 0; z-index: 5;
+    background: var(--bg);
+    padding: 10px 0 12px;
+  }
+  .bar { height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; }
+  .bar > span { display: block; height: 100%; width: 0; background: var(--accent); transition: width .25s ease; }
+  .progress small { display: block; color: var(--muted); margin-top: 6px; font-size: .85rem; }
+  section.card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px 18px 8px;
+    margin: 0 0 16px;
+  }
+  section.card > h2 {
+    font-size: 1.05rem;
+    margin: 0 0 4px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  .hint { color: var(--muted); font-size: .88rem; margin: 6px 0 14px; }
+  fieldset { border: 0; margin: 0; padding: 0 0 14px; }
+  legend { font-weight: 600; padding: 0; margin-bottom: 8px; }
+  .opts { display: grid; gap: 8px; }
+  .opt {
+    display: flex; align-items: flex-start; gap: 10px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .opt:hover { border-color: var(--accent); }
+  .opt input { margin: 6px 0 0; accent-color: var(--accent); width: 18px; height: 18px; flex: none; }
+  .opt:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+  .opt span { font-size: .95rem; }
+  .scale { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  .scale .opt { flex-direction: column; align-items: center; text-align: center; padding: 8px 4px; }
+  .scale .opt input { margin: 0 0 4px; }
+  .scale .opt span { font-size: .8rem; line-height: 1.4; }
+  input[type="text"], textarea {
+    width: 100%;
+    font: inherit;
+    color: inherit;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  textarea { min-height: 88px; resize: vertical; }
+  input[type="text"]:focus, textarea:focus, .opt input:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+  .consent {
+    display: flex; gap: 10px; align-items: flex-start;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 14px;
+  }
+  .consent input { margin-top: 5px; width: 18px; height: 18px; accent-color: var(--accent); flex: none; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+  button {
+    font: inherit;
+    border-radius: 10px;
+    padding: 11px 22px;
+    border: 1px solid transparent;
+    cursor: pointer;
+  }
+  button.primary { background: var(--accent); color: #fff; font-weight: 600; }
+  @media (prefers-color-scheme: dark) { button.primary { color: #06211c; } }
+  button.ghost { background: transparent; border-color: var(--line); color: var(--text); }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .msg { display: none; padding: 12px 14px; border-radius: 10px; margin-top: 12px; font-size: .92rem; }
+  .msg.error { display: block; background: #fdecea; color: var(--danger); border: 1px solid #f5b8b3; }
+  .msg.ok { display: block; background: var(--accent-soft); border: 1px solid var(--accent); }
+  @media (prefers-color-scheme: dark) { .msg.error { background: #3a1715; } }
+  .foot { color: var(--muted); font-size: .82rem; text-align: center; margin-top: 24px; }
+  @media (max-width: 480px) {
+    .wrap { padding: 12px 10px 64px; }
+    section.card { padding: 14px 12px 6px; }
+    .scale { grid-template-columns: repeat(2, 1fr); }
+    .scale .opt:last-child { grid-column: 1 / -1; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <h1>پرسش‌نامه نیازسنجی رنتینو</h1>
+    <p>پروژۀ درسی مهندسی نرم‌افزار - دانشگاه اصفهان. زمان تکمیل: حدود هشت دقیقه.</p>
+  </header>
+
+  <div class="progress" aria-hidden="true">
+    <div class="bar"><span id="bar"></span></div>
+    <small id="progressText">۰% تکمیل شده</small>
+  </div>
+
+  <form id="form" novalidate>
+    <section class="card">
+      <h2>پیش از شروع</h2>
+      <p class="hint">این پرسش‌نامه تجربۀ شما را در اجاره یا اجاره‌دادن کالا می‌سنجد. شرکت داوطلبانه است و هیچ نام، شمارۀ تماس یا نشانی شبکه‌ای ثبت نمی‌شود. پاسخ‌ها فقط به‌صورت تجمیعی گزارش می‌شوند و در هر لحظه می‌توانید پاسخ‌دهی را رها کنید.</p>
+      <label class="consent">
+        <input type="checkbox" id="consent" required>
+        <span>۱۸ سال یا بیشتر دارم و اطلاعات بالا را خوانده‌ام. با شرکت در این پژوهش موافقم.</span>
+      </label>
+    </section>
+
+    <section class="card">
+      <h2>بخش الف - مشخصات</h2>
+
+      <fieldset data-q="Q1">
+        <legend>۱. سن شما در کدام بازه است؟</legend>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="Q1" value="1" required><span>زیر ۱۸</span></label>
+          <label class="opt"><input type="radio" name="Q1" value="2"><span>۱۸ تا ۲۴</span></label>
+          <label class="opt"><input type="radio" name="Q1" value="3"><span>۲۵ تا ۳۴</span></label>
+          <label class="opt"><input type="radio" name="Q1" value="4"><span>۳۵ تا ۴۴</span></label>
+          <label class="opt"><input type="radio" name="Q1" value="5"><span>۴۵ تا ۵۵</span></label>
+          <label class="opt"><input type="radio" name="Q1" value="6"><span>بالای ۵۵</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q2">
+        <legend>۲. جنسیت</legend>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="Q2" value="1"><span>زن</span></label>
+          <label class="opt"><input type="radio" name="Q2" value="2"><span>مرد</span></label>
+          <label class="opt"><input type="radio" name="Q2" value="3"><span>ترجیح می‌دهم نگویم</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q3">
+        <legend>۳. بالاترین سطح تحصیلات</legend>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="Q3" value="1"><span>زیر دیپلم</span></label>
+          <label class="opt"><input type="radio" name="Q3" value="2"><span>دیپلم</span></label>
+          <label class="opt"><input type="radio" name="Q3" value="3"><span>کاردانی</span></label>
+          <label class="opt"><input type="radio" name="Q3" value="4"><span>کارشناسی</span></label>
+          <label class="opt"><input type="radio" name="Q3" value="5"><span>کارشناسی ارشد یا بالاتر</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q4">
+        <legend>۴. استان محل سکونت</legend>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="Q4" value="1"><span>تهران</span></label>
+          <label class="opt"><input type="radio" name="Q4" value="2"><span>اصفهان</span></label>
+          <label class="opt"><input type="radio" name="Q4" value="3"><span>خراسان رضوی</span></label>
+          <label class="opt"><input type="radio" name="Q4" value="4"><span>فارس</span></label>
+          <label class="opt"><input type="radio" name="Q4" value="5"><span>آذربایجان شرقی</span></label>
+          <label class="opt"><input type="radio" name="Q4" value="6"><span>سایر استان‌ها</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q5">
+        <legend>۵. اندازۀ شهر محل سکونت</legend>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="Q5" value="1"><span>کمتر از ۱۰۰ هزار نفر</span></label>
+          <label class="opt"><input type="radio" name="Q5" value="2"><span>۱۰۰ تا ۵۰۰ هزار نفر</span></label>
+          <label class="opt"><input type="radio" name="Q5" value="3"><span>۵۰۰ هزار تا ۲ میلیون نفر</span></label>
+          <label class="opt"><input type="radio" name="Q5" value="4"><span>بیش از ۲ میلیون نفر</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q6">
+        <legend>۶. نقش شما در بازار اجاره</legend>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="Q6" value="1"><span>اجاره‌گیرنده</span></label>
+          <label class="opt"><input type="radio" name="Q6" value="2"><span>مالک (اجاره‌دهنده)</span></label>
+          <label class="opt"><input type="radio" name="Q6" value="3"><span>هر دو</span></label>
+          <label class="opt"><input type="radio" name="Q6" value="4"><span>هیچ‌کدام</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q7">
+        <legend>۷. درآمد ماهانۀ خانوار</legend>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="Q7" value="1"><span>کمتر از ۱۰ میلیون تومان</span></label>
+          <label class="opt"><input type="radio" name="Q7" value="2"><span>۱۰ تا ۲۰ میلیون تومان</span></label>
+          <label class="opt"><input type="radio" name="Q7" value="3"><span>۲۰ تا ۴۰ میلیون تومان</span></label>
+          <label class="opt"><input type="radio" name="Q7" value="4"><span>۴۰ تا ۷۰ میلیون تومان</span></label>
+          <label class="opt"><input type="radio" name="Q7" value="5"><span>بیش از ۷۰ میلیون تومان</span></label>
+          <label class="opt"><input type="radio" name="Q7" value="6"><span>ترجیح می‌دهم نگویم</span></label>
+        </div>
+      </fieldset>
+    </section>
+
+    <section class="card">
+      <h2>بخش ب - رفتار اجاره</h2>
+
+      <fieldset data-q="Q8">
+        <legend>۸. در دوازده ماه گذشته، چند بار کالایی را اجاره کرده‌اید؟</legend>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="Q8" value="0"><span>هیچ</span></label>
+          <label class="opt"><input type="radio" name="Q8" value="1"><span>۱ تا ۲ بار</span></label>
+          <label class="opt"><input type="radio" name="Q8" value="2"><span>۳ تا ۵ بار</span></label>
+          <label class="opt"><input type="radio" name="Q8" value="3"><span>۶ تا ۱۰ بار</span></label>
+          <label class="opt"><input type="radio" name="Q8" value="4"><span>بیش از ۱۰ بار</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q9">
+        <legend>۹. کدام دسته‌ها را اجاره کرده‌اید؟ <span class="hint">(چند گزینه مجاز است)</span></legend>
+        <div class="opts">
+          <label class="opt"><input type="checkbox" name="Q9" value="1"><span>دوربین و تجهیزات عکاسی</span></label>
+          <label class="opt"><input type="checkbox" name="Q9" value="2"><span>کنسول بازی</span></label>
+          <label class="opt"><input type="checkbox" name="Q9" value="3"><span>دوچرخه</span></label>
+          <label class="opt"><input type="checkbox" name="Q9" value="4"><span>تجهیزات ورزشی و کوهنوردی</span></label>
+          <label class="opt"><input type="checkbox" name="Q9" value="5"><span>لپ‌تاپ و تجهیزات رایانه</span></label>
+          <label class="opt"><input type="checkbox" name="Q9" value="6"><span>خودرو</span></label>
+          <label class="opt"><input type="checkbox" name="Q9" value="7"><span>ابزار و تجهیزات خانگی</span></label>
+          <label class="opt"><input type="checkbox" name="Q9" value="8"><span>سایر</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q10">
+        <legend>۱۰. کالا را از کجا پیدا کرده‌اید؟ <span class="hint">(چند گزینه مجاز است)</span></legend>
+        <div class="opts">
+          <label class="opt"><input type="checkbox" name="Q10" value="1"><span>دیوار</span></label>
+          <label class="opt"><input type="checkbox" name="Q10" value="2"><span>شیپور</span></label>
+          <label class="opt"><input type="checkbox" name="Q10" value="3"><span>اینستاگرام یا تلگرام</span></label>
+          <label class="opt"><input type="checkbox" name="Q10" value="4"><span>معرفی آشنا</span></label>
+          <label class="opt"><input type="checkbox" name="Q10" value="5"><span>فروشگاه محلی</span></label>
+          <label class="opt"><input type="checkbox" name="Q10" value="6"><span>سایر</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q11">
+        <legend>۱۱. در دوازده ماه گذشته، کالایی را به کسی اجاره داده‌اید؟</legend>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="Q11" value="1"><span>بله</span></label>
+          <label class="opt"><input type="radio" name="Q11" value="0"><span>خیر</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q12">
+        <legend>۱۲. مهم‌ترین دلیل اجاره‌نکردن بیشتر چیست؟</legend>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="Q12" value="1"><span>هزینه</span></label>
+          <label class="opt"><input type="radio" name="Q12" value="2"><span>نبود کالای مناسب</span></label>
+          <label class="opt"><input type="radio" name="Q12" value="3"><span>نگرانی از سالم بودن کالا</span></label>
+          <label class="opt"><input type="radio" name="Q12" value="4"><span>نبود اطلاعات کافی از مالک</span></label>
+          <label class="opt"><input type="radio" name="Q12" value="5"><span>دشواری هماهنگی و تحویل</span></label>
+          <label class="opt"><input type="radio" name="Q12" value="6"><span>ترجیح می‌دهم بخرم</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q13">
+        <legend>۱۳. برای کالای باارزش خانگی بی‌استفاده چه می‌کنید؟</legend>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="Q13" value="1"><span>نگه می‌دارم</span></label>
+          <label class="opt"><input type="radio" name="Q13" value="2"><span>می‌فروشم</span></label>
+          <label class="opt"><input type="radio" name="Q13" value="3"><span>به آشنا قرض می‌دهم</span></label>
+          <label class="opt"><input type="radio" name="Q13" value="4"><span>اجاره می‌دهم</span></label>
+          <label class="opt"><input type="radio" name="Q13" value="5"><span>سایر</span></label>
+        </div>
+      </fieldset>
+    </section>
+
+    <section class="card">
+      <h2>بخش ج - نگرانی‌ها و موانع</h2>
+      <p class="hint">۱ = کاملاً مخالفم، ۵ = کاملاً موافقم</p>
+
+      <fieldset data-q="Q14">
+        <legend>۱۴. نگرانم کالای اجاره‌ای سالم یا کامل نباشد.</legend>
+        <div class="scale">
+          <label class="opt"><input type="radio" name="Q14" value="1"><span>۱<br>کاملاً مخالفم</span></label>
+          <label class="opt"><input type="radio" name="Q14" value="2"><span>۲<br>مخالفم</span></label>
+          <label class="opt"><input type="radio" name="Q14" value="3"><span>۳<br>بی‌نظر</span></label>
+          <label class="opt"><input type="radio" name="Q14" value="4"><span>۴<br>موافقم</span></label>
+          <label class="opt"><input type="radio" name="Q14" value="5"><span>۵<br>کاملاً موافقم</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q15">
+        <legend>۱۵. نگرانم در صورت خسارت، مسئولیت و جبران روشن نباشد.</legend>
+        <div class="scale">
+          <label class="opt"><input type="radio" name="Q15" value="1"><span>۱<br>کاملاً مخالفم</span></label>
+          <label class="opt"><input type="radio" name="Q15" value="2"><span>۲<br>مخالفم</span></label>
+          <label class="opt"><input type="radio" name="Q15" value="3"><span>۳<br>بی‌نظر</span></label>
+          <label class="opt"><input type="radio" name="Q15" value="4"><span>۴<br>موافقم</span></label>
+          <label class="opt"><input type="radio" name="Q15" value="5"><span>۵<br>کاملاً موافقم</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q16">
+        <legend>۱۶. نگرانم ودیعه به‌موقع یا کامل بازنگردد.</legend>
+        <div class="scale">
+          <label class="opt"><input type="radio" name="Q16" value="1"><span>۱<br>کاملاً مخالفم</span></label>
+          <label class="opt"><input type="radio" name="Q16" value="2"><span>۲<br>مخالفم</span></label>
+          <label class="opt"><input type="radio" name="Q16" value="3"><span>۳<br>بی‌نظر</span></label>
+          <label class="opt"><input type="radio" name="Q16" value="4"><span>۴<br>موافقم</span></label>
+          <label class="opt"><input type="radio" name="Q16" value="5"><span>۵<br>کاملاً موافقم</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q17">
+        <legend>۱۷. به کسی که نمی‌شناسم کالای باارزشم را اجاره نمی‌دهم.</legend>
+        <div class="scale">
+          <label class="opt"><input type="radio" name="Q17" value="1"><span>۱<br>کاملاً مخالفم</span></label>
+          <label class="opt"><input type="radio" name="Q17" value="2"><span>۲<br>مخالفم</span></label>
+          <label class="opt"><input type="radio" name="Q17" value="3"><span>۳<br>بی‌نظر</span></label>
+          <label class="opt"><input type="radio" name="Q17" value="4"><span>۴<br>موافقم</span></label>
+          <label class="opt"><input type="radio" name="Q17" value="5"><span>۵<br>کاملاً موافقم</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q18">
+        <legend>۱۸. پیدا کردن کالای مناسب در کانال‌های فعلی زمان‌بر است.</legend>
+        <div class="scale">
+          <label class="opt"><input type="radio" name="Q18" value="1"><span>۱<br>کاملاً مخالفم</span></label>
+          <label class="opt"><input type="radio" name="Q18" value="2"><span>۲<br>مخالفم</span></label>
+          <label class="opt"><input type="radio" name="Q18" value="3"><span>۳<br>بی‌نظر</span></label>
+          <label class="opt"><input type="radio" name="Q18" value="4"><span>۴<br>موافقم</span></label>
+          <label class="opt"><input type="radio" name="Q18" value="5"><span>۵<br>کاملاً موافقم</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q19">
+        <legend>۱۹. مقایسۀ قیمت و شرایط چند آگهی دشوار است.</legend>
+        <div class="scale">
+          <label class="opt"><input type="radio" name="Q19" value="1"><span>۱<br>کاملاً مخالفم</span></label>
+          <label class="opt"><input type="radio" name="Q19" value="2"><span>۲<br>مخالفم</span></label>
+          <label class="opt"><input type="radio" name="Q19" value="3"><span>۳<br>بی‌نظر</span></label>
+          <label class="opt"><input type="radio" name="Q19" value="4"><span>۴<br>موافقم</span></label>
+          <label class="opt"><input type="radio" name="Q19" value="5"><span>۵<br>کاملاً موافقم</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q20">
+        <legend>۲۰. معلوم نیست کالا در بازۀ مورد نظر من واقعاً آزاد است.</legend>
+        <div class="scale">
+          <label class="opt"><input type="radio" name="Q20" value="1"><span>۱<br>کاملاً مخالفم</span></label>
+          <label class="opt"><input type="radio" name="Q20" value="2"><span>۲<br>مخالفم</span></label>
+          <label class="opt"><input type="radio" name="Q20" value="3"><span>۳<br>بی‌نظر</span></label>
+          <label class="opt"><input type="radio" name="Q20" value="4"><span>۴<br>موافقم</span></label>
+          <label class="opt"><input type="radio" name="Q20" value="5"><span>۵<br>کاملاً موافقم</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q21">
+        <legend>۲۱. مذاکرۀ تلفنی و توافق شفاهی برایم ناخوشایند است.</legend>
+        <div class="scale">
+          <label class="opt"><input type="radio" name="Q21" value="1"><span>۱<br>کاملاً مخالفم</span></label>
+          <label class="opt"><input type="radio" name="Q21" value="2"><span>۲<br>مخالفم</span></label>
+          <label class="opt"><input type="radio" name="Q21" value="3"><span>۳<br>بی‌نظر</span></label>
+          <label class="opt"><input type="radio" name="Q21" value="4"><span>۴<br>موافقم</span></label>
+          <label class="opt"><input type="radio" name="Q21" value="5"><span>۵<br>کاملاً موافقم</span></label>
+        </div>
+      </fieldset>
+    </section>
+
+    <section class="card">
+      <h2>بخش د - اهمیت قابلیت‌ها</h2>
+      <p class="hint">۱ = بی‌اهمیت، ۵ = بسیار مهم</p>
+
+      <fieldset data-q="Q22">
+        <legend>۲۲. مشاهدۀ قیمت روزانه و هزینۀ کل پیش از رزرو.</legend>
+        <div class="scale">
+          <label class="opt"><input type="radio" name="Q22" value="1"><span>۱<br>بی‌اهمیت</span></label>
+          <label class="opt"><input type="radio" name="Q22" value="2"><span>۲<br>کم‌اهمیت</span></label>
+          <label class="opt"><input type="radio" name="Q22" value="3"><span>۳<br>متوسط</span></label>
+          <label class="opt"><input type="radio" name="Q22" value="4"><span>۴<br>مهم</span></label>
+          <label class="opt"><input type="radio" name="Q22" value="5"><span>۵<br>بسیار مهم</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q23">
+        <legend>۲۳. نمایش تقویم آزاد بودن کالا در بازۀ انتخابی.</legend>
+        <div class="scale">
+          <label class="opt"><input type="radio" name="Q23" value="1"><span>۱<br>بی‌اهمیت</span></label>
+          <label class="opt"><input type="radio" name="Q23" value="2"><span>۲<br>کم‌اهمیت</span></label>
+          <label class="opt"><input type="radio" name="Q23" value="3"><span>۳<br>متوسط</span></label>
+          <label class="opt"><input type="radio" name="Q23" value="4"><span>۴<br>مهم</span></label>
+          <label class="opt"><input type="radio" name="Q23" value="5"><span>۵<br>بسیار مهم</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q24">
+        <legend>۲۴. رزرو و پرداخت آنلاین بدون تماس تلفنی.</legend>
+        <div class="scale">
+          <label class="opt"><input type="radio" name="Q24" value="1"><span>۱<br>بی‌اهمیت</span></label>
+          <label class="opt"><input type="radio" name="Q24" value="2"><span>۲<br>کم‌اهمیت</span></label>
+          <label class="opt"><input type="radio" name="Q24" value="3"><span>۳<br>متوسط</span></label>
+          <label class="opt"><input type="radio" name="Q24" value="4"><span>۴<br>مهم</span></label>
+          <label class="opt"><input type="radio" name="Q24" value="5"><span>۵<br>بسیار مهم</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q25">
+        <legend>۲۵. فیلتر بر اساس دسته، شهر، قیمت و تاریخ.</legend>
+        <div class="scale">
+          <label class="opt"><input type="radio" name="Q25" value="1"><span>۱<br>بی‌اهمیت</span></label>
+          <label class="opt"><input type="radio" name="Q25" value="2"><span>۲<br>کم‌اهمیت</span></label>
+          <label class="opt"><input type="radio" name="Q25" value="3"><span>۳<br>متوسط</span></label>
+          <label class="opt"><input type="radio" name="Q25" value="4"><span>۴<br>مهم</span></label>
+          <label class="opt"><input type="radio" name="Q25" value="5"><span>۵<br>بسیار مهم</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q26">
+        <legend>۲۶. احراز هویت و نشان «کاربر تأییدشده».</legend>
+        <div class="scale">
+          <label class="opt"><input type="radio" name="Q26" value="1"><span>۱<br>بی‌اهمیت</span></label>
+          <label class="opt"><input type="radio" name="Q26" value="2"><span>۲<br>کم‌اهمیت</span></label>
+          <label class="opt"><input type="radio" name="Q26" value="3"><span>۳<br>متوسط</span></label>
+          <label class="opt"><input type="radio" name="Q26" value="4"><span>۴<br>مهم</span></label>
+          <label class="opt"><input type="radio" name="Q26" value="5"><span>۵<br>بسیار مهم</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q27">
+        <legend>۲۷. ثبت وضعیت کالا با عکس در تحویل و بازگشت.</legend>
+        <div class="scale">
+          <label class="opt"><input type="radio" name="Q27" value="1"><span>۱<br>بی‌اهمیت</span></label>
+          <label class="opt"><input type="radio" name="Q27" value="2"><span>۲<br>کم‌اهمیت</span></label>
+          <label class="opt"><input type="radio" name="Q27" value="3"><span>۳<br>متوسط</span></label>
+          <label class="opt"><input type="radio" name="Q27" value="4"><span>۴<br>مهم</span></label>
+          <label class="opt"><input type="radio" name="Q27" value="5"><span>۵<br>بسیار مهم</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q28">
+        <legend>۲۸. نظرات و امتیاز کاربران قبلی.</legend>
+        <div class="scale">
+          <label class="opt"><input type="radio" name="Q28" value="1"><span>۱<br>بی‌اهمیت</span></label>
+          <label class="opt"><input type="radio" name="Q28" value="2"><span>۲<br>کم‌اهمیت</span></label>
+          <label class="opt"><input type="radio" name="Q28" value="3"><span>۳<br>متوسط</span></label>
+          <label class="opt"><input type="radio" name="Q28" value="4"><span>۴<br>مهم</span></label>
+          <label class="opt"><input type="radio" name="Q28" value="5"><span>۵<br>بسیار مهم</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q29">
+        <legend>۲۹. پشتیبانی فارسی و مسیر مشخص شکایت.</legend>
+        <div class="scale">
+          <label class="opt"><input type="radio" name="Q29" value="1"><span>۱<br>بی‌اهمیت</span></label>
+          <label class="opt"><input type="radio" name="Q29" value="2"><span>۲<br>کم‌اهمیت</span></label>
+          <label class="opt"><input type="radio" name="Q29" value="3"><span>۳<br>متوسط</span></label>
+          <label class="opt"><input type="radio" name="Q29" value="4"><span>۴<br>مهم</span></label>
+          <label class="opt"><input type="radio" name="Q29" value="5"><span>۵<br>بسیار مهم</span></label>
+        </div>
+      </fieldset>
+    </section>
+
+    <section class="card">
+      <h2>بخش ه - قصد استفاده و قیمت</h2>
+
+      <fieldset data-q="Q30">
+        <legend>۳۰. اگر پلتفرمی با ویژگی‌های بالا وجود داشت، از آن استفاده می‌کردم.</legend>
+        <div class="scale">
+          <label class="opt"><input type="radio" name="Q30" value="1"><span>۱<br>کاملاً مخالفم</span></label>
+          <label class="opt"><input type="radio" name="Q30" value="2"><span>۲<br>مخالفم</span></label>
+          <label class="opt"><input type="radio" name="Q30" value="3"><span>۳<br>بی‌نظر</span></label>
+          <label class="opt"><input type="radio" name="Q30" value="4"><span>۴<br>موافقم</span></label>
+          <label class="opt"><input type="radio" name="Q30" value="5"><span>۵<br>کاملاً موافقم</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q31">
+        <legend>۳۱. حاضر بودم کالای خودم را در چنین پلتفرمی برای اجاره ثبت کنم.</legend>
+        <div class="scale">
+          <label class="opt"><input type="radio" name="Q31" value="1"><span>۱<br>کاملاً مخالفم</span></label>
+          <label class="opt"><input type="radio" name="Q31" value="2"><span>۲<br>مخالفم</span></label>
+          <label class="opt"><input type="radio" name="Q31" value="3"><span>۳<br>بی‌نظر</span></label>
+          <label class="opt"><input type="radio" name="Q31" value="4"><span>۴<br>موافقم</span></label>
+          <label class="opt"><input type="radio" name="Q31" value="5"><span>۵<br>کاملاً موافقم</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q32">
+        <legend>۳۲. به دوستانم چنین پلتفرمی را پیشنهاد می‌کردم.</legend>
+        <div class="scale">
+          <label class="opt"><input type="radio" name="Q32" value="1"><span>۱<br>کاملاً مخالفم</span></label>
+          <label class="opt"><input type="radio" name="Q32" value="2"><span>۲<br>مخالفم</span></label>
+          <label class="opt"><input type="radio" name="Q32" value="3"><span>۳<br>بی‌نظر</span></label>
+          <label class="opt"><input type="radio" name="Q32" value="4"><span>۴<br>موافقم</span></label>
+          <label class="opt"><input type="radio" name="Q32" value="5"><span>۵<br>کاملاً موافقم</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q33">
+        <legend>۳۳. حداکثر ودیعۀ قابل قبول برای کالایی به ارزش ۲۰ میلیون تومان</legend>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="Q33" value="1"><span>کمتر از ۲ میلیون تومان</span></label>
+          <label class="opt"><input type="radio" name="Q33" value="2"><span>۲ تا ۵ میلیون تومان</span></label>
+          <label class="opt"><input type="radio" name="Q33" value="3"><span>۵ تا ۱۰ میلیون تومان</span></label>
+          <label class="opt"><input type="radio" name="Q33" value="4"><span>بیش از ۱۰ میلیون تومان</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset data-q="Q34">
+        <legend>۳۴. کارمزد معقول پلتفرم از هر معامله</legend>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="Q34" value="1"><span>کمتر از ۵%</span></label>
+          <label class="opt"><input type="radio" name="Q34" value="2"><span>۵ تا ۱۰%</span></label>
+          <label class="opt"><input type="radio" name="Q34" value="3"><span>۱۰ تا ۱۵%</span></label>
+          <label class="opt"><input type="radio" name="Q34" value="4"><span>بیش از ۱۵%</span></label>
+        </div>
+      </fieldset>
+    </section>
+
+    <section class="card">
+      <h2>بخش و - پرسش‌های باز</h2>
+
+      <fieldset data-q="Q35">
+        <legend>۳۵. بزرگ‌ترین نگرانی شما درباره اجارۀ آنلاین چیست؟</legend>
+        <textarea name="Q35" maxlength="300" placeholder="حداکثر دو خط"></textarea>
+      </fieldset>
+
+      <fieldset data-q="Q36">
+        <legend>۳۶. چه ویژگی‌ای را ضروری می‌دانید که در پرسش‌نامه نیامده است؟</legend>
+        <textarea name="Q36" maxlength="300" placeholder="اختیاری"></textarea>
+      </fieldset>
+    </section>
+
+    <div class="actions">
+      <button type="submit" class="primary">ثبت پاسخ و دریافت فایل</button>
+      <button type="button" class="ghost" id="resetBtn">پاک کردن فرم</button>
+    </div>
+    <div class="msg" id="msg" role="status" aria-live="polite"></div>
+    <p class="foot">این صفحه هیچ داده‌ای را به سرور ارسال نمی‌کند. پاسخ‌ها فقط در مرورگر شما پردازش و به‌صورت فایل CSV ذخیره می‌شوند.</p>
+  </form>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var form = document.getElementById("form");
+  var bar = document.getElementById("bar");
+  var progressText = document.getElementById("progressText");
+  var msg = document.getElementById("msg");
+  var consent = document.getElementById("consent");
+  var REQUIRED = [];
+  for (var i = 1; i <= 34; i++) REQUIRED.push("Q" + i);
+
+  function faNum(n) {
+    return String(n).replace(/\d/g, function (d) {
+      return "۰۱۲۳۴۵۶۷۸۹"[+d];
+    });
+  }
+
+  function answered(name) {
+    var els = form.querySelectorAll('[name="' + name + '"]');
+    if (!els.length) return false;
+    if (els[0].type === "checkbox") {
+      return Array.prototype.some.call(els, function (e) { return e.checked; });
+    }
+    return Array.prototype.some.call(els, function (e) { return e.checked; });
+  }
+
+  function updateProgress() {
+    var done = 0;
+    REQUIRED.forEach(function (name) { if (answered(name)) done++; });
+    if (consent.checked) done++;
+    var total = REQUIRED.length + 1;
+    var pct = Math.round((done / total) * 100);
+    bar.style.width = pct + "%";
+    progressText.textContent = faNum(pct) + "% تکمیل شده";
+  }
+
+  form.addEventListener("input", updateProgress);
+  form.addEventListener("change", updateProgress);
+
+  function firstMissing() {
+    for (var i = 0; i < REQUIRED.length; i++) {
+      if (!answered(REQUIRED[i])) return REQUIRED[i];
+    }
+    return null;
+  }
+
+  function collect() {
+    var data = {};
+    REQUIRED.forEach(function (name) {
+      var els = form.querySelectorAll('[name="' + name + '"]');
+      if (els[0].type === "checkbox") {
+        data[name] = Array.prototype.filter.call(els, function (e) { return e.checked; })
+          .map(function (e) { return e.value; }).join("|");
+      } else {
+        var checked = form.querySelector('[name="' + name + '"]:checked');
+        data[name] = checked ? checked.value : "99";
+      }
+    });
+    data.Q35 = (form.querySelector('[name="Q35"]').value || "").trim();
+    data.Q36 = (form.querySelector('[name="Q36"]').value || "").trim();
+    return data;
+  }
+
+  function csvEscape(v) {
+    var s = String(v == null ? "" : v);
+    if (/[",\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+
+  function download(name, text) {
+    var blob = new Blob(["﻿" + text], { type: "text/csv;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  form.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    msg.className = "msg";
+    msg.textContent = "";
+
+    if (!consent.checked) {
+      msg.className = "msg error";
+      msg.textContent = "برای ادامه، تأیید رضایت آگاهانه الزامی است.";
+      consent.focus();
+      return;
+    }
+
+    var missing = firstMissing();
+    if (missing) {
+      msg.className = "msg error";
+      msg.textContent = "به پرسش " + faNum(parseInt(missing.slice(1), 10)) + " پاسخ نداده‌اید.";
+      var el = form.querySelector('[name="' + missing + '"]');
+      if (el) {
+        el.focus();
+        el.closest("fieldset").scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      return;
+    }
+
+    var q1 = form.querySelector('[name="Q1"]:checked').value;
+    var q6 = form.querySelector('[name="Q6"]:checked').value;
+    if (q1 === "1" || q6 === "4") {
+      msg.className = "msg ok";
+      msg.innerHTML = "<strong>از مشارکت شما سپاسگزاریم.</strong><br>بر پایۀ پاسخ‌های غربالگری، این پرسش‌نامه برای شما به پایان می‌رسد و داده‌ای ثبت نمی‌شود.";
+      return;
+    }
+
+    var data = collect();
+    var cols = ["respondent_id", "submitted_at", "channel"].concat(REQUIRED).concat(["Q35", "Q36"]);
+    var row = ["", new Date().toISOString(), "web"]
+      .concat(REQUIRED.map(function (k) { return data[k]; }))
+      .concat([data.Q35, data.Q36]);
+
+    var csv = cols.map(csvEscape).join(",") + "\r\n" + row.map(csvEscape).join(",");
+    var stamp = new Date().toISOString().slice(0, 10);
+    download("rentino-survey-" + stamp + ".csv", csv);
+
+    msg.className = "msg ok";
+    msg.innerHTML = "<strong>پاسخ شما ثبت شد.</strong><br>فایل CSV در همین دستگاه ذخیره شد. آن را برای پژوهشگر بفرستید؛ هیچ اطلاعاتی خودکار ارسال نمی‌شود.";
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", function () {
+    if (!confirm("همۀ پاسخ‌های واردشده پاک شود؟")) return;
+    form.reset();
+    msg.className = "msg";
+    msg.textContent = "";
+    updateProgress();
+  });
+
+  updateProgress();
+})();
+</script>
+</body>
+</html>

@@ -21,9 +21,45 @@ OUT = BASE / "Rentino-Phase1-Report.docx"
 FA_RE = re.compile(r"[\u0600-\u06FF\u200c]")
 INLINE_RE = re.compile(r"(\*\*.+?\*\*|\*[^*\n]+?\*|`[^`\n]+?`|\[[^\]]+\]\([^)]+\))")
 
+# WordprocessingML requires the children of w:pPr, w:sectPr and w:tblPr in a
+# fixed schema order, and Word silently ignores an element that sits after one
+# of its successors. Appending <w:bidi/> at the end (the previous behaviour)
+# put it after <w:docGrid/> / <w:tblLook/>, so the RTL flag never took effect
+# and headings, tables and the TOC rendered left to right.
+PPR_BIDI_SUCCESSORS = (
+    "w:adjustRightInd", "w:snapToGrid", "w:spacing", "w:ind",
+    "w:contextualSpacing", "w:mirrorIndents", "w:suppressOverlap", "w:jc",
+    "w:textDirection", "w:textAlignment", "w:textboxTightWrap",
+    "w:outlineLvl", "w:divId", "w:cnfStyle", "w:rPr", "w:sectPr", "w:pPrChange",
+)
+SECTPR_BIDI_SUCCESSORS = (
+    "w:rtlGutter", "w:docGrid", "w:printerSettings", "w:sectPrChange",
+)
+TBLPR_CELLMAR_SUCCESSORS = (
+    "w:tblLook", "w:tblCaption", "w:tblDescription", "w:tblPrChange",
+)
+
 
 def has_fa(text: str) -> bool:
     return bool(FA_RE.search(text))
+
+
+def insert_ordered(parent, child, successors):
+    """Insert ``child`` before the first of ``successors`` present in ``parent``."""
+    for tag in successors:
+        found = parent.find(qn(tag))
+        if found is not None:
+            found.addprevious(child)
+            return child
+    parent.append(child)
+    return child
+
+
+def ensure_bidi(ppr):
+    """Add <w:bidi/> to a w:pPr element at its schema-mandated position."""
+    if ppr.find(qn("w:bidi")) is None:
+        insert_ordered(ppr, parse_xml(f"<w:bidi {nsdecls('w')}/>"),
+                       PPR_BIDI_SUCCESSORS)
 
 
 def set_run_fonts(run, mono=False, size_latin=None, size_cs=None):
@@ -90,8 +126,15 @@ def add_inline(paragraph, text, size_latin=None, size_cs=None, bold_all=False):
 
 def set_para_rtl(p, align="right", bidi=True):
     pPr = p._p.get_or_add_pPr()
-    if bidi and pPr.find(qn("w:bidi")) is None:
-        pPr.append(parse_xml(f"<w:bidi {nsdecls('w')}/>"))
+    if bidi:
+        ensure_bidi(pPr)
+    else:
+        # Normal carries <w:bidi/>; an explicit val="0" is required to switch
+        # it off for the Latin-only code blocks.
+        existing = pPr.find(qn("w:bidi"))
+        if existing is None:
+            el = parse_xml(f'<w:bidi {nsdecls("w")} w:val="0"/>')
+            insert_ordered(pPr, el, PPR_BIDI_SUCCESSORS)
     if align == "center":
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     elif align == "justify":
@@ -209,7 +252,7 @@ def configure_styles(doc):
     lang.set(qn("w:bidi"), "fa-IR")
 
     pPr = normal.element.get_or_add_pPr()
-    pPr.append(parse_xml(f"<w:bidi {nsdecls('w')}/>"))
+    ensure_bidi(pPr)
     # 1.4 keeps the text readable while removing the extra blank space that a
     # 1.5 setting adds to every one of the ~900 paragraphs in this report.
     normal.paragraph_format.line_spacing = 1.4
@@ -246,6 +289,68 @@ def configure_styles(doc):
         st.paragraph_format.space_after = Pt(after)
         st.paragraph_format.keep_with_next = True
         st.paragraph_format.page_break_before = False
+        ensure_bidi(st.element.get_or_add_pPr())
+        rPr_h = st.element.get_or_add_rPr()
+        if rPr_h.find(qn("w:rtl")) is None:
+            rPr_h.append(parse_xml(f"<w:rtl {nsdecls('w')}/>"))
+
+    configure_toc_styles(styles)
+    for sname in ("Header", "Footer"):
+        try:
+            st = styles[sname]
+        except KeyError:
+            continue
+        ensure_bidi(st.element.get_or_add_pPr())
+
+
+def configure_toc_styles(styles):
+    """Define TOC 1-3 with bidi and RTL tab leaders.
+
+    Word rebuilds the table of contents from these styles whenever the field is
+    updated.  Without explicit definitions it falls back to its built-in LTR
+    styles, which is why the regenerated entries started at the left margin.
+    """
+    from docx.enum.style import WD_STYLE_TYPE
+    from docx.enum.text import WD_TAB_ALIGNMENT, WD_TAB_LEADER
+
+    for level, (sz_cs, indent_cm) in enumerate(((13, 0.0), (12.5, 0.6), (12, 1.2)), start=1):
+        name = f"TOC {level}"
+        try:
+            st = styles[name]
+        except KeyError:
+            st = styles.add_style(name, WD_STYLE_TYPE.PARAGRAPH)
+            st.base_style = styles["Normal"]
+        st.font.name = "B Nazanin"
+        st.font.size = Pt(sz_cs)
+        st.font.color.rgb = RGBColor(0, 0, 0)
+        rPr = st.element.get_or_add_rPr()
+        rFonts = rPr.find(qn("w:rFonts"))
+        if rFonts is None:
+            rFonts = OxmlElement("w:rFonts")
+            rPr.insert(0, rFonts)
+        rFonts.set(qn("w:ascii"), "Times New Roman")
+        rFonts.set(qn("w:hAnsi"), "Times New Roman")
+        rFonts.set(qn("w:cs"), "B Nazanin")
+        szCs = rPr.find(qn("w:szCs"))
+        if szCs is None:
+            szCs = OxmlElement("w:szCs")
+            rPr.append(szCs)
+        szCs.set(qn("w:val"), str(int(sz_cs * 2)))
+        if rPr.find(qn("w:rtl")) is None:
+            rPr.append(parse_xml(f"<w:rtl {nsdecls('w')}/>"))
+
+        pPr = st.element.get_or_add_pPr()
+        ensure_bidi(pPr)
+        pf = st.paragraph_format
+        pf.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        pf.space_before = Pt(2)
+        pf.space_after = Pt(2)
+        pf.line_spacing = 1.0
+        pf.right_indent = Cm(indent_cm)
+        # In a bidi paragraph the tab positions are measured from the right
+        # edge, so this places the page number at the left margin.
+        pf.tab_stops.add_tab_stop(Cm(15.6), WD_TAB_ALIGNMENT.LEFT,
+                                  WD_TAB_LEADER.DOTS)
 
 
 def configure_section(doc):
@@ -261,7 +366,8 @@ def configure_section(doc):
 
     sectPr = sec._sectPr
     if sectPr.find(qn("w:bidi")) is None:
-        sectPr.append(parse_xml(f"<w:bidi {nsdecls('w')}/>"))
+        insert_ordered(sectPr, parse_xml(f"<w:bidi {nsdecls('w')}/>"),
+                       SECTPR_BIDI_SUCCESSORS)
 
     header = sec.header
     hp = header.paragraphs[0]
@@ -361,8 +467,10 @@ def add_table(doc, rows, title_mode=False):
     table.autofit = True
 
     tblPr = table._tbl.tblPr
-    if tblPr.find(qn("w:bidiVisual")) is None:
-        tblPr.append(parse_xml(f"<w:bidiVisual {nsdecls('w')}/>"))
+    # python-docx inserts bidiVisual in its schema position; appending it used
+    # to leave the element after <w:tblLook/>, where Word ignores it and draws
+    # the columns in LTR order.
+    tblPr.get_or_add_bidiVisual()
     tblW = tblPr.find(qn("w:tblW"))
     if tblW is None:
         tblW = OxmlElement("w:tblW")
@@ -378,7 +486,7 @@ def add_table(doc, rows, title_mode=False):
         el.set(qn("w:w"), "50")
         el.set(qn("w:type"), "dxa")
         cell_mar.append(el)
-    tblPr.append(cell_mar)
+    insert_ordered(tblPr, cell_mar, TBLPR_CELLMAR_SUCCESSORS)
 
     for r_idx, row in enumerate(normalized):
         tr = table.rows[r_idx]
@@ -418,7 +526,13 @@ def add_code_block(doc, lines):
         add_run(p, line if line else " ", mono=not rtl,
                 size_latin=8.5, size_cs=10)
         pPr = p._p.get_or_add_pPr()
-        pPr.append(parse_xml(f'<w:shd {nsdecls("w")} w:val="clear" w:color="auto" w:fill="F2F2F2"/>'))
+        insert_ordered(
+            pPr,
+            parse_xml(f'<w:shd {nsdecls("w")} w:val="clear" w:color="auto" w:fill="F2F2F2"/>'),
+            ("w:tabs", "w:suppressAutoHyphens", "w:kinsoku", "w:wordWrap",
+             "w:overflowPunct", "w:topLinePunct", "w:autoSpaceDE",
+             "w:autoSpaceDN", "w:bidi") + PPR_BIDI_SUCCESSORS,
+        )
     spacer = doc.add_paragraph()
     spacer.paragraph_format.space_after = Pt(0)
     tiny_run(spacer)
@@ -438,8 +552,8 @@ def parse_md_table(lines):
     return rows
 
 
-def main():
-    text = SRC.read_text(encoding="utf-8")
+def main(src=SRC, out=OUT):
+    text = src.read_text(encoding="utf-8")
     lines = text.splitlines()
 
     doc = Document()
@@ -613,10 +727,10 @@ def main():
     doc.core_properties.author = "تیم رنتینو"
     doc.core_properties.language = "fa-IR"
 
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    doc.save(str(OUT))
-    print(f"Wrote {OUT} ({OUT.stat().st_size:,} bytes)")
-    validate(OUT)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    doc.save(str(out))
+    print(f"Wrote {out} ({out.stat().st_size:,} bytes)")
+    validate(out)
 
 
 # Code points B Nazanin does not define (verified by parsing the font's cmap).
