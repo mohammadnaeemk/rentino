@@ -396,9 +396,9 @@
     </p>
     <div class="facts">
       <div class="fact"><b>۱۱</b><span>بخش گزارش</span></div>
-      <div class="fact"><b>۲۰,۸۰۷</b><span>واژه</span></div>
+      <div class="fact"><b>۲۱٬۸۲۰</b><span>واژه</span></div>
       <div class="fact"><b>۵۸</b><span>نیازمندی کارکردی</span></div>
-      <div class="fact"><b>۳۴</b><span>مرجع IEEE</span></div>
+      <div class="fact"><b>۳۹</b><span>مرجع IEEE</span></div>
       <div class="fact"><b>۶</b><span>عضو تیم</span></div>
       <div class="fact"><b>۰۵/۰۸</b><span>تاریخ ارائه</span></div>
     </div>
@@ -420,7 +420,7 @@
     <div class="files">
       <div class="file">
         <span class="name">Rentino-Phase1-Final.docx</span>
-        <span class="desc">سند تحویلی فاز یک: یازده فصل + بخش تقسیم وظایف در پایان، بدون پیوست‌های فاز دو. فارسی و راست‌به‌چپ با فهرست مطالب خودکار. این فایل را تحویل می‌دهید و از آن PDF می‌گیرید.</span>
+        <span class="desc">سند تحویلی فاز یک: یازده فصل + بخش تقسیم وظایف در پایان، بدون پیوست‌های فاز دو. فارسی و راست‌به‌چپ با فهرست مطالب خودکار. این فایل را تحویل می‌دهید و از آن PDF می‌گیرید. نسخۀ قدیمی <code>Rentino-Phase1-Report.docx</code> با پیوست‌های فاز دو فقط آرشیو است و تحویل نمی‌شود.</span>
       </div>
       <div class="file">
         <span class="name">Rentino-Phase1-Slides.pptx</span>
@@ -518,7 +518,7 @@
             <td>۴</td>
             <td>مراجع</td>
             <td>منابع رسمی، مقالات داوری‌شده و مستندات فنی</td>
-            <td>۳۴ مرجع با شمارۀ یکتا و تاریخ دسترسی</td>
+            <td>۳۹ مرجع با شمارۀ یکتا و تاریخ دسترسی</td>
           </tr>
           <tr>
             <td>۵</td>
@@ -755,10 +755,10 @@
             </dl>
           </div>
           <div class="task">
-            <h4>صفحه‌آرایی و اسلاید <span class="due">۰۳/۰۸</span></h4>
+            <h4>بازبینی صفحه‌آرایی و اسلاید <span class="due">۰۳/۰۸</span></h4>
             <dl>
-              <dt>چه کاری</dt><dd>جدول‌های عریض، فهرست مطالب، شمارۀ صفحه و قالب دانشگاه را بررسی کن؛ سپس اسلاید ارائه را بساز.</dd>
-              <dt>انجام‌شده یعنی</dt><dd>سند در Word باز شود و هیچ جدولی از صفحه بیرون نزند؛ اسلاید ۱۲ بخش داشته باشد.</dd>
+              <dt>چه کاری</dt><dd>جدول‌های عریض، فهرست مطالب، شمارۀ صفحه و قالب دانشگاه را بررسی کن؛ سپس اسلایدهای آماده را باز کن و سه جای خالی (اسلایدهای ۳، ۶ و ۱۰) را با اعداد نهایی پر کن.</dd>
+              <dt>انجام‌شده یعنی</dt><dd>سند در Word باز شود و هیچ جدولی از صفحه بیرون نزند؛ هیچ کادر خط‌چین خالی در اسلایدها نمانده باشد یا آگاهانه خالی مانده باشد.</dd>
             </dl>
           </div>
         </div>
@@ -883,7 +883,7 @@
       <li><span class="d">۳۰/۰۷</span><span>یکپارچه‌سازی، تعاریف و مراجع، پاک‌سازی و تحلیل داده</span></li>
       <li><span class="d">۰۱/۰۸</span><span>نسخۀ آمادۀ بازبینی، جمع‌بندی یافته‌ها <span class="pill warn">نقطۀ عطف</span></span></li>
       <li><span class="d">۰۲/۰۸</span><span>اعمال بازخورد بازبین</span></li>
-      <li><span class="d">۰۳/۰۸</span><span>اسلاید ارائه</span></li>
+      <li><span class="d">۰۳/۰۸</span><span>تکمیل اسلاید و بازبینی نهایی</span></li>
       <li><span class="d">۰۴/۰۸</span><span>تمرین نهایی و بافر</span></li>
       <li><span class="d">۰۵/۰۸</span><span>ارائه <span class="pill warn">نقطۀ عطف</span></span></li>
     </ul>
@@ -951,23 +951,37 @@
 
   <section id="build">
     <h2>۷. چطور سند را بازتولید کنیم؟</h2>
-    <p class="sub">اگر متنی اصلاح شد، این چهار فرمان را به‌ترتیب اجرا کنید.</p>
+    <p class="sub">دو فایل تحویلی دو فرمان دارند؛ بقیه، فایل‌های جانبی‌اند.</p>
 
-    <p>در پوشۀ <code>docs/software-engineering</code>:</p>
+    <p><strong>فایل‌های تحویلی</strong> - در پوشۀ <code>docs/software-engineering</code>:</p>
     <div class="scroll">
       <table>
         <thead><tr><th>مرحله</th><th>فرمان</th><th>کار</th></tr></thead>
         <tbody>
-          <tr><td>۱</td><td><code>python3 tools/normalize_fa.py</code></td><td>اصلاح نویسه‌ها و گزارش موارد غیرمجاز</td></tr>
-          <tr><td>۲</td><td><code>python3 tools/merge_report.py</code></td><td>ادغام سیزده فصل در یک فایل Markdown</td></tr>
-          <tr><td>۳</td><td><code>python3 tools/build_docx.py</code></td><td>ساخت Word و بازبینی خودکار نویسه‌ها</td></tr>
-          <tr><td>۴</td><td><code>python3 tools/build_xlsx.py</code></td><td>ساخت MSP، مراجع و واژه‌نامه</td></tr>
+          <tr><td>۱</td><td><code>python3 tools/build_final_report.py</code></td><td>ساخت <code>Rentino-Phase1-Final.md</code> و <code>.docx</code> از یازده فصل و بخش پایانی</td></tr>
+          <tr><td>۲</td><td><code>python3 tools/build_slides.py</code></td><td>ساخت <code>Rentino-Phase1-Slides.pptx</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p><strong>فایل‌های جانبی</strong> - فقط وقتی همان فایل عوض شده اجرا شوند:</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>فرمان</th><th>کار</th></tr></thead>
+        <tbody>
+          <tr><td><code>python3 tools/normalize_fa.py</code></td><td>اصلاح نویسه‌ها و گزارش موارد غیرمجاز</td></tr>
+          <tr><td><code>python3 tools/merge_report.py</code></td><td>ساخت نسخۀ آرشیوی <code>Rentino-Phase1-Report.md</code> با پیوست‌ها</td></tr>
+          <tr><td><code>python3 tools/build_docx.py</code></td><td>ساخت Word آرشیوی با پیوست‌های فاز دو؛ تحویل نمی‌شود</td></tr>
+          <tr><td><code>python3 tools/build_xlsx.py</code></td><td>MSP، مراجع و واژه‌نامه</td></tr>
+          <tr><td><code>python3 tools/build_task_division.py</code></td><td>فایل تقسیم وظایف</td></tr>
+          <tr><td><code>python3 tools/build_survey_template.py</code></td><td>قالب اکسل ورود پاسخ‌های پرسش‌نامه</td></tr>
         </tbody>
       </table>
     </div>
 
     <div class="warn">
-      <p>ترتیب مهم است: اگر مرحلۀ ۲ را قبل از ۱ اجرا کنید، نویسه‌های اصلاح‌نشده به فایل Word راه پیدا می‌کنند.</p>
+      <p><strong>Word را دستی ویرایش نکنید.</strong> فایل تحویلی خروجی ساخته‌شده از <code>phase1/*.md</code> است؛ اگر متن را داخل Word عوض کنید، اولین اجرای اسکریپت آن را پاک می‌کند. اصلاح، همیشه در فایل Markdown انجام می‌شود.</p>
+      <p>اگر <code>normalize_fa.py</code> را اجرا می‌کنید، باید پیش از ساخت Word باشد، نه بعد از آن.</p>
     </div>
   </section>
 
@@ -983,6 +997,8 @@
           <tr><td>تعاریف و سرنام‌ها</td><td><span class="pill ok">کامل</span></td><td>۹۵ واژه و ۴۳ سرنام</td></tr>
           <tr><td>برنامۀ زمان‌بندی</td><td><span class="pill ok">کامل</span></td><td>۲۲ فعالیت، مسیر بحرانی، RACI</td></tr>
           <tr><td>ابزار نیازسنجی</td><td><span class="pill ok">آماده</span></td><td>پرسش‌نامۀ ۳۶ گویه‌ای، طرح نمونه‌گیری و قالب داده</td></tr>
+          <tr><td>اسلایدهای ارائه</td><td><span class="pill ok">آماده</span></td><td>۱۹ اسلاید با یادداشت گوینده؛ سه ناحیۀ آماری عمداً خالی</td></tr>
+          <tr><td>تقسیم وظایف</td><td><span class="pill ok">کامل</span></td><td>۱۶ وظیفۀ گزارش، ۱۰ مرحلۀ نیازسنجی، RACI و بار کاری</td></tr>
           <tr><td>دادۀ میدانی</td><td><span class="pill warn">انجام نشده</span></td><td>هیچ پاسخ واقعی گردآوری نشده؛ نیازها فرضیه‌اند</td></tr>
           <tr><td>آزمون سرتاسری بک‌اند</td><td><span class="pill warn">ناموفق</span></td><td>پایگاه دادۀ آزمون جدول ندارد؛ در پیوست ثبت شده</td></tr>
           <tr><td>پرداخت واقعی</td><td><span class="pill">شبیه‌سازی</span></td><td>درگاه واقعی به محصول وصل نیست</td></tr>
@@ -993,7 +1009,7 @@
 
   <footer class="foot">
     <p>رنتینو - بستۀ مستندات فاز اول پروژۀ مهندسی نرم‌افزار - دانشگاه اصفهان</p>
-    <p>آخرین بازبینی: ۲۵ مهر ۱۴۰۵ (۲۰۲۶-۱۰-۱۷)</p>
+    <p>آخرین بازبینی: ۲۶ مهر ۱۴۰۵ (۲۰۲۶-۱۰-۱۸)</p>
   </footer>
 
 </div>
